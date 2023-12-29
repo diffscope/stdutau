@@ -1,0 +1,2 @@
+# stdutau
+Standard UTAU library.
