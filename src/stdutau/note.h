@@ -120,38 +120,28 @@ namespace Utau {
         static inline constexpr double duration(int length, double tempo);
 
     public:
-        // String
         std::string lyric, flags;
 
-        // Position
         int noteNum;
         int length;
 
-        // Properties
         double intensity, modulation, velocity;
         double preUttr, overlap, stp;
         double tempo;
 
-        // Envelope
         std::optional<Envelope> envelope;
 
-        // Mode 2
         std::vector<Point> portamento;
         std::optional<Vibrato> vibrato;
 
-        // Mode 1
         double pbstart;
         std::vector<double> pitches;
         std::string pbtype;
 
-        // Labels
         std::string label;
-        std::string direct;
-        std::string patch;
-        std::string region;
-        std::string regionEnd;
+        std::string direct, patch;
+        std::string region, regionEnd;
 
-        // User
         std::map<std::string, std::string> userData;
     };
 

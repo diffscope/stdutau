@@ -6,6 +6,8 @@ namespace Utau {
 
     UstFile::UstFile() = default;
 
+    // TODO: Implement
+
     bool UstFile::read(std::istream &is) {
         return true;
     }

@@ -55,4 +55,16 @@ namespace Utau {
         return true;
     }
 
+    /*!
+        Returns the new lyric with prefix and suffix if found.
+    */
+    std::string PrefixMap::prefixedLyric(int noteNum, const std::string &lyric) const {
+        std::string aPrefixedLyric = lyric;
+        auto it = map.find(noteNum);
+        if (it == map.end()) {
+            return lyric;
+        }
+        return it->second.prefix + lyric + it->second.suffix;
+    }
+
 }

@@ -22,6 +22,8 @@ namespace Utau {
             std::string suffix;
         };
         std::map<int, Item> map;
+
+        std::string prefixedLyric(int noteNum, const std::string &lyric) const;
     };
 
 }
