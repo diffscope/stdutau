@@ -20,8 +20,8 @@ namespace Utau {
         if (!fs.is_open())
             return false;
 
-        static constexpr const int min = TONE_NUMBER_BASE;
-        static constexpr const int max =
+        static const constexpr int min = TONE_NUMBER_BASE;
+        static const constexpr int max =
             min + (TONE_OCTAVE_MAX - TONE_OCTAVE_MIN + 1) * TONE_OCTAVE_STEPS - 1;
 
         std::string line;
@@ -30,15 +30,16 @@ namespace Utau {
                 continue;
             }
 
-            auto lineStrings = split(line, "\t");
-            if (lineStrings.size() >= 3) {
-                int noteNum = toneNameToToneNum(lineStrings[0]);
-                if (noteNum >= min && noteNum <= max) {
-                    map[noteNum] = Item{
-                        std::string(lineStrings[1]),
-                        std::string(lineStrings[2]),
-                    };
-                }
+            auto tokens = split(line, "\t");
+            if (tokens.size() < 3) {
+                continue;
+            }
+            int noteNum = toneNameToToneNum(tokens[0]);
+            if (noteNum >= min && noteNum <= max) {
+                map[noteNum] = Item{
+                    std::string(tokens[1]),
+                    std::string(tokens[2]),
+                };
             }
         }
         return true;
@@ -54,8 +55,8 @@ namespace Utau {
 
         for (auto it = map.begin(); it != map.end(); ++it) {
             int key = it->first;
-            fs << toneNumToToneName(key) << '\t' << it->second.prefix << "\t" << it->second.suffix;
-            fs << std::endl;
+            fs << toneNumToToneName(key) << "\t" << it->second.prefix << "\t" << it->second.suffix
+               << std::endl;
         }
         return true;
     }

@@ -94,7 +94,7 @@ namespace Utau {
             return Utau::TONE_NUMBER_BASE;
         }
 
-        int index = std::string_view(Utau::TONE_NAMES).find(name.front());
+        int index = std::string_view(TONE_NAMES).find(name.front());
         if (index == std::string_view::npos) {
             index = 0;
         }
@@ -135,7 +135,7 @@ namespace Utau {
 
     bool isRestLyric(const std::string &lyric) {
         std::string lrc = trim(lyric);
-        return (lrc.empty() || (lrc == "r" || lrc == "R"));
+        return lrc.empty() || lrc == "R" || lrc == "r";
     }
 
 }

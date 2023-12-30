@@ -13,7 +13,7 @@ namespace Utau {
         \brief Utau point type.
     */
 
-    Point::Type Point::StringToType(const std::string &s) {
+    Point::Type Point::stringToType(const std::string &s) {
         Type res = sJoin;
         if (s == "s") {
             res = linearJoin;
@@ -25,7 +25,7 @@ namespace Utau {
         return res;
     }
 
-    std::string Point::TypeToString(Type type) {
+    std::string Point::typeToString(Type type) {
         std::string res;
         switch (type) {
             case linearJoin:
@@ -151,10 +151,13 @@ namespace Utau {
     Note::Note(int noteNum, int length, const std::string &lyric)
         : noteNum(noteNum), length(length), lyric(lyric) {
         velocity = preUttr = overlap = stp = Utau::NODEF_DOUBLE;
-        intensity = NODEF_INT;
+
+        intensity = 100.0;
         modulation = 0.0;
+
         tempo = NODEF_DOUBLE;
         pbstart = NODEF_DOUBLE;
+
         pbtype = VALUE_PITCH_TYPE;
     }
 

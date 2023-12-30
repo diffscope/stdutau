@@ -29,18 +29,18 @@ namespace Utau {
 
         GenonSettings res;
         res.fileName = key;
-        res.alias = tokens[0];
-        res.offset = tokens[1];
-        res.cosonant = tokens[2];
-        res.blank = tokens[3];
-        res.preUtterance = tokens[4];
-        res.voiceOverlap = tokens[5];
+        res.alias = tokenList[0];
+        res.offset = stod2(tokenList[1]);
+        res.cosonant = stod2(tokenList[2]);
+        res.blank = stod2(tokenList[3]);
+        res.preUtterance = stod2(tokenList[4]);
+        res.voiceOverlap = stod2(tokenList[5]);
         return res;
     }
 
     static std::string GenonToString(const GenonSettings &genon) {
         std::stringstream out;
-        out << std::filesystem::path(genon.fileName).filename() << EQUAL;
+        out << genon.fileName << EQUAL;
         out << genon.alias << COMMA;
         out << genon.offset << COMMA;
         out << genon.cosonant << COMMA;

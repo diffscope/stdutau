@@ -2,6 +2,7 @@
 #define NOTE_H
 
 #include <array>
+#include <map>
 #include <string>
 #include <vector>
 #include <optional>
@@ -28,8 +29,8 @@ namespace Utau {
         inline constexpr bool operator!=(const Point &other) const;
         inline constexpr bool operator<(const Point &other) const;
 
-        static Type StringToType(const std::string &s);
-        static std::string TypeToString(Type type);
+        static Type stringToType(const std::string &s);
+        static std::string typeToString(Type type);
 
     public:
         double x;
@@ -77,7 +78,7 @@ namespace Utau {
     };
 
     inline constexpr Vibrato::Vibrato()
-        : length(65), period(180), amplitude(35), attack(200), release(20), phase(0), offset(0),
+        : length(65), period(180), amplitude(35), attack(20), release(20), phase(0), offset(0),
           intensity(0) {
     }
 
@@ -124,7 +125,7 @@ namespace Utau {
         int noteNum;
         int length;
 
-        // Doubles
+        // Properties
         double intensity, modulation, velocity;
         double preUttr, overlap, stp;
         double tempo;
@@ -149,7 +150,7 @@ namespace Utau {
         std::string regionEnd;
 
         // User
-        std::vector<std::pair<std::string, std::string>> userData;
+        std::map<std::string, std::string> userData;
     };
 
     inline Note::Note() : Note(60, 480) {
@@ -187,7 +188,7 @@ namespace Utau {
         return pbstart != NODEF_DOUBLE;
     }
 
-    struct PBStrings {
+    struct STDUTAU_EXPORT PBStrings {
         std::string PBS;
         std::string PBW;
         std::string PBY;
