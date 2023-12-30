@@ -3,7 +3,6 @@
 #include <sstream>
 #include <charconv>
 
-#include "utaconst.h"
 #include "utautils.h"
 
 namespace Utau {

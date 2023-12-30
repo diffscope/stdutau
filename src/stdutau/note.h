@@ -35,7 +35,7 @@ namespace Utau {
     public:
         double x;
         double y;
-        Type type;
+        Type type; // Not used in envelope
     };
 
     inline constexpr Point::Point() : Point(0.0, 0.0, sJoin) {

@@ -4,19 +4,19 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <filesystem>
 
-#include <stdutau/utaglobal.h>
+#include <stdutau/utafilebase.h>
 
 namespace Utau {
 
-    class STDUTAU_EXPORT PrefixMap {
+    class STDUTAU_EXPORT PrefixMap : public UtaFileBase {
     public:
         PrefixMap();
 
-        bool load(const std::filesystem::path &path);
-        bool save(const std::filesystem::path &path) const;
+        bool read(std::istream &is) override;
+        bool write(std::ostream &os) const override;
 
+    public:
         struct Item {
             std::string prefix;
             std::string suffix;

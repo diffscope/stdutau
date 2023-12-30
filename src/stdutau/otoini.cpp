@@ -61,15 +61,11 @@ namespace Utau {
     OtoIni::OtoIni() = default;
 
     /*!
-        Reads \c oto.ini items from file, returns \c true if succees.
+        Reads \c oto.ini items from stream, returns \c true if succees.
     */
-    bool OtoIni::load(const std::filesystem::path &path) {
-        std::ifstream fs(path);
-        if (!fs.is_open())
-            return false;
-
+    bool OtoIni::read(std::istream &is) {
         std::string line;
-        while (std::getline(fs, line)) {
+        while (std::getline(is, line)) {
             if (line.empty()) {
                 continue;
             }
@@ -90,16 +86,14 @@ namespace Utau {
     }
 
     /*!
-        Writes \c oto.ini items to file, returns \c true if succees.
+        Writes \c oto.ini items to stream, returns \c true if succees.
     */
-    bool OtoIni::save(const std::filesystem::path &path) const {
-        std::ofstream fs(path);
-        if (!fs.is_open())
-            return false;
-
+    bool OtoIni::write(std::ostream &os) const {
         for (const auto &item : contents) {
             for (const auto &genon : item.second) {
-                fs << GenonToString(genon) << std::endl;
+                os << GenonToString(genon) << std::endl;
+                if (!os.good())
+                    return false;
             }
         }
         return true;

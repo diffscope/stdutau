@@ -13,19 +13,15 @@ namespace Utau {
     PrefixMap::PrefixMap() = default;
 
     /*!
-        Reads \c prefix.map items from file, returns \c true if succees.
+        Reads \c prefix.map items from stream, returns \c true if succees.
     */
-    bool PrefixMap::load(const std::filesystem::path &path) {
-        std::ifstream fs(path);
-        if (!fs.is_open())
-            return false;
-
+    bool PrefixMap::read(std::istream &is) {
         static const constexpr int min = TONE_NUMBER_BASE;
         static const constexpr int max =
             min + (TONE_OCTAVE_MAX - TONE_OCTAVE_MIN + 1) * TONE_OCTAVE_STEPS - 1;
 
         std::string line;
-        while (std::getline(fs, line)) {
+        while (std::getline(is, line)) {
             if (line.empty()) {
                 continue;
             }
@@ -46,17 +42,15 @@ namespace Utau {
     }
 
     /*!
-        Writes \c prefix.map map items to file, returns \c true if succees.
+        Writes \c prefix.map map items to stream, returns \c true if succees.
     */
-    bool PrefixMap::save(const std::filesystem::path &path) const {
-        std::ofstream fs(path);
-        if (!fs.is_open())
-            return false;
-
+    bool PrefixMap::write(std::ostream &os) const {
         for (auto it = map.begin(); it != map.end(); ++it) {
             int key = it->first;
-            fs << toneNumToToneName(key) << "\t" << it->second.prefix << "\t" << it->second.suffix
+            os << toneNumToToneName(key) << "\t" << it->second.prefix << "\t" << it->second.suffix
                << std::endl;
+            if (!os.good())
+                return false;
         }
         return true;
     }
