@@ -1,6 +1,8 @@
 #ifndef UTAGLOBAL_H
 #define UTAGLOBAL_H
 
+#include <limits>
+
 #ifdef _MSC_VER
 #  define STDUTAU_DECL_EXPORT __declspec(dllexport)
 #  define STDUTAU_DECL_IMPORT __declspec(dllimport)
@@ -20,5 +22,18 @@
 #    endif
 #  endif
 #endif
+
+namespace Utau {
+
+    constexpr const char NODEF_STRING[] = "%NODEF%";
+    constexpr const int NODEF_INT = std::numeric_limits<int>::min();
+    constexpr const double NODEF_DOUBLE = -1e+08;
+
+    constexpr const char COMMA = ',';
+    constexpr const char SIMICOLON = ';';
+    constexpr const char EQUAL = '=';
+    constexpr const char SLASH = '/';
+
+}
 
 #endif // UTAGLOBAL_H

@@ -12,6 +12,7 @@ namespace Utau {
         inline GenonSettings();
 
         std::string fileName;
+        std::string alias;
         double offset;
         double cosonant;
         double blank;

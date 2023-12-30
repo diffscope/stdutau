@@ -31,7 +31,7 @@ if(STDUTAU_INSTALL)
     )
 
     # Install headers
-    file(GLOB_RECURSE _headers *.h)
+    file(GLOB _headers *.h)
     install(FILES ${_headers} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${STDUTAU_INSTALL_NAME})
 endif()
 
