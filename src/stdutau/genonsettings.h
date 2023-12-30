@@ -7,10 +7,9 @@
 
 namespace Utau {
 
-    class STDUTAU_EXPORT GenonSettings {
+    class GenonSettings {
     public:
-        GenonSettings();
-        ~GenonSettings();
+        inline GenonSettings();
 
         std::string fileName;
         double offset;
@@ -19,6 +18,14 @@ namespace Utau {
         double preUtterance;
         double voiceOverlap;
     };
+
+    inline GenonSettings::GenonSettings() {
+        offset = 0.0;
+        cosonant = 0.0;
+        blank = 0.0;
+        preUtterance = 0.0;
+        voiceOverlap = 0.0;
+    }
 
 }
 

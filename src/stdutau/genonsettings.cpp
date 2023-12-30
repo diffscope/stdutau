@@ -2,14 +2,12 @@
 
 namespace Utau {
 
-    GenonSettings::GenonSettings() {
-        offset = 0.0;
-        cosonant = 0.0;
-        blank = 0.0;
-        preUtterance = 0.0;
-        voiceOverlap = 0.0;
-    }
+    /*!
+        \class GenonSettings
 
-    GenonSettings::~GenonSettings() = default;
+        An entry for the original voice(原音設定) profile. The class name is inherited from \c TGenonSettings
+        in SHINTA LibUtau, and \c genon means "original voice" in Japanese.
+        
+    */
 
 }
