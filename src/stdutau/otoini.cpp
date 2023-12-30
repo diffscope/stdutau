@@ -31,7 +31,7 @@ namespace Utau {
         res.fileName = key;
         res.alias = tokenList[0];
         res.offset = stod2(tokenList[1]);
-        res.cosonant = stod2(tokenList[2]);
+        res.consonant = stod2(tokenList[2]);
         res.blank = stod2(tokenList[3]);
         res.preUtterance = stod2(tokenList[4]);
         res.voiceOverlap = stod2(tokenList[5]);
@@ -43,7 +43,7 @@ namespace Utau {
         out << genon.fileName << EQUAL;
         out << genon.alias << COMMA;
         out << genon.offset << COMMA;
-        out << genon.cosonant << COMMA;
+        out << genon.consonant << COMMA;
         out << genon.blank << COMMA;
         out << genon.preUtterance << COMMA;
         out << genon.voiceOverlap;

@@ -14,7 +14,7 @@ namespace Utau {
         std::string fileName;
         std::string alias;
         double offset;
-        double cosonant;
+        double consonant;
         double blank;
         double preUtterance;
         double voiceOverlap;
@@ -22,7 +22,7 @@ namespace Utau {
 
     inline GenonSettings::GenonSettings() {
         offset = 0.0;
-        cosonant = 0.0;
+        consonant = 0.0;
         blank = 0.0;
         preUtterance = 0.0;
         voiceOverlap = 0.0;

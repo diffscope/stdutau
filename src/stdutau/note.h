@@ -111,11 +111,13 @@ namespace Utau {
         inline constexpr double realIntensity() const;
         inline constexpr double realModulation() const;
         inline constexpr double realVelocity() const;
-        inline constexpr double realPreUtterance() const;
-        inline constexpr double realVoiceOverlap() const;
+        inline constexpr bool hasPreUtterance() const;
+        inline constexpr bool hasVoiceOverlap() const;
         inline constexpr double realStartPoint() const;
-        inline constexpr double hasTempo() const;
-        inline constexpr double hasPBStart() const;
+        inline constexpr bool hasTempo() const;
+        inline constexpr bool hasPBStart() const;
+
+        static inline constexpr double duration(int length, double tempo);
 
     public:
         // String
@@ -161,31 +163,35 @@ namespace Utau {
     }
 
     inline constexpr double Note::realModulation() const {
-        return intensity == NODEF_DOUBLE ? DEFAULT_VALUE_MODULATION : intensity;
+        return modulation == NODEF_DOUBLE ? DEFAULT_VALUE_MODULATION : modulation;
     }
 
     inline constexpr double Note::realVelocity() const {
-        return intensity == NODEF_DOUBLE ? DEFAULT_VALUE_VELOCITY : intensity;
+        return velocity == NODEF_DOUBLE ? DEFAULT_VALUE_VELOCITY : velocity;
     }
 
-    inline constexpr double Note::realPreUtterance() const {
-        return intensity == NODEF_DOUBLE ? DEFAULT_VALUE_PRE_UTTERANCE : intensity;
+    inline constexpr bool Note::hasPreUtterance() const {
+        return preUttr != NODEF_DOUBLE;
     }
 
-    inline constexpr double Note::realVoiceOverlap() const {
-        return intensity == NODEF_DOUBLE ? DEFAULT_VALUE_VOICE_OVERLAP : intensity;
+    inline constexpr bool Note::hasVoiceOverlap() const {
+        return overlap != NODEF_DOUBLE;
     }
 
     inline constexpr double Note::realStartPoint() const {
-        return intensity == NODEF_DOUBLE ? DEFAULT_VALUE_START_POINT : intensity;
+        return stp == NODEF_DOUBLE ? DEFAULT_VALUE_START_POINT : stp;
     }
 
-    inline constexpr double Note::hasTempo() const {
+    inline constexpr bool Note::hasTempo() const {
         return tempo != NODEF_DOUBLE;
     }
 
-    inline constexpr double Note::hasPBStart() const {
+    inline constexpr bool Note::hasPBStart() const {
         return pbstart != NODEF_DOUBLE;
+    }
+
+    inline constexpr double Note::duration(int length, double tempo) {
+        return length * 125.0 / tempo;
     }
 
     struct STDUTAU_EXPORT PBStrings {

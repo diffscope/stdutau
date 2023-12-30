@@ -8,8 +8,6 @@ Provide foundational support for C++ applications to process UTAU data.
 
 + Convert UTAU project to synthesis arguments
 
-+ Generate synthesis scripts
-
 ## Requirements
 
 + CMake 3.16
