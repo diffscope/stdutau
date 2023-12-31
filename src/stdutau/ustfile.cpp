@@ -6,6 +6,17 @@
 
 namespace Utau {
 
+    static inline Note createInitialNote() {
+        Note note;
+
+        // These properties have explicit default values when created by editor
+        // We need to reset them when reading the file
+        note.intensity = NODEF_DOUBLE;
+        note.modulation = NODEF_DOUBLE;
+
+        return note;
+    }
+
     static inline void getDouble(const std::string_view &s, double &out) {
         out = stod2(s, out);
     }
@@ -169,6 +180,9 @@ namespace Utau {
         // Items can be omitted
         if (note.preUttr != NODEF_DOUBLE) {
             out << KEY_NAME_PRE_UTTERANCE << "=" << note.preUttr << std::endl;
+        } else {
+            // UST files always keep this property even if empty
+            out << KEY_NAME_PRE_UTTERANCE << "=" << std::endl;
         }
         if (note.overlap != NODEF_DOUBLE) {
             out << KEY_NAME_VOICE_OVERLAP << "=" << note.overlap << std::endl;
@@ -303,7 +317,7 @@ namespace Utau {
                     parseSectionSettings(currentSection, settings);
                 } else if (std::all_of(sectionName.begin(), sectionName.end(), ::isdigit)) {
                     // Parse Note (Name should be numeric)
-                    Note note;
+                    auto note = createInitialNote();
                     parseSectionNote(currentSection, note);
                     // Ignore note whose length is invalid
                     if (note.length > 0) {
