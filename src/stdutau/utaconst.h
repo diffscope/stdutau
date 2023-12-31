@@ -83,6 +83,9 @@ namespace Utau {
     constexpr const char VALUE_TRACKS_SINGLE[] = "1";
     constexpr const char VALUE_PITCH_TYPE[] = "5";
 
+    constexpr const double VALUE_TEMPO_MIN = 10;
+    constexpr const double VALUE_TEMPO_MAX = 512;
+
     // Utils
     constexpr const char TONE_NAMES[] = "CCDDEFFGGAAB";
     constexpr const char TONE_NAME_SHARP = '#';

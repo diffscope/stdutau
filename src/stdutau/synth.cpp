@@ -307,7 +307,7 @@ namespace Utau {
                     // Final process
                     if (pos == pitchBend.size()) {
                         if (count >= 2) {
-                            result += "#" + std::to_string(count) + "#";
+                            result += "#" + to_string(count) + "#";
                         } else {
                             result += encode_single_num(prevInt);
                         }
@@ -316,7 +316,7 @@ namespace Utau {
                     if (count != 0) {
                         // Use n-1 to replace the rest when appear repeatedly
                         if (count >= 2) {
-                            result += "#" + std::to_string(count) + "#";
+                            result += "#" + to_string(count) + "#";
                         } else {
                             result += encode_single_num(prevInt);
                         }
@@ -337,7 +337,7 @@ namespace Utau {
 
         static std::vector<std::string> EnvelopeToStringList(const std::vector<Point> &tpoints,
                                                              const double &overlap) {
-            std::string strOverlap = std::to_string(overlap);
+            std::string strOverlap = to_string(overlap);
             std::vector<std::string> listEnv;
 
             if (tpoints.size() < 4) {
@@ -351,20 +351,20 @@ namespace Utau {
                 return listEnv;
             }
 
-            listEnv << std::to_string(tpoints.at(0).x);
-            listEnv << std::to_string(tpoints.at(1).x);
-            listEnv << std::to_string(tpoints.at(tpoints.size() - 2).x);
-            listEnv << std::to_string(tpoints.at(0).y);
-            listEnv << std::to_string(tpoints.at(1).y);
-            listEnv << std::to_string(tpoints.at(tpoints.size() - 2).y);
-            listEnv << std::to_string(tpoints.at(tpoints.size() - 1).y);
+            listEnv << to_string(tpoints.at(0).x);
+            listEnv << to_string(tpoints.at(1).x);
+            listEnv << to_string(tpoints.at(tpoints.size() - 2).x);
+            listEnv << to_string(tpoints.at(0).y);
+            listEnv << to_string(tpoints.at(1).y);
+            listEnv << to_string(tpoints.at(tpoints.size() - 2).y);
+            listEnv << to_string(tpoints.at(tpoints.size() - 1).y);
             listEnv << strOverlap;
             if (tpoints.size() == 5) {
-                listEnv << std::to_string(tpoints.at(tpoints.size() - 1).x);
-                listEnv << std::to_string(tpoints.at(2).x);
-                listEnv << std::to_string(tpoints.at(2).y);
+                listEnv << to_string(tpoints.at(tpoints.size() - 1).x);
+                listEnv << to_string(tpoints.at(2).x);
+                listEnv << to_string(tpoints.at(2).y);
             } else if (tpoints.at(tpoints.size() - 1).x != 0) {
-                listEnv << std::to_string(tpoints.at(tpoints.size() - 1).x);
+                listEnv << to_string(tpoints.at(tpoints.size() - 1).x);
             }
             return listEnv;
         }
@@ -517,13 +517,13 @@ namespace Utau {
         list << outFile;  // Arg 2: Output file (Normally a cache file)
         list << toneName; // Arg 3: Tone Name
 
-        list << std::to_string(velocity);   // Arg 4: Consonant Velocity
+        list << to_string(velocity);   // Arg 4: Consonant Velocity
         list << flags;                      // Arg 5: Flags
 
-        list << std::to_string(offset);     // Arg 6: Offset (Oto)
-        list << std::to_string(realLength); // Arg 7: Corrected Duration
-        list << std::to_string(consonant);  // Arg 8: Consonant (Oto)
-        list << std::to_string(blank);      // Arg 9: Blank (Oto)
+        list << to_string(offset);     // Arg 6: Offset (Oto)
+        list << to_string(realLength); // Arg 7: Corrected Duration
+        list << to_string(consonant);  // Arg 8: Consonant (Oto)
+        list << to_string(blank);      // Arg 9: Blank (Oto)
 
         list << params();
 
@@ -533,20 +533,20 @@ namespace Utau {
     std::vector<std::string> ResamplerArguments::params() const {
         std::vector<std::string> list;
 
-        list << std::to_string(intensity);
-        list << std::to_string(modulation);
+        list << to_string(intensity);
+        list << to_string(modulation);
 
         if (toBase64) {
-            list << "!" + std::to_string(tempo);
+            list << "!" + to_string(tempo);
             list << UtaPitchCurves::encode_from_vector(pitchCurves);
         } else {
             // No using Base 64
             if (pitchCurves.empty()) {
-                list << std::string("0") + "Q" + std::to_string(tempo);
+                list << std::string("0") + "Q" + to_string(tempo);
             } else {
-                list << std::to_string(pitchCurves.front()) + "Q" + std::to_string(tempo);
+                list << to_string(pitchCurves.front()) + "Q" + to_string(tempo);
                 for (int i = 1; i < pitchCurves.size(); ++i) {
-                    list << std::to_string(pitchCurves.at(i));
+                    list << to_string(pitchCurves.at(i));
                 }
             }
         }
@@ -555,8 +555,8 @@ namespace Utau {
     }
 
     std::string WavtoolArguments::outDuration() const {
-        std::string outDuration = std::to_string(length) + "@" + std::to_string(tempo);
-        outDuration += ((correction >= 0) ? "+" : "") + std::to_string(correction);
+        std::string outDuration = to_string(length) + "@" + to_string(tempo);
+        outDuration += ((correction >= 0) ? "+" : "") + to_string(correction);
         return outDuration;
     }
 
@@ -579,7 +579,7 @@ namespace Utau {
         list << outFile; // Arg 1: Input File (Normally a cache file generated by resampler)
         list << inFile;  // Arg 2: Output File
 
-        list << std::to_string(startPoint); // STP
+        list << to_string(startPoint); // STP
         list << outDuration();              // Fixed Duration
 
         list << env();
@@ -753,8 +753,8 @@ namespace Utau {
 
             // Cache Name
             auto aToneName = toneNumToToneName(aNoteNum);
-            auto cacheName = std::to_string(i) + "_" + UtaTranslator::fixFilename(aLyric) + "_" +
-                             aToneName + "_" + std::to_string(aLength) + ".wav";
+            auto cacheName = to_string(i) + "_" + UtaTranslator::fixFilename(aLyric) + "_" +
+                             aToneName + "_" + to_string(aLength) + ".wav";
 
             // COnstruct arguments
             ResamplerArguments res;

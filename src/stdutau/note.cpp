@@ -105,7 +105,7 @@ namespace Utau {
             nums.pop_back();
         }
         for (auto num : std::as_const(nums)) {
-            res.push_back(std::to_string(num));
+            res.push_back(to_string(num));
         }
         if (res.size() > 7) {
             res.insert(res.begin() + 7, "%");
@@ -218,22 +218,17 @@ namespace Utau {
 
         // PBS
         {
-            Point first = points.front();
-            std::vector<std::string> strs;
-            strs.push_back(std::to_string(first.x));
-            if (first.y != 0) {
-                strs.push_back(std::to_string(first.y));
-            }
-            res.PBS = join(strs, ";");
+            const Point &first = points.front();
+            res.PBS = to_string(first.x) + ";" + to_string(first.y);
         }
 
         // PBW
         {
             std::vector<std::string> strs;
             for (int i = 1; i < points.size(); i++) {
-                strs.push_back(std::to_string(points.at(i).x - points.at(i - 1).x));
+                strs.push_back(to_string(points.at(i).x - points.at(i - 1).x));
             }
-            res.PBS = join(strs, ",");
+            res.PBW = join(strs, ",");
         }
 
         // PBY
@@ -241,9 +236,9 @@ namespace Utau {
             std::vector<std::string> strs;
             strs.clear();
             for (int i = 1; i < points.size(); i++) {
-                strs.push_back(std::to_string(points.at(i).y));
+                strs.push_back(to_string(points.at(i).y));
             }
-            res.PBS = join(strs, ",");
+            res.PBY = join(strs, ",");
         }
 
         // PBM
@@ -253,9 +248,9 @@ namespace Utau {
             for (int i = 1; i < points.size(); i++) {
                 strs.push_back(Point::typeToString(points.at(i).type));
             }
-            res.PBS = join(strs, ",");
+            res.PBM = join(strs, ",");
         }
-        
+
         return res;
     }
 

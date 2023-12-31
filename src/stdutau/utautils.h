@@ -17,7 +17,6 @@ namespace Utau {
                                     const std::string_view &delimiter);
     STDUTAU_EXPORT std::string trim(const std::string &s);
 
-
     inline bool starts_with(const std::string_view &s, const std::string_view &prefix) {
 #if __cplusplus >= 202002L
         return s.starts_with(prefix);
@@ -37,6 +36,9 @@ namespace Utau {
 
     STDUTAU_EXPORT int stoi2(const std::string_view &s, int defaultValue = 0);
     STDUTAU_EXPORT double stod2(const std::string_view &s, double defaultValue = 0);
+
+    STDUTAU_EXPORT std::string to_string(double num);
+    STDUTAU_EXPORT std::string to_string(int num);
 
     STDUTAU_EXPORT std::vector<double> stringsToDoubles(const std::vector<std::string> &strs);
     STDUTAU_EXPORT std::vector<double> stringsToDoubles(const std::vector<std::string_view> &strs);

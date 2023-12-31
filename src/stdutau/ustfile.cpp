@@ -125,9 +125,9 @@ namespace Utau {
             } else if (key == KEY_NAME_OUTPUT_FILE) {
                 out.outputFileName = value;   // Output File Name
             } else if (key == KEY_NAME_VOICE_DIR) {
-                out.voiceDir = value;   // Voice Directory
+                out.voiceDir = value;         // Voice Directory
             } else if (key == KEY_NAME_CACHE_DIR) {
-                out.cacheDir = value;   // Cache Directory
+                out.cacheDir = value;         // Cache Directory
             } else if (key == KEY_NAME_TOOL1) {
                 out.wavtoolPath = value;      // Wavtool
             } else if (key == KEY_NAME_TOOL2) {
@@ -136,7 +136,7 @@ namespace Utau {
                 out.isMode2 = true;           // Mode2
             } else if (key == KEY_NAME_TEMPO) {
                 out.tempo = getDouble(value); // Global Tempo
-                if (out.tempo < 10 || out.tempo > 512) {
+                if (out.tempo < VALUE_TEMPO_MIN || out.tempo > VALUE_TEMPO_MAX) {
                     out.tempo = DEFAULT_VALUE_TEMPO;
                 }
             } else if (key == KEY_NAME_FLAGS) {
@@ -150,7 +150,7 @@ namespace Utau {
     }
 
     static void writeSectionName(int name, std::ostream &out) {
-        auto newName = std::to_string(name);
+        auto newName = to_string(name);
         int nums = newName.size();
         if (nums < 4) {
             newName = std::string(4 - nums, '0') + newName;
@@ -174,7 +174,7 @@ namespace Utau {
             out << KEY_NAME_VOICE_OVERLAP << "=" << note.overlap << std::endl;
         }
         if (note.velocity != NODEF_DOUBLE) {
-            out << KEY_NAME_VELOCITY << "=" << std::to_string(note.velocity) << std::endl;
+            out << KEY_NAME_VELOCITY << "=" << to_string(note.velocity) << std::endl;
         }
         if (note.intensity != NODEF_DOUBLE) {
             out << KEY_NAME_INTENSITY << "=" << note.intensity << std::endl;
@@ -196,6 +196,11 @@ namespace Utau {
             out << KEY_NAME_PITCH_BEND << "=" << join(doublesToStrings(note.pitches), ",")
                 << std::endl;
         }
+
+        if (note.envelope) {
+            out << KEY_NAME_ENVELOPE << "=" << note.envelope->toString() << std::endl;
+        }
+
         if (!note.portamento.empty()) {
             auto mode2 = PBStrings::fromPoints(note.portamento);
             out << KEY_NAME_PBS << "=" << mode2.PBS << std::endl;
@@ -203,12 +208,9 @@ namespace Utau {
             if (!mode2.PBY.empty()) {
                 out << KEY_NAME_PBY << "=" << mode2.PBY << std::endl;
             }
-            if (!mode2.PBS.empty()) {
+            if (!mode2.PBM.empty()) {
                 out << KEY_NAME_PBM << "=" << mode2.PBM << std::endl;
             }
-        }
-        if (note.envelope) {
-            out << KEY_NAME_ENVELOPE << "=" << note.envelope->toString() << std::endl;
         }
         if (note.vibrato) {
             out << KEY_NAME_VBR << "=" << note.vibrato->toString() << std::endl;
@@ -216,10 +218,10 @@ namespace Utau {
         if (note.tempo != NODEF_DOUBLE) {
             out << KEY_NAME_TEMPO << "=" << note.tempo << std::endl;
         }
-        if (note.region != NODEF_STRING) {
+        if (!note.region.empty()) {
             out << KEY_NAME_REGION_START << "=" << note.region << std::endl;
         }
-        if (note.regionEnd != NODEF_STRING) {
+        if (!note.regionEnd.empty()) {
             out << KEY_NAME_REGION_END << "=" << note.regionEnd << std::endl;
         }
     }
@@ -335,5 +337,5 @@ namespace Utau {
             return false;
         return true;
     }
-    
+
 }

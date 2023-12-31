@@ -7,6 +7,8 @@ endif()
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE STDUTAU_LIBRARY)
 
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
 file(GLOB_RECURSE _src *.h *.cpp)
 target_sources(${PROJECT_NAME} PRIVATE ${_src})
 

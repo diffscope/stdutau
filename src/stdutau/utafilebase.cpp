@@ -8,7 +8,6 @@ namespace Utau {
 
     UtaFileBase::~UtaFileBase() = default;
 
-
     /*!
         Reads the specific file, returns \c true if succees.
     */

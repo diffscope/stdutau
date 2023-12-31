@@ -1,5 +1,6 @@
 #include "utautils.h"
 
+#include <sstream>
 #include <charconv>
 
 #include "utaconst.h"
@@ -70,6 +71,18 @@ namespace Utau {
         return defaultValue;
     }
 
+    std::string to_string(double num) {
+        std::ostringstream ss;
+        ss << num;
+        return ss.str();
+    }
+
+    std::string to_string(int num) {
+        std::ostringstream ss;
+        ss << num;
+        return ss.str();
+    }
+
     std::vector<double> stringsToDoubles(const std::vector<std::string> &strs) {
         std::vector<double> nums;
         for (const auto &s : strs) {
@@ -89,7 +102,7 @@ namespace Utau {
     std::vector<std::string> doublesToStrings(const std::vector<double> &nums) {
         std::vector<std::string> strs;
         for (const auto &num : nums) {
-            strs.push_back(num == 0 ? std::string() : std::to_string(num));
+            strs.push_back(num == 0 ? std::string() : to_string(num));
         }
         while (!strs.empty() && strs.back().empty()) {
             strs.pop_back();
@@ -129,7 +142,7 @@ namespace Utau {
         if (nameIndex > 0 && tone_names.at(nameIndex) == tone_names.at(nameIndex - 1)) {
             name += TONE_NAME_SHARP;
         }
-        name += std::to_string(octaveIndex + 1);
+        name += to_string(octaveIndex + 1);
         return name;
     }
 
