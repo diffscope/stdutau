@@ -12,7 +12,7 @@ namespace Utau {
         \brief Utau point type.
     */
 
-    Point::Type Point::stringToType(const std::string &s) {
+    Point::Type Point::stringToType(const std::string_view &s) {
         Type res = sJoin;
         if (s == "s") {
             res = linearJoin;
@@ -60,7 +60,7 @@ namespace Utau {
         return ss.str();
     }
 
-    Vibrato Vibrato::fromString(const std::string &s) {
+    Vibrato Vibrato::fromString(const std::string_view &s) {
         auto nums = split(s, {&COMMA, 1});
         if (nums.size() < 7)
             return {};
@@ -113,7 +113,7 @@ namespace Utau {
         return join(res, {&COMMA, 1});
     }
 
-    Envelope Envelope::fromString(const std::string &s) {
+    Envelope Envelope::fromString(const std::string_view &s) {
         auto strList = split(s, {&COMMA, 1});
         std::vector<double> nums;
 
@@ -158,6 +158,105 @@ namespace Utau {
         pbstart = NODEF_DOUBLE;
 
         pbtype = VALUE_PITCH_TYPE;
+    }
+
+    std::vector<Point> PBStrings::toPoints() const {
+        if (PBS.empty() || PBW.empty()) {
+            return {};
+        }
+
+        Point p;
+        auto PBSXY = split(PBS, ";");
+        if (!PBSXY.empty()) {
+            p.x = stod2(PBSXY.front(), p.x);
+            if (PBSXY.size() >= 2) {
+                p.y = stod2(PBSXY.at(1), p.y);
+            }
+        }
+
+        std::vector<Point> res;
+        res.push_back(p);
+
+        auto PBWs = split(PBW, ",");
+        auto PBYs = split(PBY, ",");
+        auto PBMs = split(PBM, ",");
+
+        for (int i = 0; i < std::max(PBWs.size(), PBYs.size()); i++) {
+            p = {};
+            if (PBWs.size() > i) {
+                p.x = stod2(PBWs.at(i), p.x);
+            }
+            if (PBYs.size() > i) {
+                if (!PBYs.at(i).empty())
+                    p.y = stod2(PBYs.at(i), p.y);
+            }
+            if (PBMs.size() > i) {
+                p.type = Point::stringToType(PBMs.at(i));
+            }
+            p.x += res.back().x;
+            res.push_back(p);
+        }
+
+        // Fix Negative Correction
+        for (int i = 1; i < res.size(); ++i) {
+            auto &curPoint = res[i];
+            auto &prevPoint = res[i - 1];
+
+            if (curPoint.x < prevPoint.x) {
+                curPoint.x = prevPoint.x;
+            }
+        }
+
+        return res;
+    }
+
+    PBStrings PBStrings::fromPoints(const std::vector<Point> &points) {
+        PBStrings res;
+        if (points.empty()) {
+            return res;
+        }
+
+        // PBS
+        {
+            Point first = points.front();
+            std::vector<std::string> strs;
+            strs.push_back(std::to_string(first.x));
+            if (first.y != 0) {
+                strs.push_back(std::to_string(first.y));
+            }
+            res.PBS = join(strs, ";");
+        }
+
+        // PBW
+        {
+            std::vector<std::string> strs;
+            for (int i = 1; i < points.size(); i++) {
+                strs.push_back(std::to_string(points.at(i).x - points.at(i - 1).x));
+            }
+            res.PBS = join(strs, ",");
+        }
+
+        // PBY
+        {
+            std::vector<std::string> strs;
+            strs.clear();
+            for (int i = 1; i < points.size(); i++) {
+                strs.push_back(std::to_string(points.at(i).y));
+            }
+            res.PBS = join(strs, ",");
+        }
+
+        // PBM
+        {
+            std::vector<std::string> strs;
+            strs.clear();
+            for (int i = 1; i < points.size(); i++) {
+                strs.push_back(Point::typeToString(points.at(i).type));
+            }
+            res.PBS = join(strs, ",");
+        }
+        
+        return res;
     }
 
 }

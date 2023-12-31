@@ -277,17 +277,15 @@ namespace Utau {
         }
 
         static std::string encode_single_num(int n) {
-            char x, y;
-            std::string result;
-
             // If the value is negative, the 12-bit binary is inverted
             if (n < 0) {
                 n += 4096;
             }
 
-            x = Base64EncodeMap[int(n / 64)];
-            y = Base64EncodeMap[n % 64];
+            char x = Base64EncodeMap[int(n / 64)];
+            char y = Base64EncodeMap[n % 64];
 
+            std::string result;
             result.push_back(x);
             result.push_back(y);
             return result;
@@ -336,52 +334,6 @@ namespace Utau {
     }
 
     namespace UtaTranslator {
-
-        static std::string EnvelopeUstToBat(const std::string &s, const double &overlap) {
-            int i;
-            std::string env;
-            std::string strOverlap = std::to_string(overlap);
-
-            if (s.empty()) {
-                return ("0 5 35 0 100 100 0 " + strOverlap);
-            }
-
-            auto vals = split(s, {&COMMA, 1});
-            for (i = 0; i < vals.size(); ++i) {
-                if (vals[i].empty()) {
-                    if (i == 8) {
-                        vals[i] = "0";     // v4
-                    } else if (i == 9) {
-                        vals[i] = vals[1]; // p5 = p2
-                    } else if (i == 10) {
-                        vals[i] = vals[4]; // v5 = v2
-                    }
-                }
-            }
-
-            // Complete it if the 5th point exists
-            if (vals.size() == 10) {
-                vals.push_back("100");
-            }
-
-            // Delete the vowel sign
-            if (vals.size() >= 8) {
-                vals.erase(vals.begin() + 7);
-            }
-
-            env = vals[0];
-
-            for (i = 1; i < vals.size(); ++i) {
-                env += " " + std::string(vals[i]);
-
-                // Overlap
-                if (i == 6) {
-                    env += " " + strOverlap;
-                }
-            }
-
-            return env;
-        }
 
         static std::vector<std::string> EnvelopeToStringList(const std::vector<Point> &tpoints,
                                                              const double &overlap) {
@@ -636,6 +588,7 @@ namespace Utau {
     }
 
     void Synth::calc(const std::pair<int, int> &rangeLimits, const std::pair<int, int> &range,
+                     double initialTempo, const std::string &globalFlags,
                      const NoteGetter &noteGetter, const GenonSettingsGetter &genonSettingsGetter,
                      std::vector<std::pair<ResamplerArguments, WavtoolArguments>> *result) {
 
@@ -645,7 +598,7 @@ namespace Utau {
             return;
 
         // Get initial tempo
-        double currentTempo = DEFAULT_VALUE_TEMPO;
+        double currentTempo = initialTempo;
         double prevDuration = 0;
         bool prevIsRest = false;
         if (left == 0) {
@@ -815,7 +768,7 @@ namespace Utau {
             res.intensity = aIntensity;
             res.modulation = aModulation;
             res.velocity = aVelocity;
-            res.flags = aFlags;
+            res.flags = UtaTranslator::fixFlags(globalFlags + aFlags);
             res.tempo = aTempo;
             res.pitchCurves = aPitchValues;
             res.realLength = aRealLength;

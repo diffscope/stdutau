@@ -90,6 +90,7 @@ namespace Utau {
         using GenonSettingsGetter = std::function<GenonSettings(const Note &)>;
 
         static void calc(const std::pair<int, int> &rangeLimits, const std::pair<int, int> &range,
+                         double initialTempo, const std::string &globalFlags,
                          const NoteGetter &noteGetter,
                          const GenonSettingsGetter &genonSettingsGetter,
                          std::vector<std::pair<ResamplerArguments, WavtoolArguments>> *result);

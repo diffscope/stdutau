@@ -18,6 +18,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE .)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
+# Add platform specific
+if(WIN32)
+    set(RC_DESCRIPTION "C++ Utility Library For Ameya/UTAU")
+    set(RC_COPYRIGHT "Copyright SineStriker")
+    include("../../cmake/winrc.cmake")
+endif()
+
 if(STDUTAU_INSTALL)
     target_include_directories(${PROJECT_NAME} PUBLIC
         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"

@@ -17,10 +17,29 @@ namespace Utau {
                                     const std::string_view &delimiter);
     STDUTAU_EXPORT std::string trim(const std::string &s);
 
+
+    inline bool starts_with(const std::string_view &s, const std::string_view &prefix) {
+#if __cplusplus >= 202002L
+        return s.starts_with(prefix);
+#else
+        return s.size() >= prefix.size() && !std::memcmp(s.data(), prefix.data(), prefix.size());
+#endif
+    }
+
+    inline bool ends_with(const std::string_view &s, const std::string_view &prefix) {
+#if __cplusplus >= 202002L
+        return s.ends_with(prefix);
+#else
+        return s.size() >= prefix.size() &&
+               !std::memcmp(s.data() + s.size() - prefix.size(), prefix.data(), prefix.size());
+#endif
+    }
+
     STDUTAU_EXPORT int stoi2(const std::string_view &s, int defaultValue = 0);
     STDUTAU_EXPORT double stod2(const std::string_view &s, double defaultValue = 0);
 
     STDUTAU_EXPORT std::vector<double> stringsToDoubles(const std::vector<std::string> &strs);
+    STDUTAU_EXPORT std::vector<double> stringsToDoubles(const std::vector<std::string_view> &strs);
     STDUTAU_EXPORT std::vector<std::string> doublesToStrings(const std::vector<double> &nums);
 
     STDUTAU_EXPORT int toneNameToToneNum(const std::string_view &name);

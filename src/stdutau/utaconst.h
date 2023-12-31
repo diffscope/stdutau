@@ -17,6 +17,7 @@ namespace Utau {
     // Version
     constexpr const char UST_VERSION_1_2[] = "1.2";
     constexpr const char UST_VERSION_PREFIX[] = "UST Version ";
+    constexpr const char UST_VERSION_PREFIX_NOSPACE[] = "UST Version";
 
     // Settings
     constexpr const char KEY_NAME_PROJECT_NAME[] = "ProjectName";

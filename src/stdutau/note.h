@@ -29,7 +29,7 @@ namespace Utau {
         inline constexpr bool operator!=(const Point &other) const;
         inline constexpr bool operator<(const Point &other) const;
 
-        static Type stringToType(const std::string &s);
+        static Type stringToType(const std::string_view &s);
         static std::string typeToString(Type type);
 
     public:
@@ -64,7 +64,7 @@ namespace Utau {
         inline constexpr Vibrato();
 
         std::string toString() const;
-        static Vibrato fromString(const std::string &s);
+        static Vibrato fromString(const std::string_view &s);
 
     public:
         double length;
@@ -89,7 +89,7 @@ namespace Utau {
         inline constexpr int count() const;
 
         std::string toString() const;
-        static Envelope fromString(const std::string &s);
+        static Envelope fromString(const std::string_view &s);
 
     public:
         std::array<Point, 5> anchors;

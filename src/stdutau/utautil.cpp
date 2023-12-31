@@ -78,6 +78,14 @@ namespace Utau {
         return nums;
     }
 
+    std::vector<double> stringsToDoubles(const std::vector<std::string_view> &strs) {
+        std::vector<double> nums;
+        for (const auto &s : strs) {
+            nums.push_back(stod2(s));
+        }
+        return nums;
+    }
+
     std::vector<std::string> doublesToStrings(const std::vector<double> &nums) {
         std::vector<std::string> strs;
         for (const auto &num : nums) {

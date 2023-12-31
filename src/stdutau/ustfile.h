@@ -28,8 +28,8 @@ namespace Utau {
         std::string projectName;
         std::string outputFileName;
 
-        std::string voiceDirectory;
-        std::string cacheDirectory;
+        std::string voiceDir;
+        std::string cacheDir;
 
         std::string wavtoolPath;
         std::string resamplerPath;
@@ -48,9 +48,9 @@ namespace Utau {
         bool write(std::ostream &os) const override;
 
     public:
-        UstVersion sectionVersion;
-        UstSettings sectionSettings;
-        std::vector<Note> sectionNotes;
+        UstVersion version;
+        UstSettings settings;
+        std::vector<Note> notes;
     };
 
 }
