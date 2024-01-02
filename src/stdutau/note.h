@@ -184,6 +184,27 @@ namespace Utau {
         return length * 125.0 / tempo;
     }
 
+    class NoteExt : public Note {
+    public:
+        inline NoteExt();
+        inline NoteExt(int noteNum, int length, const std::string &lyric = "a");
+
+    public:
+        double preuttrRO;
+        double overlapRO;
+        double stpRO;
+        std::string filenameRO;
+        std::string aliasRO;
+        std::string cacheRO;
+    };
+
+    inline NoteExt::NoteExt() : preuttrRO(0), overlapRO(0), stpRO(0) {
+    }
+
+    inline NoteExt::NoteExt(int noteNum, int length, const std::string &lyric)
+        : Note(noteNum, length, lyric), preuttrRO(0), overlapRO(0), stpRO(0) {
+    }
+
     struct STDUTAU_EXPORT PBStrings {
         std::string PBS;
         std::string PBW;

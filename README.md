@@ -4,7 +4,9 @@ C++ utility library for Ameya/UTAU, providing foundational support for C++ appli
 
 ## Features
 
-+ Read and write UTAU files(`*.ust`, `oto.ini`, `prefix.map`, `plugin.txt`, `character.txt`...)
++ Read and write UTAU files(`*.ust`, `oto.ini`, `prefix.map`)
+
++ Read and write plugin temporary file for UTAU plugins(`*.tmp`)
 
 + Convert UTAU project to synthesis arguments
 

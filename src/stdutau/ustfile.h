@@ -4,6 +4,7 @@
 #include <array>
 #include <map>
 #include <string>
+#include <optional>
 #include <vector>
 #include <filesystem>
 
@@ -51,6 +52,22 @@ namespace Utau {
         UstVersion version;
         UstSettings settings;
         std::vector<Note> notes;
+    };
+
+    class STDUTAU_EXPORT PluginFile : public UtaFileBase {
+    public:
+        PluginFile();
+
+        bool read(std::istream &is) override;
+        bool write(std::ostream &os) const override;
+
+    public:
+        std::optional<UstVersion> version;
+        std::optional<UstSettings> settings;
+
+        NoteExt prevNote;
+        NoteExt nextNote;
+        std::vector<NoteExt> notes;
     };
 
 }

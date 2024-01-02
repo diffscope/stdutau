@@ -50,7 +50,7 @@ namespace Utau {
 
     /*!
         \class Vibrato
-        \brief Utau vibrato structure type.
+        \brief Utau vibrato structure.
     */
 
     /*!
@@ -91,7 +91,7 @@ namespace Utau {
 
     /*!
         \class Envelope
-        \brief Utau envelope structure type.
+        \brief Utau envelope structure.
     */
 
     /*!
@@ -162,7 +162,14 @@ namespace Utau {
 
     /*!
         \class Note
-        \brief Utau note structure type.
+        \brief Utau note structure. The float type values should be \c NODEF_DOUBLE to represent an
+        empty state in the file.
+    */
+
+    /*!
+        \fn inline Note::Note()
+
+        Default constructor.
     */
 
     /*!
@@ -180,6 +187,60 @@ namespace Utau {
 
         pbtype = VALUE_PITCH_TYPE;
     }
+
+    /*!
+        \fn inline constexpr double Note::realIntensity() const
+
+        Returns the real intensity, that is, returns the default value when in empty state.
+    */
+
+    /*!
+        \fn inline constexpr double Note::realModulation() const
+
+        Returns the real modulation, that is, returns the default value when in empty state.
+    */
+
+    /*!
+        \fn inline constexpr double Note::realVelocity() const
+
+        Returns the real consonant velocity, that is, returns the default value when in empty state.
+    */
+
+    /*!
+        \fn inline constexpr bool Note::hasPreUtterance() const
+
+        Returns the real pre-utterance, that is, returns the default value when in empty state.
+    */
+
+    /*!
+        \fn inline constexpr bool Note::hasVoiceOverlap() const
+
+        Returns the real voice overlap, that is, returns the default value when in empty state.
+    */
+
+    /*!
+        \fn inline constexpr double Note::realStartPoint() const
+
+        Returns the real start point, that is, returns the default value when in empty state.
+    */
+
+    /*!
+        \fn inline constexpr bool Note::hasTempo() const
+
+        Returns if the note has a explicit tempo, that is, returns \c false when in empty state.
+    */
+
+    /*!
+        \fn inline constexpr bool Note::hasPBStart() const
+
+        Returns if the note has the continuous pitch, that is, returns \c false when in empty state.
+    */
+
+    /*!
+        \fn inline constexpr double Note::duration(int length, double tempo)
+
+        Returns the duration calculated with the given length and tempo, in millisecond.
+    */
 
     /*!
         Converts the pitch bend strings to a point vector.
@@ -233,6 +294,29 @@ namespace Utau {
 
         return res;
     }
+
+
+    /*!
+        \class NoteExt
+        \brief Extended UTAU note structure, used in plugin temporary files.
+    */
+
+    /*!
+        \fn inline NoteExt::NoteExt()
+
+        Constructor.
+    */
+
+    /*!
+        \fn inline NoteExt::NoteExt(int noteNum, int length, const std::string &lyric)
+
+        Constructs an extended note from the given key, length and lyric.
+    */
+
+    /*!
+        \struct PBStrings
+        \brief Pitch bend strings structure.
+    */
 
     /*!
         Converts the point vector to pitch bend strings.
