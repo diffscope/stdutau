@@ -4,8 +4,19 @@
 
 namespace Utau {
 
+    /*!
+        \class UtaFileBase
+        \brief Basic class of filesystem IO for this library.
+    */
+
+    /*!
+        Constructor.
+    */
     UtaFileBase::UtaFileBase() = default;
 
+    /*!
+        Destructor.
+    */
     UtaFileBase::~UtaFileBase() = default;
 
     /*!
@@ -27,5 +38,17 @@ namespace Utau {
             return false;
         return write(fs);
     }
+
+    /*!
+        \fn bool UtaFileBase::read(std::istream &is)
+
+        Reads the spefific file contents from the stream.
+    */
+
+    /*!
+        \fn bool UtaFileBase::write(std::ostream &os) const
+
+        Writes the spefific file contents to the stream.
+    */
 
 }

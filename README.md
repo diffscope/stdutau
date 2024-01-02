@@ -1,6 +1,6 @@
 # Standard UTAU Library
 
-Provide foundational support for C++ applications to process UTAU data.
+C++ utility library for Ameya/UTAU, providing foundational support for C++ applications to process UTAU data.
 
 ## Features
 
@@ -28,6 +28,8 @@ Provide foundational support for C++ applications to process UTAU data.
 
 I believe there's no need to provide extra documentations because the interfaces and comments are quite easy to understand.
 
+Check comments in `.cpp` files for API reference.
+
 ## License
 
-`stdutau` is released under the Apache 2.0 License. Copyright SineSriker. 
+`stdutau` is released under the Apache 2.0 License. Copyright (C) 2020-2024 SineSriker.

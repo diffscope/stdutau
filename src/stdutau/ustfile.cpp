@@ -273,8 +273,38 @@ namespace Utau {
         }
     }
 
+    /*!
+        \struct UstVersion
+        \brief Structure that represents the version section in ust file.
+    */
+
+    /*!
+        \class UstSettings
+        \brief Structure that represents the settings section in ust file.
+    */
+
+    /*!
+        \fn inline UstSettings::UstSettings()
+
+        Constructor.
+    */
+
+    /*!
+        \class UstFile
+        \brief UTAU sequence text file(*.ust) reader and writer.
+    
+        The string data in this class is pure bytes, please perform appropriate encoding speculation
+        and conversion when accessing.
+    */
+
+    /*!
+        Constructor.
+    */
     UstFile::UstFile() = default;
 
+    /*!
+        Reads \c ust sections from stream, returns \c true if succees.
+    */
     bool UstFile::read(std::istream &is) {
         // Read File
         std::vector<std::string> currentSection;
@@ -332,6 +362,9 @@ namespace Utau {
         return true;
     }
 
+    /*!
+        Writes \c ust sections to stream, returns \c true if succees.
+    */
     bool UstFile::write(std::ostream &os) const {
         writeSectionVersion(version, os);   // Write Version
         writeSectionSettings(settings, os); // Write Global Settings

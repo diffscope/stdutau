@@ -12,6 +12,9 @@ namespace Utau {
         \brief Utau point type.
     */
 
+    /*!
+        Converts string to point type.
+    */
     Point::Type Point::stringToType(const std::string_view &s) {
         Type res = sJoin;
         if (s == "s") {
@@ -24,6 +27,9 @@ namespace Utau {
         return res;
     }
 
+    /*!
+        Converts point type to string.
+    */
     std::string Point::typeToString(Type type) {
         std::string res;
         switch (type) {
@@ -47,6 +53,9 @@ namespace Utau {
         \brief Utau vibrato structure type.
     */
 
+    /*!
+        Returns a comma separated string as the representation of the vibrato.
+    */
     std::string Vibrato::toString() const {
         std::stringstream ss;
         ss << length << COMMA;
@@ -60,6 +69,9 @@ namespace Utau {
         return ss.str();
     }
 
+    /*!
+        Returns a vibrato parsed from the string.
+    */
     Vibrato Vibrato::fromString(const std::string_view &s) {
         auto nums = split(s, {&COMMA, 1});
         if (nums.size() < 7)
@@ -82,6 +94,9 @@ namespace Utau {
         \brief Utau envelope structure type.
     */
 
+    /*!
+        Returns a comma separated string as the representation of the envelope.
+    */
     std::string Envelope::toString() const {
         int offset;
         std::vector<double> nums;
@@ -113,6 +128,9 @@ namespace Utau {
         return join(res, {&COMMA, 1});
     }
 
+    /*!
+        Returns an envelope parsed from the string.
+    */
     Envelope Envelope::fromString(const std::string_view &s) {
         auto strList = split(s, {&COMMA, 1});
         std::vector<double> nums;
@@ -147,6 +165,9 @@ namespace Utau {
         \brief Utau note structure type.
     */
 
+    /*!
+        Constructs a note from the given key, length and lyric.
+    */
     Note::Note(int noteNum, int length, const std::string &lyric)
         : noteNum(noteNum), length(length), lyric(lyric) {
         velocity = preUttr = overlap = stp = Utau::NODEF_DOUBLE;
@@ -160,6 +181,9 @@ namespace Utau {
         pbtype = VALUE_PITCH_TYPE;
     }
 
+    /*!
+        Converts the pitch bend strings to a point vector.
+    */
     std::vector<Point> PBStrings::toPoints() const {
         if (PBS.empty() || PBW.empty()) {
             return {};
@@ -210,6 +234,9 @@ namespace Utau {
         return res;
     }
 
+    /*!
+        Converts the point vector to pitch bend strings.
+    */
     PBStrings PBStrings::fromPoints(const std::vector<Point> &points) {
         PBStrings res;
         if (points.empty()) {

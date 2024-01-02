@@ -22,8 +22,8 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 # Add platform specific
 if(WIN32)
-    set(RC_DESCRIPTION "C++ Utility Library For Ameya/UTAU")
-    set(RC_COPYRIGHT "Copyright SineStriker")
+    set(RC_DESCRIPTION "C++ Standard UTAU Library")
+    set(RC_COPYRIGHT "Copyright (C) 2020-2024 SineSriker")
     include("../../cmake/winrc.cmake")
 endif()
 

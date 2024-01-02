@@ -53,6 +53,9 @@ namespace Utau {
     /*!
         \class OtoIni
         \brief UTAU original tone profile(oto.ini) reader and writer.
+
+        The string data in this class is pure bytes, please perform appropriate encoding speculation
+        and conversion when accessing.
     */
 
     /*!

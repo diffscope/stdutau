@@ -8,6 +8,14 @@
 namespace Utau {
 
     /*!
+        \class PrefixMap
+        \brief UTAU prefix map profile(prefix.map) reader and writer.
+
+        The string data in this class is pure bytes, please perform appropriate encoding speculation
+        and conversion when accessing.
+    */
+
+    /*!
         Constructor.
     */
     PrefixMap::PrefixMap() = default;

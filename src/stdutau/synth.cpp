@@ -510,26 +510,20 @@ namespace Utau {
         return res;
     }
 
-    std::vector<std::string> ResamplerArguments::arguments() const {
-        std::vector<std::string> list;
+    /*!
+        \class ResamplerArguments
+        \brief Structure containing resampler command line arguments.
+    */
 
-        list << inFile;   // Arg 1: Input file (Normally a sample in voicebank folder)
-        list << outFile;  // Arg 2: Output file (Normally a cache file)
-        list << toneName; // Arg 3: Tone Name
+    /*!
+        \fn inline ResamplerArguments::ResamplerArguments()
 
-        list << to_string(velocity);   // Arg 4: Consonant Velocity
-        list << flags;                      // Arg 5: Flags
+        Constructor.
+    */
 
-        list << to_string(offset);     // Arg 6: Offset (Oto)
-        list << to_string(realLength); // Arg 7: Corrected Duration
-        list << to_string(consonant);  // Arg 8: Consonant (Oto)
-        list << to_string(blank);      // Arg 9: Blank (Oto)
-
-        list << params();
-
-        return list;
-    }
-
+    /*!
+        Returns the partial arguments that represent the pitch curves.
+    */
     std::vector<std::string> ResamplerArguments::params() const {
         std::vector<std::string> list;
 
@@ -554,12 +548,52 @@ namespace Utau {
         return list;
     }
 
+    /*!
+        Returns the full arguments.
+    */
+    std::vector<std::string> ResamplerArguments::arguments() const {
+        std::vector<std::string> list;
+
+        list << inFile;                // Arg 1: Input file (Normally a sample in voicebank folder)
+        list << outFile;               // Arg 2: Output file (Normally a cache file)
+        list << toneName;              // Arg 3: Tone Name
+
+        list << to_string(velocity);   // Arg 4: Consonant Velocity
+        list << flags;                 // Arg 5: Flags
+
+        list << to_string(offset);     // Arg 6: Offset (Oto)
+        list << to_string(realLength); // Arg 7: Corrected Duration
+        list << to_string(consonant);  // Arg 8: Consonant (Oto)
+        list << to_string(blank);      // Arg 9: Blank (Oto)
+
+        list << params();
+
+        return list;
+    }
+
+    /*!
+        \class WavtoolArguments
+        \brief Structure containing wavtool command line arguments.
+    */
+
+    /*!
+        \fn inline WavtoolArguments();
+
+        Constructor.
+    */
+
+    /*!
+        Returns the formated string that represents the real duration.
+    */
     std::string WavtoolArguments::outDuration() const {
         std::string outDuration = to_string(length) + "@" + to_string(tempo);
         outDuration += ((correction >= 0) ? "+" : "") + to_string(correction);
         return outDuration;
     }
 
+    /*!
+        Returns the partial arguments that represent the envelope.
+    */
     std::vector<std::string> WavtoolArguments::env() const {
         std::vector<std::string> list;
 
@@ -573,6 +607,9 @@ namespace Utau {
         return list;
     }
 
+    /*!
+        Returns the full arguments.
+    */
     std::vector<std::string> WavtoolArguments::arguments() const {
         std::vector<std::string> list;
 
@@ -580,13 +617,21 @@ namespace Utau {
         list << inFile;  // Arg 2: Output File
 
         list << to_string(startPoint); // STP
-        list << outDuration();              // Fixed Duration
+        list << outDuration();         // Fixed Duration
 
         list << env();
 
         return list;
     }
 
+    /*!
+        \class Synth
+        \brief Synthesis calculation helper class.
+    */
+
+    /*!
+        Calculates the synthesis arguments for the wavtool and resampler.
+    */
     void Synth::calc(const std::pair<int, int> &rangeLimits, const std::pair<int, int> &range,
                      double initialTempo, const std::string &globalFlags,
                      const NoteGetter &noteGetter, const GenonSettingsGetter &genonSettingsGetter,

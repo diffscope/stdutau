@@ -5,6 +5,11 @@
 
 #include "utaconst.h"
 
+/*!
+    \namespace Utau
+    \brief The namespace of \c stdutau library.
+*/
+
 namespace Utau {
 
     std::vector<std::string_view> split(const std::string_view &s,
