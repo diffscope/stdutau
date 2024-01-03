@@ -21,7 +21,7 @@ namespace Utau {
     PrefixMap::PrefixMap() = default;
 
     /*!
-        Reads \c prefix.map items from stream, returns \c true if succees.
+        Reads \c prefix.map items from stream, returns \c true if success.
     */
     bool PrefixMap::read(std::istream &is) {
         static const constexpr int min = TONE_NUMBER_BASE;
@@ -50,7 +50,7 @@ namespace Utau {
     }
 
     /*!
-        Writes \c prefix.map map items to stream, returns \c true if succees.
+        Writes \c prefix.map map items to stream, returns \c true if success.
     */
     bool PrefixMap::write(std::ostream &os) const {
         for (auto it = map.begin(); it != map.end(); ++it) {

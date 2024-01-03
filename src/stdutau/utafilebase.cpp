@@ -20,7 +20,7 @@ namespace Utau {
     UtaFileBase::~UtaFileBase() = default;
 
     /*!
-        Reads the specific file, returns \c true if succees.
+        Reads the specific file, returns \c true if success.
     */
     bool UtaFileBase::load(const std::filesystem::path &path) {
         std::ifstream fs(path);
@@ -30,7 +30,7 @@ namespace Utau {
     }
 
     /*!
-        Writes the specifc file, returns \c true if succees.
+        Writes the specifc file, returns \c true if success.
     */
     bool UtaFileBase::save(const std::filesystem::path &path) const {
         std::ofstream fs(path);

@@ -56,22 +56,6 @@ namespace Utau {
         std::vector<Note> notes;
     };
 
-    class STDUTAU_EXPORT PluginFile : public UtaFileBase {
-    public:
-        PluginFile();
-
-        bool read(std::istream &is) override;
-        bool write(std::ostream &os) const override;
-
-    public:
-        std::optional<UstVersion> version;   // Readonly
-        std::optional<UstSettings> settings; // Readonly
-
-        NoteExt prevNote;
-        NoteExt nextNote;
-        std::vector<NoteExt> notes;
-    };
-
 }
 
 #endif // USTFILE_H

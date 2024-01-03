@@ -64,7 +64,7 @@ namespace Utau {
     OtoIni::OtoIni() = default;
 
     /*!
-        Reads \c oto.ini items from stream, returns \c true if succees.
+        Reads \c oto.ini items from stream, returns \c true if success.
     */
     bool OtoIni::read(std::istream &is) {
         std::string line;
@@ -89,7 +89,7 @@ namespace Utau {
     }
 
     /*!
-        Writes \c oto.ini items to stream, returns \c true if succees.
+        Writes \c oto.ini items to stream, returns \c true if success.
     */
     bool OtoIni::write(std::ostream &os) const {
         for (const auto &item : contents) {
