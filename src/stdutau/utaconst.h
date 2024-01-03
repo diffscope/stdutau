@@ -77,8 +77,10 @@ namespace Utau {
 
     constexpr const double DEFAULT_VALUE_VELOCITY = 100.0;
     constexpr const double DEFAULT_VALUE_START_POINT = 0.0;
-    constexpr const char DEFAULT_VALUE_FLAGS[] = "";
 
+    constexpr const char DEFAULT_LYRIC[] = "a";
+
+    constexpr const char VALUE_PROJECT_TRACKS[] = "1";
     constexpr const char VALUE_MODE2_ON[] = "True";
     constexpr const char VALUE_TRACKS_SINGLE[] = "1";
     constexpr const char VALUE_PITCH_TYPE[] = "5";

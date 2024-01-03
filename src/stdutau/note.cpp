@@ -299,6 +299,8 @@ namespace Utau {
     /*!
         \class NoteExt
         \brief Extended UTAU note structure, used in plugin temporary files.
+
+        The extra items are all readonly, any change of them will be lost after the plugin exits.
     */
 
     /*!

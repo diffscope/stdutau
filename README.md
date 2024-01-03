@@ -28,10 +28,12 @@ C++ utility library for Ameya/UTAU, providing foundational support for C++ appli
 
 ## Notes
 
-I believe there's no need to provide extra documentations because the interfaces and comments are quite easy to understand.
++ I believe there's no need to provide extra documentations because the interfaces and comments are quite easy to understand.
 
-Check comments in `.cpp` files for API reference.
++ Check comments in `.cpp` files for API reference.
 
 ## License
 
-`stdutau` is released under the Apache 2.0 License. Copyright (C) 2020-2024 SineSriker.
+This library is released under the Apache 2.0 License.
+
+Copyright (C) 2020-2024 SineSriker.

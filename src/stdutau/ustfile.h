@@ -24,10 +24,12 @@ namespace Utau {
 
     public:
         double tempo;
-        std::string flags;
+        std::string flags;          // project only
 
-        std::string projectName;
-        std::string outputFileName;
+        std::string projectName;    // project only
+        std::string outputFileName; // project only
+
+        std::string project;        // plugin only
 
         std::string voiceDir;
         std::string cacheDir;
@@ -62,8 +64,8 @@ namespace Utau {
         bool write(std::ostream &os) const override;
 
     public:
-        std::optional<UstVersion> version;
-        std::optional<UstSettings> settings;
+        std::optional<UstVersion> version;   // Readonly
+        std::optional<UstSettings> settings; // Readonly
 
         NoteExt prevNote;
         NoteExt nextNote;

@@ -106,7 +106,7 @@ namespace Utau {
     class STDUTAU_EXPORT Note {
     public:
         inline Note();
-        Note(int noteNum, int length, const std::string &lyric = "a");
+        Note(int noteNum, int length, const std::string &lyric = DEFAULT_LYRIC);
 
         inline constexpr double realIntensity() const;
         inline constexpr double realModulation() const;
@@ -187,7 +187,7 @@ namespace Utau {
     class NoteExt : public Note {
     public:
         inline NoteExt();
-        inline NoteExt(int noteNum, int length, const std::string &lyric = "a");
+        inline NoteExt(int noteNum, int length, const std::string &lyric = DEFAULT_LYRIC);
 
     public:
         double preuttrRO;

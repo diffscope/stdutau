@@ -4,8 +4,6 @@
 
 #include "utautils.h"
 
-#define PI 3.1415926
-
 namespace Utau {
 
     static inline std::vector<std::string> &operator<<(std::vector<std::string> &vec,
@@ -27,11 +25,12 @@ namespace Utau {
 
     namespace UtaPitchCurves {
 
-        static const char Base64EncodeMap[] =
+        static constexpr const double PI = 3.1415926;
+
+        static constexpr const char Base64EncodeMap[] =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
-        static inline double f_x(const double &x1, const double &y1, const double &x2,
-                                 const double &y2, const double &x) {
+        static inline double f_x(double x1, double y1, double x2, double y2, double x) {
             if (x1 == x2) {
                 return y1;
             }
@@ -39,8 +38,7 @@ namespace Utau {
         }
 
 
-        static inline double f_r(const double &x1, const double &y1, const double &x2,
-                                 const double &y2, const double &x) {
+        static inline double f_r(double x1, double y1, double x2, double y2, double x) {
             if (x1 == x2) {
                 return y1;
             }
@@ -48,8 +46,7 @@ namespace Utau {
         }
 
 
-        static inline double f_j(const double &x1, const double &y1, const double &x2,
-                                 const double &y2, const double &x) {
+        static inline double f_j(double x1, double y1, double x2, double y2, double x) {
             if (x1 == x2) {
                 return y1;
             }
@@ -57,16 +54,15 @@ namespace Utau {
         }
 
 
-        static inline double f_s(const double &x1, const double &y1, const double &x2,
-                                 const double &y2, const double &x) {
+        static inline constexpr double f_s(double x1, double y1, double x2, double y2, double x) {
             if (x1 == x2) {
                 return y1;
             }
             return (y2 - y1) / (x2 - x1) * (x - x1) + y1;
         }
 
-        static inline double f_type(const Point::Type &ptype, const double &x1, const double &y1,
-                                    const double &x2, const double &y2, const double &x) {
+        static inline double f_type(const Point::Type &ptype, double x1, double y1, double x2,
+                                    double y2, double x) {
             int impact;
             switch (ptype) {
                 case Point::linearJoin:
@@ -86,8 +82,8 @@ namespace Utau {
         }
 
         static int find_impact(const std::vector<Point> &portamento, int &startIndex, int curTick,
-                               const double &PositiveTempo, double NegativeTempo,
-                               const std::vector<double> &vibrato, const int &length) {
+                               double PositiveTempo, double NegativeTempo,
+                               const std::vector<double> &vibrato, int length) {
 
             // portamento: Mode2 Pitch curve points
             // startIndex: search from index
@@ -200,12 +196,11 @@ namespace Utau {
         }
 
         static std::vector<int> convert_from_vector_point(
-            const double &tempo1, const std::vector<Point> &curNote,
-            const std::vector<double> &curVBR, const double &curPre, const double &curStp,
-            const int &curLength, const std::vector<Point> &nextNote,
-            const std::vector<double> &nextVBR, const double &nextPre, const double &nextOve,
-            const int &nextLength, const std::vector<Point> &prevNote,
-            const std::vector<double> &prevVBR, const int &prevLength) {
+            double tempo1, const std::vector<Point> &curNote, const std::vector<double> &curVBR,
+            double curPre, double curStp, int curLength, const std::vector<Point> &nextNote,
+            const std::vector<double> &nextVBR, double nextPre, double nextOve, int nextLength,
+            const std::vector<Point> &prevNote, const std::vector<double> &prevVBR,
+            int prevLength) {
 
             // Mode 2 to Mode 1 principle
             // 1. Pre-Utterance part, use the previous note tempo (actually not)
@@ -336,7 +331,7 @@ namespace Utau {
     namespace UtaTranslator {
 
         static std::vector<std::string> EnvelopeToStringList(const std::vector<Point> &tpoints,
-                                                             const double &overlap) {
+                                                             double overlap) {
             std::string strOverlap = to_string(overlap);
             std::vector<std::string> listEnv;
 
@@ -377,9 +372,8 @@ namespace Utau {
             }
         }
 
-        static std::vector<Point> getDefaultPitch(const int &prevNoteNum,
-                                                  const std::string &prevLyric,
-                                                  const int &curNoteNum) {
+        static std::vector<Point> getDefaultPitch(int prevNoteNum, const std::string &prevLyric,
+                                                  int curNoteNum) {
 
             Point first(0, 0);
             Point second(0, 0);
