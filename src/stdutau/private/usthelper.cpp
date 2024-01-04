@@ -1,7 +1,6 @@
 #include "usthelper_p.h"
 
 #include "utautils.h"
-#include "utaconst.h"
 
 namespace Utau {
 
@@ -34,7 +33,8 @@ namespace Utau {
     void parseSectionNote(const std::vector<std::string> &sectionList, Note &note) {
         PBStrings mode2;
 
-        for (const std::string_view &line : sectionList) {
+        for (const auto &item : sectionList) {
+            std::string_view line = item;
             auto eq = line.find('=');
             if (eq == std::string_view::npos) {
                 continue;
@@ -55,7 +55,7 @@ namespace Utau {
             } else if (key == KEY_NAME_MODULATION || key == KEY_NAME_MODURATION) {
                 getDouble(value, note.modulation); // Modulation
             } else if (key == KEY_NAME_PRE_UTTERANCE) {
-                getDouble(value, note.preUttr);    // PreUtterence
+                getDouble(value, note.preUttr);    // PreUtterance
             } else if (key == KEY_NAME_VOICE_OVERLAP) {
                 getDouble(value, note.overlap);    // Overlap
             } else if (key == KEY_NAME_VELOCITY) {
@@ -91,7 +91,8 @@ namespace Utau {
     }
 
     void parseSectionVersion(const std::vector<std::string> &sectionList, UstVersion &out) {
-        for (const std::string_view &line : sectionList) {
+        for (const auto &item : sectionList) {
+            std::string_view line = item;
             auto eq = line.find('=');
             if (eq != std::string_view::npos) {
                 auto key = line.substr(0, eq);
@@ -109,14 +110,15 @@ namespace Utau {
     }
 
     void parseSectionSettings(const std::vector<std::string> &sectionList, UstSettings &out) {
-        for (const std::string_view &section : sectionList) {
-            auto eq = section.find("=");
+        for (const auto &item : sectionList) {
+            std::string_view line = item;
+            auto eq = line.find('=');
             if (eq == std::string::npos) {
                 continue;
             }
 
-            auto key = section.substr(0, eq);
-            auto value = section.substr(eq + 1);
+            auto key = line.substr(0, eq);
+            auto value = line.substr(eq + 1);
             if (key == KEY_NAME_PROJECT_NAME) {
                 out.projectName = value;      // Project Name
             } else if (key == KEY_NAME_OUTPUT_FILE) {
@@ -148,7 +150,7 @@ namespace Utau {
 
     void writeSectionName(int name, std::ostream &out) {
         auto newName = to_string(name);
-        int nums = newName.size();
+        auto nums = newName.size();
         if (nums < 4) {
             newName = std::string(4 - nums, '0') + newName;
         }

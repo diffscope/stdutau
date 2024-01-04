@@ -1,5 +1,8 @@
 #include "pluginfile.h"
 
+#include <map>
+#include <set>
+
 #include "private/usthelper_p.h"
 
 namespace Utau {
@@ -73,9 +76,9 @@ namespace Utau {
         std::optional<Note> prevNote;
         std::optional<Note> nextNote;
 
-        std::vector<std::pair<int, Note>> changedNotes;
-        std::vector<std::pair<int, std::vector<Note>>> insertedNotes;
-        std::vector<int> removedNotes;
+        std::map<int, Note> changedNotes;
+        std::map<int, std::vector<Note>> insertedNotes;
+        std::set<int> removedNotes;
     };
 
     /*!

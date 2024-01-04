@@ -90,6 +90,7 @@ namespace Utau {
 
     std::vector<double> stringsToDoubles(const std::vector<std::string> &strs) {
         std::vector<double> nums;
+        nums.reserve(strs.size());
         for (const auto &s : strs) {
             nums.push_back(stod2(s));
         }
@@ -98,6 +99,7 @@ namespace Utau {
 
     std::vector<double> stringsToDoubles(const std::vector<std::string_view> &strs) {
         std::vector<double> nums;
+        nums.reserve(strs.size());
         for (const auto &s : strs) {
             nums.push_back(stod2(s));
         }
@@ -106,6 +108,7 @@ namespace Utau {
 
     std::vector<std::string> doublesToStrings(const std::vector<double> &nums) {
         std::vector<std::string> strs;
+        strs.reserve(nums.size());
         for (const auto &num : nums) {
             strs.push_back(num == 0 ? std::string() : to_string(num));
         }
@@ -120,7 +123,7 @@ namespace Utau {
             return Utau::TONE_NUMBER_BASE;
         }
 
-        int index = std::string_view(TONE_NAMES).find(name.front());
+        auto index = std::string_view(TONE_NAMES).find(name.front());
         if (index == std::string_view::npos) {
             index = 0;
         }
@@ -132,7 +135,7 @@ namespace Utau {
             octave = TONE_OCTAVE_MAX;
         }
 
-        return TONE_NUMBER_BASE + (octave - 1) * TONE_OCTAVE_STEPS + index +
+        return TONE_NUMBER_BASE + (octave - 1) * TONE_OCTAVE_STEPS + int(index) +
                static_cast<int>(name[1] == TONE_NAME_SHARP);
     }
 

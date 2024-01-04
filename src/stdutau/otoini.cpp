@@ -24,7 +24,7 @@ namespace Utau {
             return {}; // No file name is not acceptable
 
         while (tokenList.size() < 6) {
-            tokenList.push_back("0"); // If the following entry is missing, we simply fill with 0
+            tokenList.emplace_back("0"); // If the following entry is missing, we simply fill with 0
         }
 
         GenonSettings res;

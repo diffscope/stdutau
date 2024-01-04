@@ -137,7 +137,7 @@ namespace Utau {
                         i++;
                         continue;
                     }
-                    basePitch = f_type(ptype, x1, y1, x2, y2, curTick);
+                    basePitch = int(f_type(ptype, x1, y1, x2, y2, curTick));
                     break;
                 }
                 if (tooLeft) {
@@ -188,7 +188,7 @@ namespace Utau {
                     // Add envelope
                     y = ratio * y;
                     // Add influence
-                    basePitch += y;
+                    basePitch += int(y);
                 }
             }
 
@@ -241,20 +241,20 @@ namespace Utau {
                 prevImpact = 0;
                 nextImpact = 0;
 
-                basePitch = find_impact(curNote, i, tick, curTempo, prevTempo, curVBR, curLength);
+                basePitch = find_impact(curNote, i, int(tick), curTempo, prevTempo, curVBR, curLength);
 
                 // The part influenced by the next note
                 if (tick >= nextStart) {
                     if (j < nextNote.size() - 1) {
-                        nextImpact = find_impact(nextNote, j, tick - curLength, curTempo, curTempo,
+                        nextImpact = find_impact(nextNote, j, int(tick) - curLength, curTempo, curTempo,
                                                  nextVBR, nextLength);
                     }
-                    nextImpact += -nextNote[0].y * 10;
+                    nextImpact += -int(nextNote[0].y * 10);
                 }
 
                 // The part influenced by the previous note
                 if (tick <= 0) {
-                    prevImpact = find_impact(prevNote, k, tick + prevLength, prevTempo, prevTempo,
+                    prevImpact = find_impact(prevNote, k, int(tick) + prevLength, prevTempo, prevTempo,
                                              prevVBR, prevLength);
                 }
 
@@ -387,10 +387,9 @@ namespace Utau {
         }
 
         static std::string fixFlags(const std::string &s) {
-            std::string s2 = "";
+            std::string s2;
 
-            for (std::string::size_type i = 0; i < s.size(); ++i) {
-                auto ch = s.at(i);
+            for (char ch : s) {
                 if (ch == '\"') {
                     continue;
                 }
@@ -406,8 +405,8 @@ namespace Utau {
         static std::string fixFilename(const std::string &filename) {
             std::string s;
 
-            for (std::string::size_type i = 0; i < filename.size(); ++i) {
-                switch (filename[i]) {
+            for (char ch : filename) {
+                switch (ch) {
                     case ' ': // Space
                         s += '+';
                         break;
@@ -428,11 +427,11 @@ namespace Utau {
                     case ':': // Colon
                     case '|': // Vertical line
                     case '>': // Greater than
-                    case '<': // Small than
+                    case '<': // Smaller than
                         break;
 
                     default:
-                        s += filename[i];
+                        s += ch;
                 }
             }
 
@@ -496,6 +495,7 @@ namespace Utau {
         }
 
         std::vector<Point> res;
+        res.reserve(5);
         for (int i = 0; i < 4; ++i) {
             res.push_back(env->anchors[i]);
         }
@@ -668,7 +668,6 @@ namespace Utau {
         std::vector<std::pair<ResamplerArguments, WavtoolArguments>> args;
         for (int i = left; i <= right; ++i) {
             const auto &aNote = noteGetter(i);
-            const auto &aPrevNote = noteGetter(i - 1);
             const auto &aNextNote = noteGetter(i + 1);
 
             int aNoteNum = aNote.noteNum;
@@ -829,7 +828,7 @@ namespace Utau {
                 wav.rest = true;
             }
 
-            args.push_back({res, wav});
+            args.emplace_back(res, wav);
         }
 
         *result = args;

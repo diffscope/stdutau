@@ -85,7 +85,7 @@ namespace Utau {
         vbr.release = stod2(nums[4]);
         vbr.phase = stod2(nums[5]);
         vbr.offset = stod2(nums[6]);
-        vbr.intensity = stod2(nums.size() >= 8 ? nums[7] : 0);
+        vbr.intensity = nums.size() >= 8 ? stod2(nums[7]) : 0;
         return vbr;
     }
 
