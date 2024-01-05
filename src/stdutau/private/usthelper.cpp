@@ -90,6 +90,35 @@ namespace Utau {
         note.portamento = mode2.toPoints(); // Mode2 Pitch
     }
 
+    void parseSectionNoteExt(const std::vector<std::string> &sectionList, NoteExt &note) {
+        parseSectionNote(sectionList, note);
+
+        for (const auto &item : sectionList) {
+            std::string_view line = item;
+            auto eq = line.find('=');
+            if (eq == std::string_view::npos) {
+                continue;
+            }
+
+            auto key = line.substr(0, eq);
+            auto value = line.substr(eq + 1);
+
+            if (key == KEY_NAME_PRE_UTTERANCE_READONLY) {
+                getDouble(value, note.preUttrRO); // PreUtterance
+            } else if (key == KEY_NAME_VOICE_OVERLAP_READONLY) {
+                getDouble(value, note.overlapRO); // Overlap
+            } else if (key == KEY_NAME_START_POINT_READONLY) {
+                getDouble(value, note.stpRO);     // StartPoint
+            } else if (key == KEY_NAME_FILENAME_READONLY) {
+                note.filenameRO = value;          // @filename
+            } else if (key == KEY_NAME_ALIAS_READONLY) {
+                note.aliasRO = value;             // @readonly
+            } else if (key == KEY_NAME_CACHE_READONLY) {
+                note.cacheRO = value;             // @cache
+            }
+        }
+    }
+
     void parseSectionVersion(const std::vector<std::string> &sectionList, UstVersion &out) {
         for (const auto &item : sectionList) {
             std::string_view line = item;
@@ -158,7 +187,9 @@ namespace Utau {
     }
 
     void writeSectionNote(int num, const Note &note, std::ostream &out) {
-        writeSectionName(num, out);
+        if (num >= 0) {
+            writeSectionName(num, out);
+        }
 
         // Items always exists
         out << KEY_NAME_LENGTH << "=" << note.length << std::endl;

@@ -7,7 +7,7 @@
 
 namespace Utau {
 
-    static inline Note createInitialNote() {
+    inline Note createInitialNote() {
         Note note;
 
         // These properties have explicit default values when created by editor

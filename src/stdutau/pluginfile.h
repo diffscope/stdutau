@@ -23,29 +23,28 @@ namespace Utau {
         int startIndex() const;
         std::vector<NoteExt> notes() const;
 
-    public:
+    protected:
         struct Private;
         std::unique_ptr<Private> d_ptr;
     };
 
     class STDUTAU_EXPORT PluginFileWriter {
     public:
-        PluginFileWriter();
+        PluginFileWriter(int startIndex, int originalSize);
 
         bool save(const std::filesystem::path &path) const;
 
     public:
-        void setChangedPrevNote(const Note &note);
-        void setChangedNextNote(const Note &note);
+        void setNote(int index, const Note &note);
+        void setPrevNote(const Note &note);
+        void setNextNote(const Note &note);
 
-        void addChangedNote(int index, const Note &note);
-        void addChangedNotes(int index, const std::vector<Note> &notes);
+        void insertNotes(int index, const std::vector<Note> &notes);
+        void prependNotesBeforePrev(const std::vector<Note> &notes);
+        void appendNotesAfterNext(const std::vector<Note> &notes);
 
-        void addInsertedNote(int index, const Note &note);
-        void addInsertedNotes(int index, const std::vector<Note> &notes);
-
-        void addRemovedNote(int index);
-        void addRemovedNotes(const std::vector<int> &indexes);
+        void removeNote(int index);
+        void removeNotes(const std::vector<int> &indexes);
 
     protected:
         struct Private;

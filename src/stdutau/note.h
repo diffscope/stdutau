@@ -190,7 +190,7 @@ namespace Utau {
         inline NoteExt(int noteNum, int length, const std::string &lyric = DEFAULT_LYRIC);
 
     public:
-        double preuttrRO;
+        double preUttrRO;
         double overlapRO;
         double stpRO;
         std::string filenameRO;
@@ -198,11 +198,11 @@ namespace Utau {
         std::string cacheRO;
     };
 
-    inline NoteExt::NoteExt() : preuttrRO(0), overlapRO(0), stpRO(0) {
+    inline NoteExt::NoteExt() : preUttrRO(0), overlapRO(0), stpRO(0) {
     }
 
     inline NoteExt::NoteExt(int noteNum, int length, const std::string &lyric)
-        : Note(noteNum, length, lyric), preuttrRO(0), overlapRO(0), stpRO(0) {
+        : Note(noteNum, length, lyric), preUttrRO(0), overlapRO(0), stpRO(0) {
     }
 
     struct STDUTAU_EXPORT PBStrings {

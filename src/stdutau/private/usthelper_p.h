@@ -12,6 +12,7 @@ namespace Utau {
 
     bool parseSectionName(const std::string_view &str, std::string_view &name);
     void parseSectionNote(const std::vector<std::string> &sectionList, Note &note);
+    void parseSectionNoteExt(const std::vector<std::string> &sectionList, NoteExt &note);
     void parseSectionVersion(const std::vector<std::string> &sectionList, UstVersion &out);
     void parseSectionSettings(const std::vector<std::string> &sectionList, UstSettings &out);
 
