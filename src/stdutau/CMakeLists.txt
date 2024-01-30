@@ -23,7 +23,7 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 # Add platform specific
 if(WIN32)
     set(RC_DESCRIPTION "C++ Standard UTAU Library")
-    set(RC_COPYRIGHT "Copyright (C) 2020-2024 SineSriker")
+    set(RC_COPYRIGHT "Copyright (C) 2020-2024 SineStriker")
     include("../../cmake/winrc.cmake")
 endif()
 
