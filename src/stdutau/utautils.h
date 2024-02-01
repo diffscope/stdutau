@@ -21,7 +21,7 @@ namespace Utau {
 #if __cplusplus >= 202002L
         return s.starts_with(prefix);
 #else
-        return s.size() >= prefix.size() && !std::memcmp(s.data(), prefix.data(), prefix.size());
+        return s.size() >= prefix.size() && s.substr(0, prefix.size()) == prefix;
 #endif
     }
 
@@ -29,8 +29,7 @@ namespace Utau {
 #if __cplusplus >= 202002L
         return s.ends_with(prefix);
 #else
-        return s.size() >= prefix.size() &&
-               !std::memcmp(s.data() + s.size() - prefix.size(), prefix.data(), prefix.size());
+        return s.size() >= prefix.size() && s.substr(s.size() - prefix.size()) == prefix;
 #endif
     }
 
