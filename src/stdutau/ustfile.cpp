@@ -1,6 +1,7 @@
 #include "ustfile.h"
 
 #include <fstream>
+#include <algorithm>
 
 #include "utautils.h"
 #include "private/usthelper_p.h"

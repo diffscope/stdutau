@@ -1,6 +1,7 @@
 #include "synth.h"
 
 #include <cmath>
+#include <cstdint>
 
 #include "utautils.h"
 
