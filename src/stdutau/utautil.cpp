@@ -1,6 +1,7 @@
 #include "utautils.h"
 
 #include <sstream>
+#include <string>
 #include <charconv>
 
 #include "utaconst.h"
@@ -72,8 +73,32 @@ namespace Utau {
     }
 
     double stod2(const std::string_view &s, double defaultValue) {
+#ifdef __clang__
+        // Clang does not support floating point numbers in std::from_chars, so std::stod is used instead.
+
+        // Note:
+        // This implementation creates a temporary std::string from std::string_view
+        // since std::stod does not support std::string_view, so there is some overhead.
+
+        double result;
+        std::size_t count;
+        try {
+            result = std::stod(std::string(s), &count);
+            if (count == 0) {
+                result = defaultValue;
+            }
+        }
+        catch (const std::invalid_argument &e) {
+            result = defaultValue;
+        }
+        catch (const std::out_of_range &e) {
+            result = defaultValue;
+        }
+        return result;
+#else
         std::from_chars(s.data(), s.data() + s.size(), defaultValue);
         return defaultValue;
+#endif
     }
 
     std::string to_string(double num) {

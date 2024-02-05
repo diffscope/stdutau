@@ -3,6 +3,7 @@
 #include <map>
 #include <set>
 #include <fstream>
+#include <algorithm>
 
 #include "private/usthelper_p.h"
 #include "utautils.h"
