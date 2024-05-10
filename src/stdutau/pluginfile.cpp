@@ -10,6 +10,14 @@
 
 namespace Utau {
 
+    template <class T>
+    inline void detach_shared_ptr(std::shared_ptr<T> &d) {
+        if (d.use_count() == 1)
+            return;
+        auto x = std::make_shared<T>(*d);
+        d = x;
+    }
+
     inline NoteExt createInitialNoteExt() {
         NoteExt note;
 
@@ -44,7 +52,7 @@ namespace Utau {
     /*!
         Constructor.
     */
-    PluginFileReader::PluginFileReader() : d_ptr(std::make_unique<Private>()) {
+    PluginFileReader::PluginFileReader() : d_ptr(std::make_shared<Private>()) {
     }
 
     /*!
@@ -58,6 +66,8 @@ namespace Utau {
 
         // Read File
         std::vector<std::string> currentSection;
+
+        detach_shared_ptr(d_ptr); // Detach
 
         std::string line;
         while (std::getline(is, line)) {
@@ -123,6 +133,7 @@ namespace Utau {
             currentSection.clear();
             currentSection.push_back(line);
         }
+
         return true;
     }
 
@@ -176,7 +187,7 @@ namespace Utau {
         Constructor.
     */
     PluginFileWriter::PluginFileWriter(int startIndex, int originalSize)
-        : d_ptr(std::make_unique<Private>()) {
+        : d_ptr(std::make_shared<Private>()) {
         d_ptr->startIndex = startIndex;
         d_ptr->originalSize = originalSize;
     }
@@ -277,37 +288,45 @@ namespace Utau {
     }
 
     void PluginFileWriter::setNote(int index, const Note &note) {
+        detach_shared_ptr(d_ptr);
         d_ptr->changedNotes[index] = note;
     }
 
     void PluginFileWriter::setPrevNote(const Note &note) {
+        detach_shared_ptr(d_ptr);
         d_ptr->prevNote = note;
     }
 
     void PluginFileWriter::setNextNote(const Note &note) {
+        detach_shared_ptr(d_ptr);
         d_ptr->nextNote = note;
     }
 
     void PluginFileWriter::insertNotes(int index, const std::vector<Note> &notes) {
+        detach_shared_ptr(d_ptr);
         auto &vec = d_ptr->insertedNotes[index];
         vec.insert(vec.end(), notes.begin(), notes.end());
     }
 
     void PluginFileWriter::prependNotesBeforePrev(const std::vector<Note> &notes) {
+        detach_shared_ptr(d_ptr);
         auto &vec = d_ptr->notesBeforePrev;
         vec.insert(vec.begin(), notes.begin(), notes.end());
     }
 
     void PluginFileWriter::appendNotesAfterNext(const std::vector<Note> &notes) {
+        detach_shared_ptr(d_ptr);
         auto &vec = d_ptr->notesAfterNext;
         vec.insert(vec.end(), notes.begin(), notes.end());
     }
 
     void PluginFileWriter::removeNote(int index) {
+        detach_shared_ptr(d_ptr);
         d_ptr->removedNotes.insert(index);
     }
 
     void PluginFileWriter::removeNotes(const std::vector<int> &indexes) {
+        detach_shared_ptr(d_ptr);
         for (const auto &idx : indexes)
             d_ptr->removedNotes.insert(idx);
     }

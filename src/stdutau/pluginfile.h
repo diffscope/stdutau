@@ -25,7 +25,7 @@ namespace Utau {
 
     protected:
         struct Private;
-        std::unique_ptr<Private> d_ptr;
+        std::shared_ptr<Private> d_ptr;
     };
 
     class STDUTAU_EXPORT PluginFileWriter {
@@ -48,7 +48,7 @@ namespace Utau {
 
     protected:
         struct Private;
-        std::unique_ptr<Private> d_ptr;
+        std::shared_ptr<Private> d_ptr;
     };
 
 }

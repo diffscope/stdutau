@@ -107,6 +107,7 @@ namespace Utau {
     public:
         inline Note();
         Note(int noteNum, int length, const std::string &lyric = DEFAULT_LYRIC);
+        virtual ~Note() = default;
 
         inline constexpr double realIntensity() const;
         inline constexpr double realModulation() const;

@@ -242,21 +242,22 @@ namespace Utau {
                 prevImpact = 0;
                 nextImpact = 0;
 
-                basePitch = find_impact(curNote, i, int(tick), curTempo, prevTempo, curVBR, curLength);
+                basePitch =
+                    find_impact(curNote, i, int(tick), curTempo, prevTempo, curVBR, curLength);
 
                 // The part influenced by the next note
                 if (tick >= nextStart) {
                     if (j < nextNote.size() - 1) {
-                        nextImpact = find_impact(nextNote, j, int(tick) - curLength, curTempo, curTempo,
-                                                 nextVBR, nextLength);
+                        nextImpact = find_impact(nextNote, j, int(tick) - curLength, curTempo,
+                                                 curTempo, nextVBR, nextLength);
                     }
                     nextImpact += -int(nextNote[0].y * 10);
                 }
 
                 // The part influenced by the previous note
                 if (tick <= 0) {
-                    prevImpact = find_impact(prevNote, k, int(tick) + prevLength, prevTempo, prevTempo,
-                                             prevVBR, prevLength);
+                    prevImpact = find_impact(prevNote, k, int(tick) + prevLength, prevTempo,
+                                             prevTempo, prevVBR, prevLength);
                 }
 
                 // Add the influence of the pitch line before and after the note
@@ -627,15 +628,15 @@ namespace Utau {
     /*!
         Calculates the synthesis arguments for the wavtool and resampler.
     */
-    void Synth::calc(const std::pair<int, int> &rangeLimits, const std::pair<int, int> &range,
-                     double initialTempo, const std::string &globalFlags,
-                     const NoteGetter &noteGetter, const GenonSettingsGetter &genonSettingsGetter,
-                     std::vector<std::pair<ResamplerArguments, WavtoolArguments>> *result) {
+    Synth::SynthParams Synth::calc(const std::pair<int, int> &rangeLimits,
+                                   const std::pair<int, int> &range, double initialTempo,
+                                   const std::string &globalFlags, const NoteGetter &noteGetter,
+                                   const GenonSettingsGetter &genonSettingsGetter) {
 
         int left = std::max(rangeLimits.first, range.first);
         int right = std::min(rangeLimits.second, range.second);
         if (range.first > range.second)
-            return;
+            return {};
 
         // Get initial tempo
         double currentTempo = initialTempo;
@@ -666,7 +667,7 @@ namespace Utau {
             }
         }
 
-        std::vector<std::pair<ResamplerArguments, WavtoolArguments>> args;
+        SynthParams args;
         for (int i = left; i <= right; ++i) {
             const auto &aNote = noteGetter(i);
             const auto &aNextNote = noteGetter(i + 1);
@@ -832,7 +833,7 @@ namespace Utau {
             args.emplace_back(res, wav);
         }
 
-        *result = args;
+        return args;
     }
 
 }

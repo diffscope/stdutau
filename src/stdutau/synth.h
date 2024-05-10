@@ -88,12 +88,12 @@ namespace Utau {
     struct STDUTAU_EXPORT Synth {
         using NoteGetter = std::function<Note(int)>;
         using GenonSettingsGetter = std::function<GenonSettings(const Note &)>;
+        using SynthParams = std::vector<std::pair<ResamplerArguments, WavtoolArguments>>;
 
-        static void calc(const std::pair<int, int> &rangeLimits, const std::pair<int, int> &range,
-                         double initialTempo, const std::string &globalFlags,
-                         const NoteGetter &noteGetter,
-                         const GenonSettingsGetter &genonSettingsGetter,
-                         std::vector<std::pair<ResamplerArguments, WavtoolArguments>> *result);
+        static SynthParams calc(const std::pair<int, int> &rangeLimits,
+                                const std::pair<int, int> &range, double initialTempo,
+                                const std::string &globalFlags, const NoteGetter &noteGetter,
+                                const GenonSettingsGetter &genonSettingsGetter);
     };
 
 }
