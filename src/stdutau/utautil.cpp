@@ -1,5 +1,6 @@
 #include "utautils.h"
 
+#include <cctype>
 #include <istream>
 #include <sstream>
 #include <stdexcept>
@@ -64,17 +65,21 @@ namespace utau {
     }
 
     std::string trim(const std::string &s) {
+        // The cast matters. What this library holds is raw bytes, and std::isspace on a negative
+        // value other than EOF is undefined, which any byte above 0x7F of a Shift_JIS string is.
+        auto isSpace = [](char c) { return std::isspace(static_cast<unsigned char>(c)) != 0; };
+
         auto start = s.begin();
-        while (start != s.end() && std::isspace(*start)) {
+        while (start != s.end() && isSpace(*start)) {
             start++;
         }
 
         auto end = s.end();
-        do {
+        while (end != start && isSpace(*(end - 1))) {
             end--;
-        } while (std::distance(start, end) > 0 && std::isspace(*end));
+        }
 
-        return {start, end + 1};
+        return {start, end};
     }
 
     int stoi2(const std::string_view &s, int defaultValue) {
