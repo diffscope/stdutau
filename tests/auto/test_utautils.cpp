@@ -88,6 +88,18 @@ BOOST_AUTO_TEST_CASE(test_tone_names) {
     }
 }
 
+// The name index reaches a subscript, so a caller handing over something out of range has to get
+// an answer rather than undefined behavior. A negative key arrives here on its own, since the
+// remainder of a negative number is negative in C++.
+BOOST_AUTO_TEST_CASE(test_toneNumToToneName_refuses_an_index_out_of_range) {
+    BOOST_CHECK_EQUAL(toneNumToToneName(-1, 0), "");
+    BOOST_CHECK_EQUAL(toneNumToToneName(12, 0), "");
+    BOOST_CHECK_EQUAL(toneNumToToneName(1000, 0), "");
+
+    BOOST_CHECK_EQUAL(toneNumToToneName(-1), "");
+    BOOST_CHECK_EQUAL(toneNumToToneName(0, 0), "C1");
+}
+
 BOOST_AUTO_TEST_CASE(test_split_and_join) {
     auto parts = split("a,b,,c", ",");
     BOOST_REQUIRE_EQUAL(parts.size(), 4);

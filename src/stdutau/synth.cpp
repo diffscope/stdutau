@@ -345,20 +345,20 @@ namespace utau {
                 return listEnv;
             }
 
-            listEnv << to_string(tpoints.at(0).x);
-            listEnv << to_string(tpoints.at(1).x);
-            listEnv << to_string(tpoints.at(tpoints.size() - 2).x);
-            listEnv << to_string(tpoints.at(0).y);
-            listEnv << to_string(tpoints.at(1).y);
-            listEnv << to_string(tpoints.at(tpoints.size() - 2).y);
-            listEnv << to_string(tpoints.at(tpoints.size() - 1).y);
+            listEnv << to_string(tpoints[0].x);
+            listEnv << to_string(tpoints[1].x);
+            listEnv << to_string(tpoints[tpoints.size() - 2].x);
+            listEnv << to_string(tpoints[0].y);
+            listEnv << to_string(tpoints[1].y);
+            listEnv << to_string(tpoints[tpoints.size() - 2].y);
+            listEnv << to_string(tpoints[tpoints.size() - 1].y);
             listEnv << strOverlap;
             if (tpoints.size() == 5) {
-                listEnv << to_string(tpoints.at(tpoints.size() - 1).x);
-                listEnv << to_string(tpoints.at(2).x);
-                listEnv << to_string(tpoints.at(2).y);
-            } else if (tpoints.at(tpoints.size() - 1).x != 0) {
-                listEnv << to_string(tpoints.at(tpoints.size() - 1).x);
+                listEnv << to_string(tpoints[tpoints.size() - 1].x);
+                listEnv << to_string(tpoints[2].x);
+                listEnv << to_string(tpoints[2].y);
+            } else if (tpoints[tpoints.size() - 1].x != 0) {
+                listEnv << to_string(tpoints[tpoints.size() - 1].x);
             }
             return listEnv;
         }
@@ -519,7 +519,7 @@ namespace utau {
             } else {
                 list << to_string(pitchCurves.front()) + "Q" + to_string(tempo);
                 for (int i = 1; i < pitchCurves.size(); ++i) {
-                    list << to_string(pitchCurves.at(i));
+                    list << to_string(pitchCurves[i]);
                 }
             }
         }

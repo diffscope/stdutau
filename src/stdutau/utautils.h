@@ -82,6 +82,7 @@ namespace utau {
     STDUTAU_EXPORT std::string toneNumToToneName(int num);
 
     /// Builds a name from a position within the octave and the octave, both counted from zero.
+    /// Returns an empty string when \a nameIndex is outside 0 to 11.
     STDUTAU_EXPORT std::string toneNumToToneName(int nameIndex, int octaveIndex);
 
     /// Converts between ticks and milliseconds at \a tempo, where 480 ticks is a quarter note.

@@ -74,20 +74,20 @@ namespace utau {
         std::vector<std::string> res;
 
         offset = (count() == 5);
-        nums.push_back(anchors.at(0).x);
-        nums.push_back(anchors.at(1).x);
-        nums.push_back(anchors.at(2 + offset).x);
-        nums.push_back(anchors.at(0).y);
-        nums.push_back(anchors.at(1).y);
-        nums.push_back(anchors.at(2 + offset).y);
-        nums.push_back(anchors.at(3 + offset).y);
-        nums.push_back(anchors.at(3 + offset).x);
+        nums.push_back(anchors[0].x);
+        nums.push_back(anchors[1].x);
+        nums.push_back(anchors[2 + offset].x);
+        nums.push_back(anchors[0].y);
+        nums.push_back(anchors[1].y);
+        nums.push_back(anchors[2 + offset].y);
+        nums.push_back(anchors[3 + offset].y);
+        nums.push_back(anchors[3 + offset].x);
 
         if (count() == 5) {
-            nums.push_back(anchors.at(2).x);
-            nums.push_back(anchors.at(2).y);
+            nums.push_back(anchors[2].x);
+            nums.push_back(anchors[2].y);
         }
-        if (nums.size() == 8 && nums.at(7) == 0.0) {
+        if (nums.size() == 8 && nums[7] == 0.0) {
             nums.pop_back();
         }
         for (auto num : std::as_const(nums)) {
@@ -118,13 +118,13 @@ namespace utau {
 
         Envelope env;
         int index = 0;
-        env.anchors[index++] = {nums.at(0), nums.at(3)};
-        env.anchors[index++] = {nums.at(1), nums.at(4)};
+        env.anchors[index++] = {nums[0], nums[3]};
+        env.anchors[index++] = {nums[1], nums[4]};
         if (nums.size() == 10) {
-            env.anchors[index++] = {nums.at(8), nums.at(9)};
+            env.anchors[index++] = {nums[8], nums[9]};
         }
-        env.anchors[index++] = {nums.at(2), nums.at(5)};
-        env.anchors[index++] = {nums.at(7), nums.at(6)};
+        env.anchors[index++] = {nums[2], nums[5]};
+        env.anchors[index++] = {nums[7], nums[6]};
         return env;
     }
 
@@ -148,7 +148,7 @@ namespace utau {
         if (!PBSXY.empty()) {
             p.x = stod2(PBSXY.front(), p.x);
             if (PBSXY.size() >= 2) {
-                p.y = stod2(PBSXY.at(1), p.y);
+                p.y = stod2(PBSXY[1], p.y);
             }
         }
 
@@ -162,14 +162,14 @@ namespace utau {
         for (int i = 0; i < std::max(PBWs.size(), PBYs.size()); i++) {
             p = {};
             if (PBWs.size() > i) {
-                p.x = stod2(PBWs.at(i), p.x);
+                p.x = stod2(PBWs[i], p.x);
             }
             if (PBYs.size() > i) {
-                if (!PBYs.at(i).empty())
-                    p.y = stod2(PBYs.at(i), p.y);
+                if (!PBYs[i].empty())
+                    p.y = stod2(PBYs[i], p.y);
             }
             if (PBMs.size() > i) {
-                p.type = Point::stringToType(PBMs.at(i));
+                p.type = Point::stringToType(PBMs[i]);
             }
             p.x += res.back().x;
             res.push_back(p);
@@ -204,7 +204,7 @@ namespace utau {
         {
             std::vector<std::string> strs;
             for (int i = 1; i < points.size(); i++) {
-                strs.push_back(to_string(points.at(i).x - points.at(i - 1).x));
+                strs.push_back(to_string(points[i].x - points[i - 1].x));
             }
             res.PBW = join(strs, ",");
         }
@@ -214,7 +214,7 @@ namespace utau {
             std::vector<std::string> strs;
             strs.clear();
             for (int i = 1; i < points.size(); i++) {
-                strs.push_back(to_string(points.at(i).y));
+                strs.push_back(to_string(points[i].y));
             }
             res.PBY = join(strs, ",");
         }
@@ -224,7 +224,7 @@ namespace utau {
             std::vector<std::string> strs;
             strs.clear();
             for (int i = 1; i < points.size(); i++) {
-                strs.push_back(Point::typeToString(points.at(i).type));
+                strs.push_back(Point::typeToString(points[i].type));
             }
             res.PBM = join(strs, ",");
         }

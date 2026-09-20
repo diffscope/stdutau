@@ -23,6 +23,9 @@
 #  endif
 #endif
 
+/// \namespace utau
+/// Everything this library provides.
+
 namespace utau {
 
     /// Marks a sample of a pitch curve that carries no value.

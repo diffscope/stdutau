@@ -10,9 +10,6 @@
 
 #include "utaconst.h"
 
-/// \namespace utau
-/// Everything this library provides.
-
 namespace utau {
 
     // Reads a double without exceptions, which this library is built without.
@@ -209,10 +206,14 @@ namespace utau {
     }
 
     std::string toneNumToToneName(int nameIndex, int octaveIndex) {
-        std::string tone_names(TONE_NAMES);
+        std::string_view tone_names(TONE_NAMES);
+        if (nameIndex < 0 || nameIndex >= int(tone_names.size())) {
+            return {};
+        }
+
         std::string name;
-        name += tone_names.at(nameIndex);
-        if (nameIndex > 0 && tone_names.at(nameIndex) == tone_names.at(nameIndex - 1)) {
+        name += tone_names[nameIndex];
+        if (nameIndex > 0 && tone_names[nameIndex] == tone_names[nameIndex - 1]) {
             name += TONE_NAME_SHARP;
         }
         name += to_string(octaveIndex + 1);

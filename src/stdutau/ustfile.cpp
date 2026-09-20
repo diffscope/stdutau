@@ -101,7 +101,7 @@ namespace utau {
 
         // Write Notes
         for (int i = 0; i < notes.size(); ++i) {
-            writeSectionNote(i, notes.at(i), os);
+            writeSectionNote(i, notes[i], os);
             if (!os.good())
                 return false;
         }

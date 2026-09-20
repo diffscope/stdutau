@@ -147,7 +147,7 @@ namespace utau {
 
         // Selection
         for (int i = 0; i < noteItems.size(); ++i) {
-            const auto &item = noteItems.at(i);
+            const auto &item = noteItems[i];
             if (item.inserted) {
                 for (const auto &note : *item.inserted) {
                     writeSectionName(SECTION_NAME_INSERT, os);
