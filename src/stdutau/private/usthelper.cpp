@@ -53,56 +53,56 @@ namespace Utau {
             auto key = line.substr(0, eq);
             auto value = line.substr(eq + 1);
             if (key == KEY_NAME_LYRIC) {
-                note.lyric = value;                // Lyric
+                note.lyric = value; // Lyric
             } else if (key == KEY_NAME_NOTE_NUM) {
-                getInt(value, note.noteNum);       // Note Num
+                getInt(value, note.noteNum); // Note Num
             } else if (key == KEY_NAME_LENGTH) {
-                getInt(value, note.length);        // Length
+                getInt(value, note.length); // Length
             } else if (key == KEY_NAME_FLAGS) {
-                note.flags = value;                // Flags
+                note.flags = value; // Flags
             } else if (key == KEY_NAME_INTENSITY) {
-                getDouble(value, note.intensity);  // Intensity
+                getDouble(value, note.intensity); // Intensity
             } else if (key == KEY_NAME_MODULATION || key == KEY_NAME_MODURATION) {
                 getDouble(value, note.modulation); // Modulation
             } else if (key == KEY_NAME_PRE_UTTERANCE) {
-                getDouble(value, note.preUttr);    // PreUtterance
+                getDouble(value, note.preUttr); // PreUtterance
             } else if (key == KEY_NAME_VOICE_OVERLAP) {
-                getDouble(value, note.overlap);    // Overlap
+                getDouble(value, note.overlap); // Overlap
             } else if (key == KEY_NAME_VELOCITY) {
-                getDouble(value, note.velocity);   // Consonant Velocity
+                getDouble(value, note.velocity); // Consonant Velocity
             } else if (key == KEY_NAME_START_POINT) {
-                getDouble(value, note.stp);        // StartPoint
+                getDouble(value, note.stp); // StartPoint
             } else if (key == KEY_NAME_TEMPO) {
-                getDouble(value, note.tempo);      // Tempo
+                getDouble(value, note.tempo); // Tempo
             } else if (key == KEY_NAME_REGION_START) {
-                note.region = value;               // Start of region
+                note.region = value; // Start of region
             } else if (key == KEY_NAME_REGION_END) {
-                note.regionEnd = value;            // End of region
+                note.regionEnd = value; // End of region
             } else if (key == KEY_NAME_PB_START) {
-                getDouble(value, note.pbstart);    // Mode1 Start
+                getDouble(value, note.pbstart); // Mode1 Start
             } else if (key == KEY_NAME_PBS) {
-                mode2.PBS = value;                 // Mode2 Start
+                mode2.PBS = value; // Mode2 Start
             } else if (key == KEY_NAME_PBW) {
-                mode2.PBW = value;                 // Mode2 Intervals
+                mode2.PBW = value; // Mode2 Intervals
             } else if (key == KEY_NAME_PBY) {
-                mode2.PBY = value;                 // Mode2 Offsets
+                mode2.PBY = value; // Mode2 Offsets
             } else if (key == KEY_NAME_PBM) {
-                mode2.PBM = value;                 // Mode2 Types
+                mode2.PBM = value; // Mode2 Types
             } else if (key == KEY_NAME_PICHES || key == KEY_NAME_PITCHES ||
                        key == KEY_NAME_PITCH_BEND) {
-                note.pitches = stringsToDoubles(split(value, ","));       // Mode1 Pitch
+                note.pitches = stringsToDoubles(split(value, ",")); // Mode1 Pitch
             } else if (key == KEY_NAME_VBR) {
-                note.vibrato = Vibrato::fromString(std::string(value));   // Vibrato
+                note.vibrato = Vibrato::fromString(std::string(value)); // Vibrato
             } else if (key == KEY_NAME_ENVELOPE) {
                 note.envelope = Envelope::fromString(std::string(value)); // Envelope
             } else if (key == KEY_NAME_LABEL) {
-                note.label = value;                                       // Label
+                note.label = value; // Label
             } else if (key == KEY_NAME_DIRECT) {
-                note.direct = value;                                      // Direct rendering
+                note.direct = value; // Direct rendering
             } else if (key == KEY_NAME_PATCH) {
-                note.patch = value;                                       // Patch
+                note.patch = value; // Patch
             } else if (!isReservedKey(key)) {
-                note.userData[std::string(key)] = value;                  // Anything else
+                note.userData[std::string(key)] = value; // Anything else
             }
         }
         note.portamento = mode2.toPoints(); // Mode2 Pitch
@@ -126,13 +126,13 @@ namespace Utau {
             } else if (key == KEY_NAME_VOICE_OVERLAP_READONLY) {
                 getDouble(value, note.overlapRO); // Overlap
             } else if (key == KEY_NAME_START_POINT_READONLY) {
-                getDouble(value, note.stpRO);     // StartPoint
+                getDouble(value, note.stpRO); // StartPoint
             } else if (key == KEY_NAME_FILENAME_READONLY) {
-                note.filenameRO = value;          // @filename
+                note.filenameRO = value; // @filename
             } else if (key == KEY_NAME_ALIAS_READONLY) {
-                note.aliasRO = value;             // @readonly
+                note.aliasRO = value; // @readonly
             } else if (key == KEY_NAME_CACHE_READONLY) {
-                note.cacheRO = value;             // @cache
+                note.cacheRO = value; // @cache
             }
         }
     }
@@ -167,19 +167,19 @@ namespace Utau {
             auto key = line.substr(0, eq);
             auto value = line.substr(eq + 1);
             if (key == KEY_NAME_PROJECT_NAME) {
-                out.projectName = value;      // Project Name
+                out.projectName = value; // Project Name
             } else if (key == KEY_NAME_OUTPUT_FILE) {
-                out.outputFileName = value;   // Output File Name
+                out.outputFileName = value; // Output File Name
             } else if (key == KEY_NAME_VOICE_DIR) {
-                out.voiceDir = value;         // Voice Directory
+                out.voiceDir = value; // Voice Directory
             } else if (key == KEY_NAME_CACHE_DIR) {
-                out.cacheDir = value;         // Cache Directory
+                out.cacheDir = value; // Cache Directory
             } else if (key == KEY_NAME_TOOL1) {
-                out.wavtoolPath = value;      // Wavtool
+                out.wavtoolPath = value; // Wavtool
             } else if (key == KEY_NAME_TOOL2) {
-                out.resamplerPath = value;    // Resampler
+                out.resamplerPath = value; // Resampler
             } else if (key == KEY_NAME_MODE2) {
-                out.isMode2 = true;           // Mode2
+                out.isMode2 = true; // Mode2
             } else if (key == KEY_NAME_TEMPO) {
                 out.tempo = getDouble(value); // Global Tempo
                 if (out.tempo < VALUE_TEMPO_MIN || out.tempo > VALUE_TEMPO_MAX) {
