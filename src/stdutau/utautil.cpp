@@ -1,9 +1,10 @@
 #include "utautils.h"
 
 #include <cctype>
+#include <cerrno>
+#include <cstdlib>
 #include <istream>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <charconv>
 
@@ -13,6 +14,34 @@
 /// Everything this library provides.
 
 namespace utau {
+
+    // Reads a double without exceptions, which this library is built without.
+    //
+    // libc++ still has no floating point std::from_chars, so that path falls back on strtod. It
+    // needs a terminated string, which a string_view does not give, hence the copy.
+    static bool parseDouble(const std::string_view &s, double &out) {
+#ifdef _LIBCPP_VERSION
+        // std::from_chars accepts neither leading space nor a leading plus, while strtod accepts
+        // both. Turn them away here so the two paths answer alike.
+        if (s.empty() || s.front() == '+' || std::isspace(static_cast<unsigned char>(s.front()))) {
+            return false;
+        }
+
+        std::string str(s);
+        const char *begin = str.c_str();
+        char *end = nullptr;
+        errno = 0;
+        double value = std::strtod(begin, &end);
+        if (end == begin || errno == ERANGE) {
+            return false;
+        }
+        out = value;
+        return true;
+#else
+        auto result = std::from_chars(s.data(), s.data() + s.size(), out);
+        return result.ec == std::errc();
+#endif
+    }
 
     bool readLine(std::istream &is, std::string &line) {
         if (!std::getline(is, line)) {
@@ -88,31 +117,11 @@ namespace utau {
     }
 
     double stod2(const std::string_view &s, double defaultValue) {
-#ifdef __clang__
-        // Clang does not support floating point numbers in std::from_chars, so std::stod is used
-        // instead.
-
-        // Note:
-        // This implementation creates a temporary std::string from std::string_view
-        // since std::stod does not support std::string_view, so there is some overhead.
-
-        double result;
-        std::size_t count;
-        try {
-            result = std::stod(std::string(s), &count);
-            if (count == 0) {
-                result = defaultValue;
-            }
-        } catch (const std::invalid_argument &e) {
-            result = defaultValue;
-        } catch (const std::out_of_range &e) {
-            result = defaultValue;
+        double value;
+        if (!parseDouble(s, value)) {
+            return defaultValue;
         }
-        return result;
-#else
-        std::from_chars(s.data(), s.data() + s.size(), defaultValue);
-        return defaultValue;
-#endif
+        return value;
     }
 
     std::optional<int> toInt(const std::string_view &s) {
@@ -125,29 +134,11 @@ namespace utau {
     }
 
     std::optional<double> toDouble(const std::string_view &s) {
-#ifdef __clang__
-        // Clang has no floating point std::from_chars, so std::stod stands in here as it does in
-        // stod2(). It takes a std::string, which costs a copy.
-        try {
-            std::size_t count;
-            double value = std::stod(std::string(s), &count);
-            if (count == 0) {
-                return std::nullopt;
-            }
-            return value;
-        } catch (const std::invalid_argument &) {
-            return std::nullopt;
-        } catch (const std::out_of_range &) {
-            return std::nullopt;
-        }
-#else
         double value;
-        auto result = std::from_chars(s.data(), s.data() + s.size(), value);
-        if (result.ec != std::errc()) {
+        if (!parseDouble(s, value)) {
             return std::nullopt;
         }
         return value;
-#endif
     }
 
     std::string to_string(double num) {
