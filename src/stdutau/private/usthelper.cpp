@@ -20,6 +20,16 @@ namespace Utau {
         return stoi2(s);
     }
 
+    // Entries a note carries that parseSectionNote() reads under another name, or that
+    // writeSectionNote() derives on its own. They are not unknown, so they must stay out of
+    // Note::userData, which would otherwise write them a second time.
+    static inline bool isReservedKey(const std::string_view &key) {
+        return key == KEY_NAME_PB_TYPE || key == KEY_NAME_PRE_UTTERANCE_READONLY ||
+               key == KEY_NAME_VOICE_OVERLAP_READONLY || key == KEY_NAME_START_POINT_READONLY ||
+               key == KEY_NAME_FILENAME_READONLY || key == KEY_NAME_ALIAS_READONLY ||
+               key == KEY_NAME_CACHE_READONLY;
+    }
+
     bool parseSectionName(const std::string_view &str, std::string_view &name) {
         if (starts_with(str, SECTION_BEGIN_MARK) && ends_with(str, SECTION_END_MARK)) {
             name = str.substr(sizeof(SECTION_BEGIN_MARK) - 1, str.size() -
@@ -85,6 +95,14 @@ namespace Utau {
                 note.vibrato = Vibrato::fromString(std::string(value));   // Vibrato
             } else if (key == KEY_NAME_ENVELOPE) {
                 note.envelope = Envelope::fromString(std::string(value)); // Envelope
+            } else if (key == KEY_NAME_LABEL) {
+                note.label = value;                                       // Label
+            } else if (key == KEY_NAME_DIRECT) {
+                note.direct = value;                                      // Direct rendering
+            } else if (key == KEY_NAME_PATCH) {
+                note.patch = value;                                       // Patch
+            } else if (!isReservedKey(key)) {
+                note.userData[std::string(key)] = value;                  // Anything else
             }
         }
         note.portamento = mode2.toPoints(); // Mode2 Pitch
@@ -256,6 +274,22 @@ namespace Utau {
         }
         if (!note.regionEnd.empty()) {
             out << KEY_NAME_REGION_END << "=" << note.regionEnd << std::endl;
+        }
+        if (!note.label.empty()) {
+            out << KEY_NAME_LABEL << "=" << note.label << std::endl;
+        }
+        if (!note.direct.empty()) {
+            out << KEY_NAME_DIRECT << "=" << note.direct << std::endl;
+        }
+        if (!note.patch.empty()) {
+            out << KEY_NAME_PATCH << "=" << note.patch << std::endl;
+        }
+
+        // Last, which is where UTAU puts the entries it did not recognize when it writes a file
+        // back. Matching that keeps a file this library wrote and the same file after a pass
+        // through UTAU in the same shape.
+        for (const auto &pair : note.userData) {
+            out << pair.first << "=" << pair.second << std::endl;
         }
     }
 

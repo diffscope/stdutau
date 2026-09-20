@@ -143,6 +143,18 @@ namespace Utau {
         std::string direct, patch;
         std::string region, regionEnd;
 
+        /// Entries found on the note that this class does not otherwise represent. They are kept
+        /// as they were read and written back at the end of the section, so a host can store its
+        /// own data on a note and find it again.
+        ///
+        /// The map is keyed by the entry name, which makes a repeated name resolve to the last
+        /// one read. UTAU resolves it the same way.
+        ///
+        /// \note UTAU keeps an entry it does not know only when the name begins with \c $ , and
+        ///       only on a note section. Anything else stored here survives a round trip through
+        ///       this library and is gone the moment the file passes through UTAU. The value is
+        ///       subject to further limits there: \c = and a tab truncate it, a space becomes a
+        ///       comma, and an empty value drops the entry.
         std::map<std::string, std::string> userData;
     };
 

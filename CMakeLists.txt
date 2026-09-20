@@ -55,5 +55,6 @@ set(STDUTAU_INSTALL_NAME ${PROJECT_NAME})
 add_subdirectory(src)
 
 if(STDUTAU_BUILD_TESTS)
+    enable_testing()
     add_subdirectory(tests)
 endif()
