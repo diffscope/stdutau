@@ -50,22 +50,8 @@ namespace Utau {
         return out.str();
     }
 
-    /*!
-        \class OtoIni
-        \brief UTAU original tone profile(oto.ini) reader and writer.
-
-        The string data in this class is pure bytes, please perform appropriate encoding speculation
-        and conversion when accessing.
-    */
-
-    /*!
-        Constructor.
-    */
     OtoIni::OtoIni() = default;
 
-    /*!
-        Reads \c oto.ini items from stream, returns \c true if success.
-    */
     bool OtoIni::read(std::istream &is) {
         std::string line;
         while (readLine(is, line)) {
@@ -88,9 +74,6 @@ namespace Utau {
         return true;
     }
 
-    /*!
-        Writes \c oto.ini items to stream, returns \c true if success.
-    */
     bool OtoIni::write(std::ostream &os) const {
         for (const auto &item : contents) {
             for (const auto &genon : item.second) {

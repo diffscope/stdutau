@@ -7,22 +7,8 @@
 
 namespace Utau {
 
-    /*!
-        \class PrefixMap
-        \brief UTAU prefix map profile(prefix.map) reader and writer.
-
-        The string data in this class is pure bytes, please perform appropriate encoding speculation
-        and conversion when accessing.
-    */
-
-    /*!
-        Constructor.
-    */
     PrefixMap::PrefixMap() = default;
 
-    /*!
-        Reads \c prefix.map items from stream, returns \c true if success.
-    */
     bool PrefixMap::read(std::istream &is) {
         static const constexpr int min = TONE_NUMBER_BASE;
         static const constexpr int max =
@@ -49,9 +35,6 @@ namespace Utau {
         return true;
     }
 
-    /*!
-        Writes \c prefix.map map items to stream, returns \c true if success.
-    */
     bool PrefixMap::write(std::ostream &os) const {
         for (auto it = map.begin(); it != map.end(); ++it) {
             int key = it->first;
@@ -63,9 +46,6 @@ namespace Utau {
         return true;
     }
 
-    /*!
-        Returns the new lyric with the prefix and suffix if found.
-    */
     std::string PrefixMap::prefixedLyric(int noteNum, const std::string &lyric) const {
         auto it = map.find(noteNum);
         if (it == map.end()) {
