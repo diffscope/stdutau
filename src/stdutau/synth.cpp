@@ -63,13 +63,13 @@ namespace utau {
                                     double y2, double x) {
             int impact;
             switch (ptype) {
-                case Point::linearJoin:
+                case Point::LinearJoin:
                     impact = int(f_s(x1, y1, x2, y2, x));
                     break;
-                case Point::jJoin:
+                case Point::JJoin:
                     impact = int(f_j(x1, y1, x2, y2, x));
                     break;
-                case Point::rJoin:
+                case Point::RJoin:
                     impact = int(f_r(x1, y1, x2, y2, x));
                     break;
                 default:
@@ -378,7 +378,7 @@ namespace utau {
             Point second(0, 0);
 
             getCorrectPBSY(prevNoteNum, prevLyric, curNoteNum, first);
-            second.type = Point::sJoin;
+            second.type = Point::SJoin;
 
             std::vector<Point> pitch = {first, second};
 

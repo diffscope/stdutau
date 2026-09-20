@@ -9,13 +9,13 @@
 namespace utau {
 
     Point::Type Point::stringToType(const std::string_view &s) {
-        Type res = sJoin;
+        Type res = SJoin;
         if (s == "s") {
-            res = linearJoin;
+            res = LinearJoin;
         } else if (s == "r") {
-            res = rJoin;
+            res = RJoin;
         } else if (s == "j") {
-            res = jJoin;
+            res = JJoin;
         }
         return res;
     }
@@ -23,13 +23,13 @@ namespace utau {
     std::string Point::typeToString(Type type) {
         std::string res;
         switch (type) {
-            case linearJoin:
+            case LinearJoin:
                 res = "s";
                 break;
-            case rJoin:
+            case RJoin:
                 res = "r";
                 break;
-            case jJoin:
+            case JJoin:
                 res = "j";
                 break;
             default:

@@ -15,13 +15,15 @@ namespace utau {
     /// One anchor of a pitch curve or an envelope, with the shape of the curve reaching it.
     class STDUTAU_EXPORT Point {
     public:
-        /// How the curve runs from the previous anchor to this one. The names are UTAU's, and the
-        /// letter each one is written as in \c PBM is what stringToType() reads.
+        /// How the curve runs from the previous anchor to this one. The names are UTAU's.
+        ///
+        /// \warning The letter \c PBM writes is not the initial of the name. \c SJoin is the one
+        ///          written as nothing at all, and \c s stands for \c LinearJoin .
         enum Type {
-            sJoin,      ///< an S curve, written as nothing at all
-            linearJoin, ///< a straight line, written as \c s
-            rJoin,      ///< steep at the start, written as \c r
-            jJoin,      ///< steep at the end, written as \c j
+            SJoin,      ///< an S curve, written as nothing at all
+            LinearJoin, ///< a straight line, written as \c s
+            RJoin,      ///< steep at the start, written as \c r
+            JJoin,      ///< steep at the end, written as \c j
         };
 
         inline constexpr Point();
@@ -34,10 +36,10 @@ namespace utau {
         /// Orders by \a x alone, which is what sorting a curve into time order wants.
         inline constexpr bool operator<(const Point &other) const;
 
-        /// Anything that is not one of the three letters reads as \c sJoin .
+        /// Anything that is not one of the three letters reads as \c SJoin .
         static Type stringToType(const std::string_view &s);
 
-        /// Returns an empty string for \c sJoin , which is how UTAU writes it.
+        /// Returns an empty string for \c SJoin , which is how UTAU writes it.
         static std::string typeToString(Type type);
 
     public:
@@ -52,10 +54,10 @@ namespace utau {
         Type type;
     };
 
-    inline constexpr Point::Point() : Point(0.0, 0.0, sJoin) {
+    inline constexpr Point::Point() : Point(0.0, 0.0, SJoin) {
     }
 
-    inline constexpr Point::Point(double x, double y) : Point(x, y, sJoin) {
+    inline constexpr Point::Point(double x, double y) : Point(x, y, SJoin) {
     }
 
     inline constexpr Point::Point(double x, double y, Type t) : x(x), y(y), type(t) {
