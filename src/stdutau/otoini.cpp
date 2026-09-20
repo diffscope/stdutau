@@ -5,7 +5,7 @@
 
 #include "utautils.h"
 
-namespace Utau {
+namespace utau {
 
     static OtoEntry parseEntry(const std::string_view &s) {
         if (s.empty()) {

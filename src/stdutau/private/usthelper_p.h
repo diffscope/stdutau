@@ -8,7 +8,7 @@
 #include <stdutau/note.h>
 #include <stdutau/ustfile.h>
 
-namespace Utau {
+namespace utau {
 
     bool parseSectionName(const std::string_view &str, std::string_view &name);
     void parseSectionNote(const std::vector<std::string> &sectionList, Note &note);

@@ -9,7 +9,7 @@
 
 #include <stdutau/utaglobal.h>
 
-namespace Utau {
+namespace utau {
 
     /// A voice bank's \c prefix.map, which decides what is added to a lyric at a given key.
     ///

@@ -5,7 +5,7 @@
 #include "utautils.h"
 #include "utaconst.h"
 
-namespace Utau {
+namespace utau {
 
     PrefixMap::PrefixMap() = default;
 

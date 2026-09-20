@@ -7,12 +7,11 @@
 #include <optional>
 #include <vector>
 #include <filesystem>
-
 #include <iosfwd>
 
 #include <stdutau/note.h>
 
-namespace Utau {
+namespace utau {
 
     /// The \c [#VERSION] section.
     struct UstVersion {

@@ -6,7 +6,7 @@
 
 #include <stdutau/ustfile.h>
 
-namespace Utau {
+namespace utau {
 
     /// Reads the temporary file UTAU hands a plugin on startup.
     ///

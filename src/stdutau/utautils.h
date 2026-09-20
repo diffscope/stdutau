@@ -9,7 +9,7 @@
 
 #include <stdutau/utaglobal.h>
 
-namespace Utau {
+namespace utau {
 
     /// Reads one line from \a is into \a line with the line terminator removed, whichever of the
     /// two it is, and returns whether a line was read.

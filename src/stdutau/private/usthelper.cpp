@@ -2,7 +2,7 @@
 
 #include "utautils.h"
 
-namespace Utau {
+namespace utau {
 
     static inline void getDouble(const std::string_view &s, double &out) {
         out = stod2(s, out);

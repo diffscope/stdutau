@@ -10,7 +10,7 @@
 #include <stdutau/utaglobal.h>
 #include <stdutau/utaconst.h>
 
-namespace Utau {
+namespace utau {
 
     /// One anchor of a pitch curve or an envelope, with the shape of the curve reaching it.
     class STDUTAU_EXPORT Point {

@@ -6,7 +6,7 @@
 #include "private/usthelper_p.h"
 #include "utautils.h"
 
-namespace Utau {
+namespace utau {
 
     inline NoteExt createInitialNoteExt() {
         NoteExt note;

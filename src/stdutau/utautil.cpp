@@ -8,10 +8,10 @@
 
 #include "utaconst.h"
 
-/// \namespace Utau
+/// \namespace utau
 /// Everything this library provides.
 
-namespace Utau {
+namespace utau {
 
     bool readLine(std::istream &is, std::string &line) {
         if (!std::getline(is, line)) {
@@ -189,7 +189,7 @@ namespace Utau {
 
     int toneNameToToneNum(const std::string_view &name) {
         if (name.length() < 2) {
-            return Utau::TONE_NUMBER_BASE;
+            return TONE_NUMBER_BASE;
         }
 
         auto index = std::string_view(TONE_NAMES).find(name.front());

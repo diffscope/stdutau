@@ -6,7 +6,7 @@
 #include "utautils.h"
 #include "private/usthelper_p.h"
 
-namespace Utau {
+namespace utau {
 
     inline Note createInitialNote() {
         Note note;

@@ -6,7 +6,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-using namespace Utau;
+using namespace utau;
 
 BOOST_AUTO_TEST_SUITE(test_ustfile)
 

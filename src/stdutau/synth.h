@@ -8,7 +8,7 @@
 #include <stdutau/otoentry.h>
 #include <stdutau/note.h>
 
-namespace Utau {
+namespace utau {
 
     // resampler.exe <input wavfile> <output file> <pitch_percent> <velocity> [<flags> [<offset>
     // <length_require> [<fixed length> [<end_blank> [<volume> [<modulation> [<pich bend>...]]]]]]]

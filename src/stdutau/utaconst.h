@@ -1,7 +1,7 @@
 #ifndef UTACONST_H
 #define UTACONST_H
 
-namespace Utau {
+namespace utau {
 
     // Sections
     constexpr const char SECTION_BEGIN_MARK[] = "[#";

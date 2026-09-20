@@ -5,7 +5,7 @@
 
 #include <stdutau/utaglobal.h>
 
-namespace Utau {
+namespace utau {
 
     /// One entry of a voice bank's \c oto.ini, telling UTAU how to cut a sample.
     ///

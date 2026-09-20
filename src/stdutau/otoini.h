@@ -8,7 +8,7 @@
 
 #include <stdutau/otoentry.h>
 
-namespace Utau {
+namespace utau {
 
     /// One \c oto.ini of a voice bank. A bank usually has several, one per directory.
     ///

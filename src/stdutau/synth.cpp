@@ -5,7 +5,7 @@
 
 #include "utautils.h"
 
-namespace Utau {
+namespace utau {
 
     static inline std::vector<std::string> &operator<<(std::vector<std::string> &vec,
                                                        const std::string &item) {

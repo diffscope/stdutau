@@ -6,7 +6,7 @@
 
 #include "utautils.h"
 
-namespace Utau {
+namespace utau {
 
     Point::Type Point::stringToType(const std::string_view &s) {
         Type res = sJoin;

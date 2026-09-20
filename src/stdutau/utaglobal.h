@@ -23,7 +23,7 @@
 #  endif
 #endif
 
-namespace Utau {
+namespace utau {
 
     /// Marks a sample of a pitch curve that carries no value.
     ///
