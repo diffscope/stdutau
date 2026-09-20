@@ -70,7 +70,7 @@ namespace Utau {
         detach_shared_ptr(d_ptr); // Detach
 
         std::string line;
-        while (std::getline(is, line)) {
+        while (readLine(is, line)) {
             if (line.empty() && !is.eof()) {
                 continue;
             }

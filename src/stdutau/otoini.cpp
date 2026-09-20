@@ -68,7 +68,7 @@ namespace Utau {
     */
     bool OtoIni::read(std::istream &is) {
         std::string line;
-        while (std::getline(is, line)) {
+        while (readLine(is, line)) {
             if (line.empty()) {
                 continue;
             }

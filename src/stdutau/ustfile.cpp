@@ -56,7 +56,7 @@ namespace Utau {
         std::vector<std::string> currentSection;
 
         std::string line;
-        while (std::getline(is, line)) {
+        while (readLine(is, line)) {
             if (line.empty() && !is.eof()) {
                 continue;
             }

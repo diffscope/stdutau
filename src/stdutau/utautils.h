@@ -1,6 +1,7 @@
 #ifndef UTAUTILS_H
 #define UTAUTILS_H
 
+#include <iosfwd>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -8,6 +9,15 @@
 #include <stdutau/utaglobal.h>
 
 namespace Utau {
+
+    /// Reads one line from \a is into \a line with the line terminator removed, whichever of the
+    /// two it is, and returns whether a line was read.
+    ///
+    /// \note UTAU writes CRLF. A stream opened in text mode turns that into a newline on Windows
+    ///       and leaves it alone everywhere else, so \c std::getline hands back a line ending in
+    ///       a carriage return on every other platform. Every reader in this library goes through
+    ///       here so that it does not have to care which platform it is on.
+    STDUTAU_EXPORT bool readLine(std::istream &is, std::string &line);
 
     STDUTAU_EXPORT std::vector<std::string_view> split(const std::string_view &s,
                                                        const std::string_view &delimiter);

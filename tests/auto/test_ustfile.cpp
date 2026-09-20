@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -234,6 +233,33 @@ BOOST_AUTO_TEST_CASE(test_empty_value_is_kept) {
     BOOST_REQUIRE(second.read(is));
     BOOST_REQUIRE_EQUAL(second.notes.size(), 1);
     BOOST_CHECK_EQUAL(second.notes.at(0).userData.count("$hup_empty"), 1);
+}
+
+// UTAU writes CRLF, and a stream in text mode turns that into a newline on Windows and nowhere
+// else. Before readLine() this content parsed to nothing at all on the other platforms: the
+// section header ended in a carriage return, which is not the closing bracket the reader looks
+// for, so every section was thrown away.
+BOOST_AUTO_TEST_CASE(test_crlf_reads_the_same_as_lf) {
+    auto text = ust(noteWith({"Label=chorus", "$hup_data=AAAA"}));
+    std::string crlf;
+    for (char c : text) {
+        if (c == '\n') {
+            crlf += '\r';
+        }
+        crlf += c;
+    }
+
+    std::istringstream is(crlf);
+    UstFile file;
+    BOOST_REQUIRE(file.read(is));
+    BOOST_REQUIRE_EQUAL(file.notes.size(), 1);
+
+    const auto &note = file.notes.at(0);
+    BOOST_CHECK_EQUAL(note.lyric, "a");
+    BOOST_CHECK_EQUAL(note.label, "chorus");
+    BOOST_CHECK_EQUAL(note.userData.at("$hup_data"), "AAAA");
+
+    BOOST_CHECK_EQUAL(serialize(file), serialize(parse(text)));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -29,7 +29,7 @@ namespace Utau {
             min + (TONE_OCTAVE_MAX - TONE_OCTAVE_MIN + 1) * TONE_OCTAVE_STEPS - 1;
 
         std::string line;
-        while (std::getline(is, line)) {
+        while (readLine(is, line)) {
             if (line.empty()) {
                 continue;
             }

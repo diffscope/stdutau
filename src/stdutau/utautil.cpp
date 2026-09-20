@@ -1,5 +1,6 @@
 #include "utautils.h"
 
+#include <istream>
 #include <sstream>
 #include <string>
 #include <charconv>
@@ -12,6 +13,20 @@
 */
 
 namespace Utau {
+
+    /*!
+        Reads one line from the stream with the line terminator removed, returns \c true if a line
+        was read.
+    */
+    bool readLine(std::istream &is, std::string &line) {
+        if (!std::getline(is, line)) {
+            return false;
+        }
+        if (!line.empty() && line.back() == '\r') {
+            line.pop_back();
+        }
+        return true;
+    }
 
     std::vector<std::string_view> split(const std::string_view &s,
                                         const std::string_view &delimiter) {
@@ -74,7 +89,8 @@ namespace Utau {
 
     double stod2(const std::string_view &s, double defaultValue) {
 #ifdef __clang__
-        // Clang does not support floating point numbers in std::from_chars, so std::stod is used instead.
+        // Clang does not support floating point numbers in std::from_chars, so std::stod is used
+        // instead.
 
         // Note:
         // This implementation creates a temporary std::string from std::string_view
@@ -87,11 +103,9 @@ namespace Utau {
             if (count == 0) {
                 result = defaultValue;
             }
-        }
-        catch (const std::invalid_argument &e) {
+        } catch (const std::invalid_argument &e) {
             result = defaultValue;
-        }
-        catch (const std::out_of_range &e) {
+        } catch (const std::out_of_range &e) {
             result = defaultValue;
         }
         return result;
