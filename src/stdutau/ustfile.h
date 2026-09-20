@@ -8,7 +8,8 @@
 #include <vector>
 #include <filesystem>
 
-#include <stdutau/utafilebase.h>
+#include <iosfwd>
+
 #include <stdutau/note.h>
 
 namespace Utau {
@@ -62,9 +63,15 @@ namespace Utau {
     /// A UTAU sequence text file, which is what a project is saved as.
     ///
     /// The strings here are raw bytes. Work out the encoding and convert before you look at them.
-    class STDUTAU_EXPORT UstFile : public UtaFileBase {
+    class STDUTAU_EXPORT UstFile {
     public:
         UstFile();
+
+        /// Opens \a path and reads it, returns \c false when the file will not open.
+        bool load(const std::filesystem::path &path);
+
+        /// Creates \a path and writes to it, returns \c false when the file will not open.
+        bool save(const std::filesystem::path &path) const;
 
         /// Reads the version, the settings and the notes. A section this library does not know is
         /// skipped, as is a note whose length is not positive.
@@ -73,10 +80,10 @@ namespace Utau {
         ///          which shifts every note index after that point. A file carrying one has
         ///          already been damaged, so do not read it as though the section were still
         ///          there.
-        bool read(std::istream &is) override;
+        bool read(std::istream &is);
 
         /// Writes the version, the settings, the notes and the closing \c [#TRACKEND] .
-        bool write(std::ostream &os) const override;
+        bool write(std::ostream &os) const;
 
     public:
         UstVersion version;

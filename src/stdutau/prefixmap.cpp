@@ -9,6 +9,20 @@ namespace Utau {
 
     PrefixMap::PrefixMap() = default;
 
+    bool PrefixMap::load(const std::filesystem::path &path) {
+        std::ifstream fs(path);
+        if (!fs.is_open())
+            return false;
+        return read(fs);
+    }
+
+    bool PrefixMap::save(const std::filesystem::path &path) const {
+        std::ofstream fs(path);
+        if (!fs.is_open())
+            return false;
+        return write(fs);
+    }
+
     bool PrefixMap::read(std::istream &is) {
         static const constexpr int min = TONE_NUMBER_BASE;
         static const constexpr int max =

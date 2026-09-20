@@ -21,6 +21,20 @@ namespace Utau {
 
     UstFile::UstFile() = default;
 
+    bool UstFile::load(const std::filesystem::path &path) {
+        std::ifstream fs(path);
+        if (!fs.is_open())
+            return false;
+        return read(fs);
+    }
+
+    bool UstFile::save(const std::filesystem::path &path) const {
+        std::ofstream fs(path);
+        if (!fs.is_open())
+            return false;
+        return write(fs);
+    }
+
     bool UstFile::read(std::istream &is) {
         // Read File
         std::vector<std::string> currentSection;

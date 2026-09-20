@@ -1,27 +1,35 @@
 #ifndef PREFIXMAP_H
 #define PREFIXMAP_H
 
+#include <filesystem>
+#include <iosfwd>
 #include <map>
 #include <string>
 #include <vector>
 
-#include <stdutau/utafilebase.h>
+#include <stdutau/utaglobal.h>
 
 namespace Utau {
 
     /// A voice bank's \c prefix.map, which decides what is added to a lyric at a given key.
     ///
     /// The strings here are raw bytes. Work out the encoding and convert before you look at them.
-    class STDUTAU_EXPORT PrefixMap : public UtaFileBase {
+    class STDUTAU_EXPORT PrefixMap {
     public:
         PrefixMap();
 
+        /// Opens \a path and reads it, returns \c false when the file will not open.
+        bool load(const std::filesystem::path &path);
+
+        /// Creates \a path and writes to it, returns \c false when the file will not open.
+        bool save(const std::filesystem::path &path) const;
+
         /// Reads tab separated lines of tone name, prefix and suffix. A line naming a key outside
         /// C1 to B7 is skipped, as is one with fewer than three fields.
-        bool read(std::istream &is) override;
+        bool read(std::istream &is);
 
         /// Writes one tab separated line per key, in ascending order.
-        bool write(std::ostream &os) const override;
+        bool write(std::ostream &os) const;
 
     public:
         /// What goes before and after the lyric at one key.

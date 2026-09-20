@@ -52,6 +52,20 @@ namespace Utau {
 
     OtoIni::OtoIni() = default;
 
+    bool OtoIni::load(const std::filesystem::path &path) {
+        std::ifstream fs(path);
+        if (!fs.is_open())
+            return false;
+        return read(fs);
+    }
+
+    bool OtoIni::save(const std::filesystem::path &path) const {
+        std::ofstream fs(path);
+        if (!fs.is_open())
+            return false;
+        return write(fs);
+    }
+
     bool OtoIni::read(std::istream &is) {
         std::string line;
         while (readLine(is, line)) {
