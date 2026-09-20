@@ -5,7 +5,7 @@
 #include <vector>
 
 #include <stdutau/utafilebase.h>
-#include <stdutau/genonsettings.h>
+#include <stdutau/otoentry.h>
 
 namespace Utau {
 
@@ -26,7 +26,7 @@ namespace Utau {
     public:
         /// Entries keyed by sample file name. One file carries as many entries as it has aliases,
         /// which is the ordinary shape of a bank rather than an oddity.
-        std::map<std::string, std::vector<GenonSettings>> contents;
+        std::map<std::string, std::vector<OtoEntry>> contents;
     };
 
 }

@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(test_read) {
     BOOST_CHECK_EQUAL(samples.at(0).alias, "a");
     BOOST_CHECK_EQUAL(samples.at(0).offset, 100);
     BOOST_CHECK_EQUAL(samples.at(0).consonant, 200);
-    BOOST_CHECK_EQUAL(samples.at(0).blank, 300);
+    BOOST_CHECK_EQUAL(samples.at(0).cutoff, 300);
     BOOST_CHECK_EQUAL(samples.at(0).preUtterance, 400);
     BOOST_CHECK_EQUAL(samples.at(0).voiceOverlap, 50);
 }

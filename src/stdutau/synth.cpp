@@ -38,7 +38,6 @@ namespace Utau {
             return (y1 - y2) / 2 * std::cos(PI * (x - x1) / (x2 - x1)) + (y1 + y2) / 2;
         }
 
-
         static inline double f_r(double x1, double y1, double x2, double y2, double x) {
             if (x1 == x2) {
                 return y1;
@@ -46,14 +45,12 @@ namespace Utau {
             return (y2 - y1) * std::cos(PI / 2 / (x2 - x1) * (x - x2)) + y1;
         }
 
-
         static inline double f_j(double x1, double y1, double x2, double y2, double x) {
             if (x1 == x2) {
                 return y1;
             }
             return (y1 - y2) * std::cos(PI / 2 / (x2 - x1) * (x - x1)) + y2;
         }
-
 
         static inline constexpr double f_s(double x1, double y1, double x2, double y2, double x) {
             if (x1 == x2) {
@@ -446,16 +443,16 @@ namespace Utau {
     // Port from QSynthesis end
     //
 
-    struct CorrectGenon {
+    struct CorrectedTiming {
         double PreUtterance;
         double VoiceOverlap;
         double StartPoint;
     };
 
     // https://shinta0806be.ldblog.jp/archives/8298940.html
-    static CorrectGenon getCorrectGenonSettings(double preUttr, double overlap, double stp,
-                                                double velocity, double duration,
-                                                double prevDuration, bool prevIsRest) {
+    static CorrectedTiming correctedTiming(double preUttr, double overlap, double stp,
+                                           double velocity, double duration, double prevDuration,
+                                           bool prevIsRest) {
         double correctRate = 1;
         double velocityRate = std::pow(2, 1 - velocity / 100);
         preUttr *= velocityRate;
@@ -491,36 +488,22 @@ namespace Utau {
         };
     }
 
-    static std::vector<Point> getRawEnvelope(const std::optional<Envelope> &env) {
-        if (!env) {
+    static std::vector<Point> getRawEnvelope(const std::optional<Envelope> &envelope) {
+        if (!envelope) {
             return {};
         }
 
         std::vector<Point> res;
         res.reserve(5);
         for (int i = 0; i < 4; ++i) {
-            res.push_back(env->anchors[i]);
+            res.push_back(envelope->anchors[i]);
         }
-        if (env->count() > 4)
-            res.push_back(env->anchors[4]);
+        if (envelope->count() > 4)
+            res.push_back(envelope->anchors[4]);
         return res;
     }
 
-    /*!
-        \class ResamplerArguments
-        \brief Structure containing resampler command line arguments.
-    */
-
-    /*!
-        \fn inline ResamplerArguments::ResamplerArguments()
-
-        Constructor.
-    */
-
-    /*!
-        Returns the partial arguments that represent the pitch curves.
-    */
-    std::vector<std::string> ResamplerArguments::params() const {
+    std::vector<std::string> ResamplerArguments::trailingArguments() const {
         std::vector<std::string> list;
 
         list << to_string(intensity);
@@ -544,9 +527,6 @@ namespace Utau {
         return list;
     }
 
-    /*!
-        Returns the full arguments.
-    */
     std::vector<std::string> ResamplerArguments::arguments() const {
         std::vector<std::string> list;
 
@@ -562,35 +542,18 @@ namespace Utau {
         list << to_string(consonant);  // Arg 8: Consonant (Oto)
         list << to_string(blank);      // Arg 9: Blank (Oto)
 
-        list << params();
+        list << trailingArguments();
 
         return list;
     }
 
-    /*!
-        \class WavtoolArguments
-        \brief Structure containing wavtool command line arguments.
-    */
-
-    /*!
-        \fn inline WavtoolArguments();
-
-        Constructor.
-    */
-
-    /*!
-        Returns the formated string that represents the real duration.
-    */
     std::string WavtoolArguments::outDuration() const {
         std::string outDuration = to_string(length) + "@" + to_string(tempo);
         outDuration += ((correction >= 0) ? "+" : "") + to_string(correction);
         return outDuration;
     }
 
-    /*!
-        Returns the partial arguments that represent the envelope.
-    */
-    std::vector<std::string> WavtoolArguments::env() const {
+    std::vector<std::string> WavtoolArguments::envelopeArguments() const {
         std::vector<std::string> list;
 
         if (rest) {
@@ -603,9 +566,6 @@ namespace Utau {
         return list;
     }
 
-    /*!
-        Returns the full arguments.
-    */
     std::vector<std::string> WavtoolArguments::arguments() const {
         std::vector<std::string> list;
 
@@ -615,23 +575,15 @@ namespace Utau {
         list << to_string(startPoint); // STP
         list << outDuration();         // Fixed Duration
 
-        list << env();
+        list << envelopeArguments();
 
         return list;
     }
 
-    /*!
-        \class Synth
-        \brief Synthesis calculation helper class.
-    */
-
-    /*!
-        Calculates the synthesis arguments for the wavtool and resampler.
-    */
     Synth::SynthParams Synth::calc(const std::pair<int, int> &rangeLimits,
                                    const std::pair<int, int> &range, double initialTempo,
                                    const std::string &globalFlags, const NoteGetter &noteGetter,
-                                   const GenonSettingsGetter &genonSettingsGetter) {
+                                   const OtoEntryGetter &otoEntryGetter) {
 
         int left = std::max(rangeLimits.first, range.first);
         int right = std::min(rangeLimits.second, range.second);
@@ -680,13 +632,13 @@ namespace Utau {
             double aIntensity = aNote.realIntensity();
             double aModulation = aNote.realModulation();
             double aVelocity = aNote.realVelocity();
-            const auto &aGenon = genonSettingsGetter(aNote);
+            const auto &aOto = otoEntryGetter(aNote);
 
             double duration = Note::duration(aLength, aTempo);
-            auto aCorrect = getCorrectGenonSettings(aNote.preUttr.value_or(aGenon.preUtterance),
-                                                    aNote.overlap.value_or(aGenon.voiceOverlap),
-                                                    aNote.realStartPoint(), aVelocity, duration,
-                                                    prevDuration, prevIsRest);
+            auto aCorrect =
+                correctedTiming(aNote.preUttr.value_or(aOto.preUtterance),
+                                aNote.overlap.value_or(aOto.voiceOverlap), aNote.realStartPoint(),
+                                aVelocity, duration, prevDuration, prevIsRest);
             prevDuration = duration;
             prevIsRest = isRestLyric(aLyric);
 
@@ -741,19 +693,19 @@ namespace Utau {
             // Next Note
             if (i < rangeLimits.second) {
                 const auto &nextNote = noteGetter(i + 1);
-                const auto &nextGenonSettings = genonSettingsGetter(nextNote);
+                const auto &nextOto = otoEntryGetter(nextNote);
                 double nextTempo = nextNote.tempo.value_or(currentTempo);
-                auto nextGenon = getCorrectGenonSettings(
-                    nextNote.preUttr.value_or(nextGenonSettings.preUtterance),
-                    nextNote.overlap.value_or(nextGenonSettings.voiceOverlap),
-                    nextNote.realStartPoint(), nextNote.realVelocity(),
-                    Note::duration(aNextNote.length, nextTempo), prevDuration, prevIsRest);
+                auto nextTiming = correctedTiming(
+                    nextNote.preUttr.value_or(nextOto.preUtterance),
+                    nextNote.overlap.value_or(nextOto.voiceOverlap), nextNote.realStartPoint(),
+                    nextNote.realVelocity(), Note::duration(aNextNote.length, nextTempo),
+                    prevDuration, prevIsRest);
 
                 int aNextNoteNum = aNextNote.noteNum; // Note Num
                 aNextLength = aNextNote.length;       // Length
 
-                aNextPreUttr = nextGenon.PreUtterance; // PreUtterance
-                aNextOverlap = nextGenon.VoiceOverlap; // Overlap
+                aNextPreUttr = nextTiming.PreUtterance; // PreUtterance
+                aNextOverlap = nextTiming.VoiceOverlap; // Overlap
 
                 aNextPitch = aNextNote.portamento;               // Mode2 Pitch Control Points
                 aNextVibrato = getRawVibrato(aNextNote.vibrato); // Mode2 Vibrato
@@ -779,7 +731,7 @@ namespace Utau {
             double aDurationFix = aPreUttr - aNextPreUttr + aNextOverlap;
 
             double aRealLength = aDuration + aDurationFix + aStartPoint + 50;
-            aRealLength = (aRealLength < aGenon.consonant) ? aGenon.consonant : aRealLength;
+            aRealLength = (aRealLength < aOto.consonant) ? aOto.consonant : aRealLength;
             aRealLength = int((aRealLength + 25) / 50) * 50;
 
             // Cache Name
@@ -790,11 +742,11 @@ namespace Utau {
             // COnstruct arguments
             ResamplerArguments res;
             res.sequence = i;
-            res.offset = aGenon.offset;
-            res.consonant = aGenon.consonant;
-            res.blank = aGenon.blank;
+            res.offset = aOto.offset;
+            res.consonant = aOto.consonant;
+            res.blank = aOto.cutoff;
             res.toneName = aToneName;
-            res.inFile = aGenon.fileName;
+            res.inFile = aOto.fileName;
             res.outFile = cacheName;
             res.intensity = aIntensity;
             res.modulation = aModulation;
