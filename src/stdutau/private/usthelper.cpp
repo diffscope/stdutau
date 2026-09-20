@@ -8,6 +8,14 @@ namespace Utau {
         out = stod2(s, out);
     }
 
+    // Leaves \a out as it was when the text holds no number, so an entry that is present but
+    // empty stays absent rather than turning into zero.
+    static inline void getDouble(const std::string_view &s, std::optional<double> &out) {
+        if (auto value = toDouble(s)) {
+            out = value;
+        }
+    }
+
     static inline double getDouble(const std::string_view &s) {
         return stod2(s);
     }
@@ -215,26 +223,26 @@ namespace Utau {
         out << KEY_NAME_NOTE_NUM << "=" << note.noteNum << std::endl;
 
         // Items can be omitted
-        if (note.preUttr != NODEF_DOUBLE) {
-            out << KEY_NAME_PRE_UTTERANCE << "=" << note.preUttr << std::endl;
+        if (note.preUttr) {
+            out << KEY_NAME_PRE_UTTERANCE << "=" << *note.preUttr << std::endl;
         } else {
             // UST files always keep this property even if empty
             out << KEY_NAME_PRE_UTTERANCE << "=" << std::endl;
         }
-        if (note.overlap != NODEF_DOUBLE) {
-            out << KEY_NAME_VOICE_OVERLAP << "=" << note.overlap << std::endl;
+        if (note.overlap) {
+            out << KEY_NAME_VOICE_OVERLAP << "=" << *note.overlap << std::endl;
         }
-        if (note.velocity != NODEF_DOUBLE) {
-            out << KEY_NAME_VELOCITY << "=" << to_string(note.velocity) << std::endl;
+        if (note.velocity) {
+            out << KEY_NAME_VELOCITY << "=" << to_string(*note.velocity) << std::endl;
         }
-        if (note.intensity != NODEF_DOUBLE) {
-            out << KEY_NAME_INTENSITY << "=" << note.intensity << std::endl;
+        if (note.intensity) {
+            out << KEY_NAME_INTENSITY << "=" << *note.intensity << std::endl;
         }
-        if (note.modulation != NODEF_DOUBLE) {
-            out << KEY_NAME_MODULATION << "=" << note.modulation << std::endl;
+        if (note.modulation) {
+            out << KEY_NAME_MODULATION << "=" << *note.modulation << std::endl;
         }
-        if (note.stp != NODEF_DOUBLE) {
-            out << KEY_NAME_START_POINT << "=" << note.stp << std::endl;
+        if (note.stp) {
+            out << KEY_NAME_START_POINT << "=" << *note.stp << std::endl;
         }
         if (!note.flags.empty()) {
             out << KEY_NAME_FLAGS << "=" << note.flags << std::endl;
@@ -243,7 +251,7 @@ namespace Utau {
         // Items may not exist
         if (!note.pitches.empty()) {
             out << KEY_NAME_PB_TYPE << "=5" << std::endl;
-            out << KEY_NAME_PB_START << "=" << note.pbstart << std::endl;
+            out << KEY_NAME_PB_START << "=" << note.pbstart.value_or(0) << std::endl;
             out << KEY_NAME_PITCH_BEND << "=" << join(doublesToStrings(note.pitches), ",")
                 << std::endl;
         }
@@ -266,8 +274,8 @@ namespace Utau {
         if (note.vibrato) {
             out << KEY_NAME_VBR << "=" << note.vibrato->toString() << std::endl;
         }
-        if (note.tempo != NODEF_DOUBLE) {
-            out << KEY_NAME_TEMPO << "=" << note.tempo << std::endl;
+        if (note.tempo) {
+            out << KEY_NAME_TEMPO << "=" << *note.tempo << std::endl;
         }
         if (!note.region.empty()) {
             out << KEY_NAME_REGION_START << "=" << note.region << std::endl;

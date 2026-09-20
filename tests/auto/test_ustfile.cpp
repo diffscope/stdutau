@@ -91,6 +91,51 @@ BOOST_AUTO_TEST_CASE(test_unknown_entries_become_user_data) {
     BOOST_CHECK_EQUAL(note.userData.at("WhateverElse"), "kept too");
 }
 
+// An entry the file leaves out is absent, not zero, and the real* accessors are where the
+// default belongs. Telling the two apart is the whole reason these are optional.
+BOOST_AUTO_TEST_CASE(test_omitted_entries_stay_absent) {
+    auto file = parse(ust(minimalNote));
+    const auto &note = file.notes.at(0);
+
+    BOOST_CHECK(!note.intensity);
+    BOOST_CHECK(!note.modulation);
+    BOOST_CHECK(!note.velocity);
+    BOOST_CHECK(!note.overlap);
+    BOOST_CHECK(!note.stp);
+    BOOST_CHECK(!note.tempo);
+    BOOST_CHECK(!note.pbstart);
+
+    BOOST_CHECK_EQUAL(note.realIntensity(), DEFAULT_VALUE_INTENSITY);
+    BOOST_CHECK_EQUAL(note.realModulation(), DEFAULT_VALUE_MODULATION);
+    BOOST_CHECK_EQUAL(note.realVelocity(), DEFAULT_VALUE_VELOCITY);
+    BOOST_CHECK_EQUAL(note.realStartPoint(), DEFAULT_VALUE_START_POINT);
+}
+
+// UST always carries PreUtterance, empty where the note has none. Present and empty has to read
+// the same as missing.
+BOOST_AUTO_TEST_CASE(test_entry_present_but_empty_stays_absent) {
+    BOOST_CHECK(!parse(ust(minimalNote)).notes.at(0).preUttr);
+    BOOST_CHECK(!parse(ust(noteWith({"Tempo="}))).notes.at(0).tempo);
+
+    auto given = parse(ust(noteWith({"Tempo=0"}))).notes.at(0).tempo;
+    BOOST_REQUIRE(given.has_value());
+    BOOST_CHECK_EQUAL(*given, 0);
+}
+
+// What was absent has to come back absent, or a file gains values every time it is opened.
+BOOST_AUTO_TEST_CASE(test_absence_survives_a_round_trip) {
+    auto once = serialize(parse(ust(minimalNote)));
+
+    std::istringstream is(once);
+    UstFile second;
+    BOOST_REQUIRE(second.read(is));
+    BOOST_REQUIRE_EQUAL(second.notes.size(), 1);
+
+    BOOST_CHECK(!second.notes.at(0).intensity);
+    BOOST_CHECK(!second.notes.at(0).tempo);
+    BOOST_CHECK_EQUAL(serialize(second), once);
+}
+
 BOOST_AUTO_TEST_CASE(test_known_entries_stay_out_of_user_data) {
     auto file = parse(ust(noteWith({
         "VoiceOverlap=5",
@@ -121,7 +166,8 @@ BOOST_AUTO_TEST_CASE(test_misspelled_modulation_stays_out_of_user_data) {
     auto file = parse(ust(noteWith({"Moduration=30"})));
 
     BOOST_CHECK(file.notes.at(0).userData.empty());
-    BOOST_CHECK_EQUAL(file.notes.at(0).modulation, 30);
+    BOOST_REQUIRE(file.notes.at(0).modulation.has_value());
+    BOOST_CHECK_EQUAL(*file.notes.at(0).modulation, 30);
 }
 
 // These are either read under another name or worked out again on the way out. Keeping them as

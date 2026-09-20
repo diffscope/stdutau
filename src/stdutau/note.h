@@ -112,11 +112,7 @@ namespace Utau {
         inline constexpr double realIntensity() const;
         inline constexpr double realModulation() const;
         inline constexpr double realVelocity() const;
-        inline constexpr bool hasPreUtterance() const;
-        inline constexpr bool hasVoiceOverlap() const;
         inline constexpr double realStartPoint() const;
-        inline constexpr bool hasTempo() const;
-        inline constexpr bool hasPBStart() const;
 
         static inline constexpr double duration(int length, double tempo);
 
@@ -126,16 +122,18 @@ namespace Utau {
         int noteNum;
         int length;
 
-        double intensity, modulation, velocity;
-        double preUttr, overlap, stp;
-        double tempo;
+        /// Absent where the file leaves the entry out, which is how UTAU says to use the value
+        /// from the project or the voice bank instead.
+        std::optional<double> intensity, modulation, velocity;
+        std::optional<double> preUttr, overlap, stp;
+        std::optional<double> tempo;
 
         std::optional<Envelope> envelope;
 
         std::vector<Point> portamento;
         std::optional<Vibrato> vibrato;
 
-        double pbstart;
+        std::optional<double> pbstart;
         std::vector<double> pitches;
         std::string pbtype;
 
@@ -162,35 +160,19 @@ namespace Utau {
     }
 
     inline constexpr double Note::realIntensity() const {
-        return intensity == NODEF_DOUBLE ? DEFAULT_VALUE_INTENSITY : intensity;
+        return intensity.value_or(DEFAULT_VALUE_INTENSITY);
     }
 
     inline constexpr double Note::realModulation() const {
-        return modulation == NODEF_DOUBLE ? DEFAULT_VALUE_MODULATION : modulation;
+        return modulation.value_or(DEFAULT_VALUE_MODULATION);
     }
 
     inline constexpr double Note::realVelocity() const {
-        return velocity == NODEF_DOUBLE ? DEFAULT_VALUE_VELOCITY : velocity;
-    }
-
-    inline constexpr bool Note::hasPreUtterance() const {
-        return preUttr != NODEF_DOUBLE;
-    }
-
-    inline constexpr bool Note::hasVoiceOverlap() const {
-        return overlap != NODEF_DOUBLE;
+        return velocity.value_or(DEFAULT_VALUE_VELOCITY);
     }
 
     inline constexpr double Note::realStartPoint() const {
-        return stp == NODEF_DOUBLE ? DEFAULT_VALUE_START_POINT : stp;
-    }
-
-    inline constexpr bool Note::hasTempo() const {
-        return tempo != NODEF_DOUBLE;
-    }
-
-    inline constexpr bool Note::hasPBStart() const {
-        return pbstart != NODEF_DOUBLE;
+        return stp.value_or(DEFAULT_VALUE_START_POINT);
     }
 
     inline constexpr double Note::duration(int length, double tempo) {
@@ -203,19 +185,23 @@ namespace Utau {
         inline NoteExt(int noteNum, int length, const std::string &lyric = DEFAULT_LYRIC);
 
     public:
-        double preUttrRO;
-        double overlapRO;
-        double stpRO;
+        /// What UTAU worked out for the note, absent where the file did not say.
+        std::optional<double> preUttrRO;
+        std::optional<double> overlapRO;
+        std::optional<double> stpRO;
+
+        /// Empty where the file did not say. An empty alias is what a sample without one has, so
+        /// there is nothing here for an optional to tell apart.
         std::string filenameRO;
         std::string aliasRO;
         std::string cacheRO;
     };
 
-    inline NoteExt::NoteExt() : preUttrRO(0), overlapRO(0), stpRO(0) {
+    inline NoteExt::NoteExt() {
     }
 
     inline NoteExt::NoteExt(int noteNum, int length, const std::string &lyric)
-        : Note(noteNum, length, lyric), preUttrRO(0), overlapRO(0), stpRO(0) {
+        : Note(noteNum, length, lyric) {
     }
 
     struct STDUTAU_EXPORT PBStrings {

@@ -11,10 +11,10 @@ namespace Utau {
     inline Note createInitialNote() {
         Note note;
 
-        // These properties have explicit default values when created by editor
-        // We need to reset them when reading the file
-        note.intensity = NODEF_DOUBLE;
-        note.modulation = NODEF_DOUBLE;
+        // The constructor gives these the values an editor starts a note with. A note being read
+        // carries only what the file says.
+        note.intensity.reset();
+        note.modulation.reset();
 
         return note;
     }

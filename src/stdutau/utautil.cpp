@@ -2,6 +2,7 @@
 
 #include <istream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <charconv>
 
@@ -112,6 +113,41 @@ namespace Utau {
 #else
         std::from_chars(s.data(), s.data() + s.size(), defaultValue);
         return defaultValue;
+#endif
+    }
+
+    std::optional<int> toInt(const std::string_view &s) {
+        int value;
+        auto result = std::from_chars(s.data(), s.data() + s.size(), value);
+        if (result.ec != std::errc()) {
+            return std::nullopt;
+        }
+        return value;
+    }
+
+    std::optional<double> toDouble(const std::string_view &s) {
+#ifdef __clang__
+        // Clang has no floating point std::from_chars, so std::stod stands in here as it does in
+        // stod2(). It takes a std::string, which costs a copy.
+        try {
+            std::size_t count;
+            double value = std::stod(std::string(s), &count);
+            if (count == 0) {
+                return std::nullopt;
+            }
+            return value;
+        } catch (const std::invalid_argument &) {
+            return std::nullopt;
+        } catch (const std::out_of_range &) {
+            return std::nullopt;
+        }
+#else
+        double value;
+        auto result = std::from_chars(s.data(), s.data() + s.size(), value);
+        if (result.ec != std::errc()) {
+            return std::nullopt;
+        }
+        return value;
 #endif
     }
 

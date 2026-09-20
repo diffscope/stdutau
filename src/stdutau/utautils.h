@@ -2,6 +2,7 @@
 #define UTAUTILS_H
 
 #include <iosfwd>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -45,6 +46,13 @@ namespace Utau {
 
     STDUTAU_EXPORT int stoi2(const std::string_view &s, int defaultValue = 0);
     STDUTAU_EXPORT double stod2(const std::string_view &s, double defaultValue = 0);
+
+    /// Reads a number from \a s, or nothing when \a s does not hold one.
+    ///
+    /// Prefer these over stoi2() and stod2() wherever an entry being absent has to stay apart
+    /// from the entry holding zero.
+    STDUTAU_EXPORT std::optional<int> toInt(const std::string_view &s);
+    STDUTAU_EXPORT std::optional<double> toDouble(const std::string_view &s);
 
     STDUTAU_EXPORT std::string to_string(double num);
     STDUTAU_EXPORT std::string to_string(int num);

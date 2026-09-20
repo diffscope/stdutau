@@ -139,7 +139,7 @@ namespace Utau {
         if (strList.size() >= 8) {
             strList.erase(strList.begin() + 7); // Remove %
         } else if (strList.size() < 7) {
-            return {};                          // Invalid
+            return {}; // Invalid
         }
 
         for (const auto &item : std::as_const(strList)) {
@@ -163,8 +163,7 @@ namespace Utau {
 
     /*!
         \class Note
-        \brief Utau note structure. The float type values should be \c NODEF_DOUBLE to represent an
-        empty state in the file.
+        \brief Utau note structure. A value the file leaves out is an empty \c std::optional .
     */
 
     /*!
@@ -178,13 +177,10 @@ namespace Utau {
     */
     Note::Note(int noteNum, int length, const std::string &lyric)
         : noteNum(noteNum), length(length), lyric(lyric) {
-        velocity = preUttr = overlap = stp = Utau::NODEF_DOUBLE;
-
+        // What an editor starts a note with. A note being read from a file keeps absent whatever
+        // the file leaves out, see createInitialNote() in ustfile.cpp.
         intensity = 100.0;
         modulation = 0.0;
-
-        tempo = NODEF_DOUBLE;
-        pbstart = NODEF_DOUBLE;
 
         pbtype = VALUE_PITCH_TYPE;
     }
@@ -208,33 +204,9 @@ namespace Utau {
     */
 
     /*!
-        \fn inline constexpr bool Note::hasPreUtterance() const
-
-        Returns the real pre-utterance, that is, returns the default value when in empty state.
-    */
-
-    /*!
-        \fn inline constexpr bool Note::hasVoiceOverlap() const
-
-        Returns the real voice overlap, that is, returns the default value when in empty state.
-    */
-
-    /*!
         \fn inline constexpr double Note::realStartPoint() const
 
         Returns the real start point, that is, returns the default value when in empty state.
-    */
-
-    /*!
-        \fn inline constexpr bool Note::hasTempo() const
-
-        Returns if the note has a explicit tempo, that is, returns \c false when in empty state.
-    */
-
-    /*!
-        \fn inline constexpr bool Note::hasPBStart() const
-
-        Returns if the note has the continuous pitch, that is, returns \c false when in empty state.
     */
 
     /*!

@@ -25,9 +25,11 @@
 
 namespace Utau {
 
-    constexpr const char NODEF_STRING[] = "%NODEF%";
+    /// Marks a sample of a pitch curve that carries no value.
+    ///
+    /// \note A curve is a dense array, so it says this with a value of its own rather than with
+    ///       \c std::optional . Everything that stands for one absent reading uses the latter.
     constexpr const int NODEF_INT = std::numeric_limits<int>::min();
-    constexpr const double NODEF_DOUBLE = -1e+08;
 
     constexpr const char COMMA = ',';
     constexpr const char SIMICOLON = ';';

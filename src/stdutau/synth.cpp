@@ -165,8 +165,8 @@ namespace Utau {
                 double ratio;
                 double x, k, p, y;
 
-                k = 1 / tick_time * 2 * PI;                    // Circular frequency
-                p = phase / 100.0 * 2 * PI;                    // Initial phase
+                k = 1 / tick_time * 2 * PI; // Circular frequency
+                p = phase / 100.0 * 2 * PI; // Initial phase
 
                 easeIn = easeIn / 100.0 * tick_length;         // Fade in time
                 easeOut = (1 - easeOut / 100.0) * tick_length; // Fade out time
@@ -550,12 +550,12 @@ namespace Utau {
     std::vector<std::string> ResamplerArguments::arguments() const {
         std::vector<std::string> list;
 
-        list << inFile;                // Arg 1: Input file (Normally a sample in voicebank folder)
-        list << outFile;               // Arg 2: Output file (Normally a cache file)
-        list << toneName;              // Arg 3: Tone Name
+        list << inFile;   // Arg 1: Input file (Normally a sample in voicebank folder)
+        list << outFile;  // Arg 2: Output file (Normally a cache file)
+        list << toneName; // Arg 3: Tone Name
 
-        list << to_string(velocity);   // Arg 4: Consonant Velocity
-        list << flags;                 // Arg 5: Flags
+        list << to_string(velocity); // Arg 4: Consonant Velocity
+        list << flags;               // Arg 5: Flags
 
         list << to_string(offset);     // Arg 6: Offset (Oto)
         list << to_string(realLength); // Arg 7: Corrected Duration
@@ -644,16 +644,14 @@ namespace Utau {
         bool prevIsRest = false;
         if (left == 0) {
             const auto &note = noteGetter(0);
-            if (note.hasTempo()) {
-                currentTempo = note.tempo;
-            }
+            currentTempo = note.tempo.value_or(currentTempo);
         } else {
             for (int i = left - 1; i >= 0; --i) {
                 const auto &note = noteGetter(i);
-                if (!note.hasTempo()) {
+                if (!note.tempo) {
                     continue;
                 }
-                currentTempo = note.tempo;
+                currentTempo = *note.tempo;
                 break;
             }
 
@@ -662,9 +660,7 @@ namespace Utau {
             prevIsRest = isRestLyric(prevNote.lyric);
 
             const auto &note = noteGetter(left);
-            if (note.hasTempo()) {
-                currentTempo = note.tempo;
-            }
+            currentTempo = note.tempo.value_or(currentTempo);
         }
 
         SynthParams args;
@@ -678,13 +674,8 @@ namespace Utau {
             const auto &aFlags = aNote.flags;
             const auto &aLyric = aNote.lyric;
 
-            double aTempo;
-            if (aNote.hasTempo()) {
-                aTempo = aNote.tempo;
-                currentTempo = aTempo;
-            } else {
-                aTempo = currentTempo;
-            }
+            double aTempo = aNote.tempo.value_or(currentTempo);
+            currentTempo = aTempo;
 
             double aIntensity = aNote.realIntensity();
             double aModulation = aNote.realModulation();
@@ -692,10 +683,10 @@ namespace Utau {
             const auto &aGenon = genonSettingsGetter(aNote);
 
             double duration = Note::duration(aLength, aTempo);
-            auto aCorrect = getCorrectGenonSettings(
-                aNote.hasPreUtterance() ? aNote.preUttr : aGenon.preUtterance,
-                aNote.hasVoiceOverlap() ? aNote.overlap : aGenon.voiceOverlap,
-                aNote.realStartPoint(), aVelocity, duration, prevDuration, prevIsRest);
+            auto aCorrect = getCorrectGenonSettings(aNote.preUttr.value_or(aGenon.preUtterance),
+                                                    aNote.overlap.value_or(aGenon.voiceOverlap),
+                                                    aNote.realStartPoint(), aVelocity, duration,
+                                                    prevDuration, prevIsRest);
             prevDuration = duration;
             prevIsRest = isRestLyric(aLyric);
 
@@ -751,18 +742,18 @@ namespace Utau {
             if (i < rangeLimits.second) {
                 const auto &nextNote = noteGetter(i + 1);
                 const auto &nextGenonSettings = genonSettingsGetter(nextNote);
-                double nextTempo = nextNote.hasTempo() ? nextNote.tempo : currentTempo;
+                double nextTempo = nextNote.tempo.value_or(currentTempo);
                 auto nextGenon = getCorrectGenonSettings(
-                    nextNote.hasPreUtterance() ? nextNote.preUttr : nextGenonSettings.preUtterance,
-                    nextNote.hasVoiceOverlap() ? nextNote.overlap : nextGenonSettings.voiceOverlap,
+                    nextNote.preUttr.value_or(nextGenonSettings.preUtterance),
+                    nextNote.overlap.value_or(nextGenonSettings.voiceOverlap),
                     nextNote.realStartPoint(), nextNote.realVelocity(),
                     Note::duration(aNextNote.length, nextTempo), prevDuration, prevIsRest);
 
-                int aNextNoteNum = aNextNote.noteNum;            // Note Num
-                aNextLength = aNextNote.length;                  // Length
+                int aNextNoteNum = aNextNote.noteNum; // Note Num
+                aNextLength = aNextNote.length;       // Length
 
-                aNextPreUttr = nextGenon.PreUtterance;           // PreUtterance
-                aNextOverlap = nextGenon.VoiceOverlap;           // Overlap
+                aNextPreUttr = nextGenon.PreUtterance; // PreUtterance
+                aNextOverlap = nextGenon.VoiceOverlap; // Overlap
 
                 aNextPitch = aNextNote.portamento;               // Mode2 Pitch Control Points
                 aNextVibrato = getRawVibrato(aNextNote.vibrato); // Mode2 Vibrato
@@ -818,7 +809,7 @@ namespace Utau {
 
             WavtoolArguments wav;
             wav.inFile = cacheName;
-            wav.outFile = {};              // Later
+            wav.outFile = {}; // Later
             wav.startPoint = aStartPoint;
             wav.length = aLength;          // Out Duration Arg 1
             wav.tempo = aTempo;            // Out Duration Arg 2
