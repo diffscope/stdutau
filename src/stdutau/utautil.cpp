@@ -8,17 +8,11 @@
 
 #include "utaconst.h"
 
-/*!
-    \namespace Utau
-    \brief The namespace of \c stdutau library.
-*/
+/// \namespace Utau
+/// Everything this library provides.
 
 namespace Utau {
 
-    /*!
-        Reads one line from the stream with the line terminator removed, returns \c true if a line
-        was read.
-    */
     bool readLine(std::istream &is, std::string &line) {
         if (!std::getline(is, line)) {
             return false;

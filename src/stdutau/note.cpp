@@ -8,14 +8,6 @@
 
 namespace Utau {
 
-    /*!
-        \class Point
-        \brief Utau point type.
-    */
-
-    /*!
-        Converts string to point type.
-    */
     Point::Type Point::stringToType(const std::string_view &s) {
         Type res = sJoin;
         if (s == "s") {
@@ -28,9 +20,6 @@ namespace Utau {
         return res;
     }
 
-    /*!
-        Converts point type to string.
-    */
     std::string Point::typeToString(Type type) {
         std::string res;
         switch (type) {
@@ -49,14 +38,6 @@ namespace Utau {
         return res;
     }
 
-    /*!
-        \class Vibrato
-        \brief Utau vibrato structure.
-    */
-
-    /*!
-        Returns a comma separated string as the representation of the vibrato.
-    */
     std::string Vibrato::toString() const {
         std::stringstream ss;
         ss << length << COMMA;
@@ -70,9 +51,6 @@ namespace Utau {
         return ss.str();
     }
 
-    /*!
-        Returns a vibrato parsed from the string.
-    */
     Vibrato Vibrato::fromString(const std::string_view &s) {
         auto nums = split(s, {&COMMA, 1});
         if (nums.size() < 7)
@@ -90,14 +68,6 @@ namespace Utau {
         return vbr;
     }
 
-    /*!
-        \class Envelope
-        \brief Utau envelope structure.
-    */
-
-    /*!
-        Returns a comma separated string as the representation of the envelope.
-    */
     std::string Envelope::toString() const {
         int offset;
         std::vector<double> nums;
@@ -129,9 +99,6 @@ namespace Utau {
         return join(res, {&COMMA, 1});
     }
 
-    /*!
-        Returns an envelope parsed from the string.
-    */
     Envelope Envelope::fromString(const std::string_view &s) {
         auto strList = split(s, {&COMMA, 1});
         std::vector<double> nums;
@@ -161,20 +128,6 @@ namespace Utau {
         return env;
     }
 
-    /*!
-        \class Note
-        \brief Utau note structure. A value the file leaves out is an empty \c std::optional .
-    */
-
-    /*!
-        \fn inline Note::Note()
-
-        Default constructor.
-    */
-
-    /*!
-        Constructs a note from the given key, length and lyric.
-    */
     Note::Note(int noteNum, int length, const std::string &lyric)
         : noteNum(noteNum), length(length), lyric(lyric) {
         // What an editor starts a note with. A note being read from a file keeps absent whatever
@@ -185,39 +138,6 @@ namespace Utau {
         pbtype = VALUE_PITCH_TYPE;
     }
 
-    /*!
-        \fn inline constexpr double Note::realIntensity() const
-
-        Returns the real intensity, that is, returns the default value when in empty state.
-    */
-
-    /*!
-        \fn inline constexpr double Note::realModulation() const
-
-        Returns the real modulation, that is, returns the default value when in empty state.
-    */
-
-    /*!
-        \fn inline constexpr double Note::realVelocity() const
-
-        Returns the real consonant velocity, that is, returns the default value when in empty state.
-    */
-
-    /*!
-        \fn inline constexpr double Note::realStartPoint() const
-
-        Returns the real start point, that is, returns the default value when in empty state.
-    */
-
-    /*!
-        \fn inline constexpr double Note::duration(int length, double tempo)
-
-        Returns the duration calculated with the given length and tempo, in millisecond.
-    */
-
-    /*!
-        Converts the pitch bend strings to a point vector.
-    */
     std::vector<Point> PBStrings::toPoints() const {
         if (PBS.empty() || PBW.empty()) {
             return {};
@@ -268,34 +188,6 @@ namespace Utau {
         return res;
     }
 
-
-    /*!
-        \class NoteExt
-        \brief Extended UTAU note structure, used in plugin temporary files.
-
-        The extra items are all readonly, any change of them will be lost after the plugin exits.
-    */
-
-    /*!
-        \fn inline NoteExt::NoteExt()
-
-        Constructor.
-    */
-
-    /*!
-        \fn inline NoteExt::NoteExt(int noteNum, int length, const std::string &lyric)
-
-        Constructs an extended note from the given key, length and lyric.
-    */
-
-    /*!
-        \struct PBStrings
-        \brief Pitch bend strings structure.
-    */
-
-    /*!
-        Converts the point vector to pitch bend strings.
-    */
     PBStrings PBStrings::fromPoints(const std::vector<Point> &points) {
         PBStrings res;
         if (points.empty()) {
