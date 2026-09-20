@@ -7,7 +7,7 @@ project(stdutau VERSION 0.0.1.1 LANGUAGES CXX)
 # ----------------------------------
 option(STDUTAU_BUILD_STATIC "Build static library" on)
 option(STDUTAU_INSTALL "Install library" on)
-option(STDUTAU_BUILD_TESTS "Build test cases" ON)
+option(STDUTAU_BUILD_TESTS "Build test cases" OFF)
 
 # ----------------------------------
 # CMake Settings

@@ -14,6 +14,15 @@ C++ utility library for Ameya/UTAU, providing foundational support for C++ appli
 
 + CMake 3.16
 + C++ 17
++ Boost.Test, for the test cases only
+
+## Building the tests
+
+```
+cmake -B build -DSTDUTAU_BUILD_TESTS=ON
+cmake --build build
+ctest --test-dir build --no-tests=error
+```
 
 ## References
 
@@ -28,12 +37,12 @@ C++ utility library for Ameya/UTAU, providing foundational support for C++ appli
 
 ## Notes
 
-+ I believe there's no need to provide extra documentations because the interfaces and comments are quite easy to understand.
++ Each declaration carries its own documentation, so the headers are the API reference.
 
-+ Check comments in `.cpp` files for API reference.
++ Strings are raw bytes. None of these formats records its own encoding, so converting is the caller's job.
 
 ## License
 
 This library is released under the Apache 2.0 License.
 
-Copyright (C) 2020-2024 SineSriker.
+Copyright (C) 2020-2024 SineStriker.
