@@ -88,6 +88,13 @@ namespace utau {
     constexpr const double VALUE_TEMPO_MIN = 10;
     constexpr const double VALUE_TEMPO_MAX = 512;
 
+    // character.txt
+    constexpr const char KEY_NAME_CHAR_NAME[] = "name";
+    constexpr const char KEY_NAME_CHAR_IMAGE[] = "image";
+    constexpr const char KEY_NAME_CHAR_SAMPLE[] = "sample";
+    constexpr const char KEY_NAME_CHAR_AUTHOR[] = "author";
+    constexpr const char KEY_NAME_CHAR_WEB[] = "web";
+
     // Utils
     constexpr const char TONE_NAMES[] = "CCDDEFFGGAAB";
     constexpr const char TONE_NAME_SHARP = '#';
