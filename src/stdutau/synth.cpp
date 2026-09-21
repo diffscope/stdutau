@@ -264,11 +264,18 @@ namespace utau {
             pbstart = -(curPre + curStp) * prevTempo / 60 * 480 / 1000;
             tick = pbstart;
 
-            // One reading past the end. The probe's vibrato notes carry fifty readings where this
-            // loop alone produces forty-nine, and the missing one is the last: without it the
-            // curve stops five ticks early and an engine holding the last value holds the wrong
-            // one, which on a fast vibrato is half a semitone.
-            while (tick < duration + 5) {
+            // Four ticks past the end.
+            //
+            // UTAU leaves the trailing zeros off its curve, so how long the curve it sends is
+            // says only that its loop got at least that far. Where it stops is pinned down by
+            // the notes whose next reading we say is not a zero: UTAU would have had to send
+            // that one, so its loop ended there. On a real tuned project those notes bracket it
+            // between 3.91 and 4.12 ticks, and the 455-note probe agrees from below.
+            //
+            // No reason has been found for the four. It is one reading at the very end of a
+            // bent note, and stopping at the duration itself is four ticks short of UTAU while
+            // stopping five past it is one tick long.
+            while (tick < duration + 4) {
                 prevImpact = 0;
                 nextImpact = 0;
 
