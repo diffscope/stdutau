@@ -755,7 +755,11 @@ namespace utau {
             res.intensity = aIntensity;
             res.modulation = aModulation;
             res.velocity = aVelocity;
-            res.flags = UtaTranslator::fixFlags(globalFlags + aFlags);
+            // The note's own first, the project's after. Rendering a project under UTAU
+            // and reading the calls out of its temp.bat gives g5B0 for a note carrying g5
+            // under a project carrying B0, on 141 of the 164 notes that were asked; the
+            // rest carry an e or an E and start with the slash that puts in front of one.
+            res.flags = UtaTranslator::fixFlags(aFlags + globalFlags);
             res.tempo = aTempo;
             res.pitchCurves = aPitchValues;
             res.realLength = aRealLength;
