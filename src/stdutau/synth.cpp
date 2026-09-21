@@ -79,6 +79,29 @@ namespace utau {
             return impact;
         }
 
+        /// The shortest vibrato UTAU draws, in milliseconds.
+        ///
+        /// Below this it draws nothing at all: not a small vibrato, none. Measured on a probe
+        /// that sweeps the vibrato's length two percent at a time, where fifty milliseconds is
+        /// dropped and sixty is drawn.
+        ///
+        /// It is the milliseconds that decide, not the ticks and not the cycles. The same
+        /// ninety-six ticks of vibrato are drawn at 120 bpm and dropped at 240, and a fifty
+        /// millisecond window holding two and a half whole cycles is dropped just the same.
+        static constexpr const double SHORTEST_VIBRATO = 50;
+
+        /// \brief Whether UTAU draws this vibrato at all
+        /// \param length the note's length in ticks
+        /// \param tempo the note's tempo, which is what turns its ticks into milliseconds
+        static bool vibrato_is_drawn(const std::vector<double> &vibrato, int length,
+                                     double tempo) {
+            if (vibrato.size() < 8 || length <= 0 || tempo <= 0) {
+                return false;
+            }
+            const double ticks = vibrato[0] / 100.0 * length;
+            return ticks * 60000 / (tempo * 480) > SHORTEST_VIBRATO;
+        }
+
         static double find_impact(const std::vector<Point> &portamento, int &startIndex,
                                   double curTick, double PositiveTempo, double NegativeTempo,
                                   const std::vector<double> &vibrato, int length) {
@@ -146,7 +169,7 @@ namespace utau {
             }
 
             // Search vibrato
-            if (vibrato.size() >= 8 && length > 0) {
+            if (vibrato_is_drawn(vibrato, length, PositiveTempo)) {
                 double proportion = vibrato[0];
                 double period = vibrato[1];
                 double amplitude = vibrato[2];
