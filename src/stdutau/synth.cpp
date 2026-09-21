@@ -303,10 +303,17 @@ namespace utau {
                 tick = tick + 5;
             }
 
-            // The trailing zeros stay. A loop here used to drop them, which reads like a
-            // saving and is not one: it only ever removes zeros, so what is left ends on
-            // the last value that was not zero, and an engine that holds the last reading
-            // then holds the note bent instead of letting it come back. UTAU sends them.
+            // The trailing zeros stay, and UTAU drops them.
+            //
+            // Dropping them loses nothing: past the end of the curve there is no bend, which is
+            // the same thing a zero says. UTAU relies on that. On a real tuned project half its
+            // notes send a curve that stops early, and one of them stops on -500 with the note
+            // still running, so an engine that held the last reading would sing it five
+            // semitones flat to the end and nobody would have shipped the song.
+            //
+            // They stay here because the saving is a few dozen bytes on a command line that is
+            // built and thrown away, and because a curve that says what it means is easier to
+            // read in a log than one that stops and leaves the rest to a convention.
 
             return PitchBend;
         }
