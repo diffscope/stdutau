@@ -95,6 +95,16 @@ namespace utau {
     constexpr const char KEY_NAME_CHAR_AUTHOR[] = "author";
     constexpr const char KEY_NAME_CHAR_WEB[] = "web";
 
+    // plugin.txt
+    constexpr const char KEY_NAME_PLUGIN_NAME[] = "name";
+    constexpr const char KEY_NAME_PLUGIN_EXECUTE[] = "execute";
+    constexpr const char KEY_NAME_PLUGIN_SHELL[] = "shell";
+    constexpr const char KEY_NAME_PLUGIN_UST_VERSION[] = "ustversion";
+    constexpr const char KEY_NAME_PLUGIN_NOTES[] = "notes";
+
+    constexpr const char VALUE_PLUGIN_SHELL_USE[] = "use";
+    constexpr const char VALUE_PLUGIN_NOTES_ALL[] = "all";
+
     // Utils
     constexpr const char TONE_NAMES[] = "CCDDEFFGGAAB";
     constexpr const char TONE_NAME_SHARP = '#';
