@@ -201,12 +201,16 @@ namespace utau {
                     ratio = 1;
                     // Add offset
                     y += offset * amplitude;
-                    // Calculate envelope
+                    // Calculate envelope. One or the other, never both: a fade in of 80% and a
+                    // fade out of 80% overlap, and UTAU lets the fade in win the whole way. Its
+                    // envelope climbs to 1.006 four fifths of the way through and drops to 0.245
+                    // on the very next reading, which is the fade out picking up where it always
+                    // would have. Multiplying the two instead flattens the middle to 0.39 and is
+                    // out by sixty cents.
                     if (x < easeIn) {
-                        ratio *= x / easeIn;
-                    }
-                    if (x > easeOut) {
-                        ratio *= 1 - (x - easeOut) / (tick_length - easeOut);
+                        ratio = x / easeIn;
+                    } else if (x > easeOut) {
+                        ratio = 1 - (x - easeOut) / (tick_length - easeOut);
                     }
                     // Add envelope
                     y = ratio * y;
