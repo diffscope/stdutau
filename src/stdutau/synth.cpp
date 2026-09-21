@@ -237,7 +237,11 @@ namespace utau {
             pbstart = -(curPre + curStp) * prevTempo / 60 * 480 / 1000;
             tick = pbstart;
 
-            while (tick < duration) {
+            // One reading past the end. The probe's vibrato notes carry fifty readings where this
+            // loop alone produces forty-nine, and the missing one is the last: without it the
+            // curve stops five ticks early and an engine holding the last value holds the wrong
+            // one, which on a fast vibrato is half a semitone.
+            while (tick < duration + 5) {
                 prevImpact = 0;
                 nextImpact = 0;
 
