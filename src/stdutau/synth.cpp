@@ -79,13 +79,15 @@ namespace utau {
             return impact;
         }
 
-        static int find_impact(const std::vector<Point> &portamento, int &startIndex, int curTick,
-                               double PositiveTempo, double NegativeTempo,
+        static int find_impact(const std::vector<Point> &portamento, int &startIndex,
+                               double curTick, double PositiveTempo, double NegativeTempo,
                                const std::vector<double> &vibrato, int length) {
 
             // portamento: Mode2 Pitch curve points
             // startIndex: search from index
-            // curTick: current tick
+            // curTick: current tick, and a fraction of one is not thrown away. Reading the
+            //          curve on whole ticks costs up to fifty cents on a fast vibrato, and the
+            //          455-note probe says UTAU keeps the fraction.
             // PositiveTempo: tempo used when ticks is positive
             // NegativeTempo: tempo used when ticks is negative (necessary when tempo changed)
             // vibrato: The vibrato sequence, which can be absent
@@ -239,22 +241,21 @@ namespace utau {
                 prevImpact = 0;
                 nextImpact = 0;
 
-                basePitch =
-                    find_impact(curNote, i, int(tick), curTempo, prevTempo, curVBR, curLength);
+                basePitch = find_impact(curNote, i, tick, curTempo, prevTempo, curVBR, curLength);
 
                 // The part influenced by the next note
                 if (tick >= nextStart) {
                     if (j < nextNote.size() - 1) {
-                        nextImpact = find_impact(nextNote, j, int(tick) - curLength, curTempo,
-                                                 curTempo, nextVBR, nextLength);
+                        nextImpact = find_impact(nextNote, j, tick - curLength, curTempo, curTempo,
+                                                 nextVBR, nextLength);
                     }
                     nextImpact += -int(nextNote[0].y * 10);
                 }
 
                 // The part influenced by the previous note
                 if (tick <= 0) {
-                    prevImpact = find_impact(prevNote, k, int(tick) + prevLength, prevTempo,
-                                             prevTempo, prevVBR, prevLength);
+                    prevImpact = find_impact(prevNote, k, tick + prevLength, prevTempo, prevTempo,
+                                             prevVBR, prevLength);
                 }
 
                 // Add the influence of the pitch line before and after the note
