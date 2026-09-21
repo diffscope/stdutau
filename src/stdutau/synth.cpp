@@ -730,8 +730,12 @@ namespace utau {
             double aDuration = (double(aLength) / 480 * 60 / aTempo * 1000); // 由 ticks 换算长度
             double aDurationFix = aPreUttr - aNextPreUttr + aNextOverlap;
 
+            // Not lifted to the consonant first. A line doing that was here, and it is wrong:
+            // rendering a project under UTAU and reading the calls back out of the temp.bat it
+            // wrote gives 96 of 96 notes matching without it and 87 of 96 with it. The nine that
+            // tell the two apart are short notes whose sample has a long consonant, and UTAU
+            // renders those shorter than the consonant rather than stretching to reach it.
             double aRealLength = aDuration + aDurationFix + aStartPoint + 50;
-            aRealLength = (aRealLength < aOto.consonant) ? aOto.consonant : aRealLength;
             aRealLength = int((aRealLength + 25) / 50) * 50;
 
             // Cache Name
