@@ -23,29 +23,39 @@ namespace utau {
     }
 
     bool PluginFileReader::load(const std::filesystem::path &path) {
-        std::ifstream fs(path);
+        std::ifstream fs(path, std::ios::binary);
         if (!fs.is_open())
             return false;
-        std::istream &is = fs;
+        const std::string text((std::istreambuf_iterator<char>(fs)),
+                               std::istreambuf_iterator<char>());
+        return read(text);
+    }
+
+    bool PluginFileReader::read(std::string_view text) {
+        // Whether the file ends without a terminator, which decides when the loop below is on
+        // the last line. See UstFile::read, which reads the same shape.
+        const bool dangling = !text.empty() && text.back() != '\n';
 
         // Read File
         std::vector<std::string> currentSection;
 
-        std::string line;
-        while (readLine(is, line)) {
-            if (line.empty() && !is.eof()) {
+        std::string_view line;
+        while (takeLine(text, line)) {
+            const bool atEnd = text.empty() && dangling;
+
+            if (line.empty() && !atEnd) {
                 continue;
             }
 
             // Continue to add until meet the start of section or end
-            if (!starts_with(line, SECTION_BEGIN_MARK) && !is.eof()) {
-                currentSection.push_back(line);
+            if (!starts_with(line, SECTION_BEGIN_MARK) && !atEnd) {
+                currentSection.emplace_back(line);
                 continue;
             }
 
             // If meet end, append without continue
-            if (!line.empty() && is.eof()) {
-                currentSection.push_back(line);
+            if (!line.empty() && atEnd) {
+                currentSection.emplace_back(line);
             }
 
             // Previous section is empty
@@ -93,7 +103,7 @@ namespace utau {
             }
 
             currentSection.clear();
-            currentSection.push_back(line);
+            currentSection.emplace_back(line);
         }
 
         return true;
@@ -104,11 +114,16 @@ namespace utau {
     }
 
     bool PluginFileWriter::save(const std::filesystem::path &path) const {
-        std::ofstream fs(path);
+        std::ofstream fs(path, std::ios::binary);
         if (!fs.is_open())
             return false;
+        const auto text = write();
+        fs.write(text.data(), std::streamsize(text.size()));
+        return fs.good();
+    }
 
-        std::ostream &os = fs;
+    std::string PluginFileWriter::write() const {
+        std::string out;
 
         struct NoteItem {
             bool removed = false;
@@ -131,18 +146,18 @@ namespace utau {
         // Previous
         if (!m_notesBeforePrev.empty()) {
             for (const auto &note : m_notesBeforePrev) {
-                writeSectionName(SECTION_NAME_INSERT, os);
-                writeSectionNote(-1, note, os);
+                writeSectionName(SECTION_NAME_INSERT, out);
+                writeSectionNote(-1, note, out);
             }
 
             // Complement
             if (!m_prevNote) {
-                writeSectionName(SECTION_NAME_PREV, os);
+                writeSectionName(SECTION_NAME_PREV, out);
             }
         }
         if (m_prevNote) {
-            writeSectionName(SECTION_NAME_PREV, os);
-            writeSectionNote(-1, m_prevNote.value(), os);
+            writeSectionName(SECTION_NAME_PREV, out);
+            writeSectionNote(-1, m_prevNote.value(), out);
         }
 
         // Selection
@@ -150,8 +165,8 @@ namespace utau {
             const auto &item = noteItems[i];
             if (item.inserted) {
                 for (const auto &note : *item.inserted) {
-                    writeSectionName(SECTION_NAME_INSERT, os);
-                    writeSectionNote(-1, note, os);
+                    writeSectionName(SECTION_NAME_INSERT, out);
+                    writeSectionNote(-1, note, out);
                 }
             }
 
@@ -160,37 +175,37 @@ namespace utau {
                 break;
 
             if (item.removed) {
-                writeSectionName(SECTION_NAME_DELETE, os);
+                writeSectionName(SECTION_NAME_DELETE, out);
                 continue;
             }
 
             int idx = m_startIndex + i;
             if (item.changed) {
-                writeSectionNote(idx, *item.changed, os);
+                writeSectionNote(idx, *item.changed, out);
                 continue;
             }
 
             // Keep index
-            writeSectionName(idx, os);
+            writeSectionName(idx, out);
         }
 
         // Next
         if (m_nextNote) {
-            writeSectionName(SECTION_NAME_NEXT, os);
-            writeSectionNote(-1, m_nextNote.value(), os);
+            writeSectionName(SECTION_NAME_NEXT, out);
+            writeSectionNote(-1, m_nextNote.value(), out);
         }
         if (!m_notesAfterNext.empty()) {
             // Complement
             if (!m_nextNote) {
-                writeSectionName(SECTION_NAME_NEXT, os);
+                writeSectionName(SECTION_NAME_NEXT, out);
             }
 
             for (const auto &note : m_notesAfterNext) {
-                writeSectionName(SECTION_NAME_INSERT, os);
-                writeSectionNote(-1, note, os);
+                writeSectionName(SECTION_NAME_INSERT, out);
+                writeSectionNote(-1, note, out);
             }
         }
-        return true;
+        return out;
     }
 
     void PluginFileWriter::setNote(int index, const Note &note) {

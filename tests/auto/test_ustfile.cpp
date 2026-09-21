@@ -1,8 +1,9 @@
-#include <sstream>
+#include <cstring>
 #include <string>
 #include <vector>
 
 #include <stdutau/ustfile.h>
+#include <stdutau/utautils.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -26,16 +27,13 @@ namespace {
 
     UstFile parse(const std::string &text) {
         UstFile file;
-        std::istringstream is(text);
-        BOOST_REQUIRE(file.read(is));
+        BOOST_REQUIRE(file.read(text));
         BOOST_REQUIRE_EQUAL(file.notes.size(), 1);
         return file;
     }
 
     std::string serialize(const UstFile &file) {
-        std::ostringstream os;
-        BOOST_REQUIRE(file.write(os));
-        return os.str();
+        return file.write();
     }
 
     int occurrences(const std::string &haystack, const std::string &needle) {
@@ -126,9 +124,8 @@ BOOST_AUTO_TEST_CASE(test_entry_present_but_empty_stays_absent) {
 BOOST_AUTO_TEST_CASE(test_absence_survives_a_round_trip) {
     auto once = serialize(parse(ust(minimalNote)));
 
-    std::istringstream is(once);
     UstFile second;
-    BOOST_REQUIRE(second.read(is));
+    BOOST_REQUIRE(second.read(once));
     BOOST_REQUIRE_EQUAL(second.notes.size(), 1);
 
     BOOST_CHECK(!second.notes.at(0).intensity);
@@ -228,7 +225,8 @@ BOOST_AUTO_TEST_CASE(test_user_data_is_written_at_the_end_of_the_section) {
 
     // Everything the note knows about itself comes first, and the section ends right after.
     BOOST_CHECK(entry > text.find("NoteNum="));
-    BOOST_CHECK_EQUAL(text.find("[#TRACKEND]"), entry + std::string("$hup_data=AAAA\n").size());
+    BOOST_CHECK_EQUAL(text.find("[#TRACKEND]"),
+                      entry + std::string("$hup_data=AAAA").size() + std::strlen(LINE_END));
 }
 
 BOOST_AUTO_TEST_CASE(test_round_trip_keeps_user_data) {
@@ -240,9 +238,8 @@ BOOST_AUTO_TEST_CASE(test_round_trip_keeps_user_data) {
 
     // Reading what was written and writing it again has to land on the same bytes. A value that
     // survives one pass and not the next is the failure this is watching for.
-    std::istringstream is(once);
     UstFile second;
-    BOOST_REQUIRE(second.read(is));
+    BOOST_REQUIRE(second.read(once));
     BOOST_CHECK_EQUAL(serialize(second), once);
 
     BOOST_REQUIRE_EQUAL(second.notes.size(), 1);
@@ -258,9 +255,8 @@ BOOST_AUTO_TEST_CASE(test_round_trip_keeps_a_long_value) {
 
     BOOST_CHECK_EQUAL(file.notes.at(0).userData.at("$hup_blob"), value);
 
-    std::istringstream is(serialize(file));
     UstFile second;
-    BOOST_REQUIRE(second.read(is));
+    BOOST_REQUIRE(second.read(serialize(file)));
     BOOST_REQUIRE_EQUAL(second.notes.size(), 1);
     BOOST_CHECK_EQUAL(second.notes.at(0).userData.at("$hup_blob"), value);
 }
@@ -274,17 +270,16 @@ BOOST_AUTO_TEST_CASE(test_empty_value_is_kept) {
     BOOST_REQUIRE_EQUAL(file.notes.at(0).userData.count("$hup_empty"), 1);
     BOOST_CHECK(file.notes.at(0).userData.at("$hup_empty").empty());
 
-    std::istringstream is(serialize(file));
     UstFile second;
-    BOOST_REQUIRE(second.read(is));
+    BOOST_REQUIRE(second.read(serialize(file)));
     BOOST_REQUIRE_EQUAL(second.notes.size(), 1);
     BOOST_CHECK_EQUAL(second.notes.at(0).userData.count("$hup_empty"), 1);
 }
 
-// UTAU writes CRLF, and a stream in text mode turns that into a newline on Windows and nowhere
-// else. Before readLine() this content parsed to nothing at all on the other platforms: the
-// section header ended in a carriage return, which is not the closing bracket the reader looks
-// for, so every section was thrown away.
+// UTAU writes CRLF, and this library reads bytes, so the carriage return arrives on every
+// platform. Without takeLine() this content parsed to nothing at all: the section header ended
+// in a carriage return, which is not the closing bracket the reader looks for, so every section
+// was thrown away.
 BOOST_AUTO_TEST_CASE(test_crlf_reads_the_same_as_lf) {
     auto text = ust(noteWith({"Label=chorus", "$hup_data=AAAA"}));
     std::string crlf;
@@ -295,9 +290,8 @@ BOOST_AUTO_TEST_CASE(test_crlf_reads_the_same_as_lf) {
         crlf += c;
     }
 
-    std::istringstream is(crlf);
     UstFile file;
-    BOOST_REQUIRE(file.read(is));
+    BOOST_REQUIRE(file.read(crlf));
     BOOST_REQUIRE_EQUAL(file.notes.size(), 1);
 
     const auto &note = file.notes.at(0);

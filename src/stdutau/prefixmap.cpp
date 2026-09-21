@@ -10,26 +10,30 @@ namespace utau {
     PrefixMap::PrefixMap() = default;
 
     bool PrefixMap::load(const std::filesystem::path &path) {
-        std::ifstream fs(path);
+        std::ifstream fs(path, std::ios::binary);
         if (!fs.is_open())
             return false;
-        return read(fs);
+        const std::string text((std::istreambuf_iterator<char>(fs)),
+                               std::istreambuf_iterator<char>());
+        return read(text);
     }
 
     bool PrefixMap::save(const std::filesystem::path &path) const {
-        std::ofstream fs(path);
+        std::ofstream fs(path, std::ios::binary);
         if (!fs.is_open())
             return false;
-        return write(fs);
+        const auto text = write();
+        fs.write(text.data(), std::streamsize(text.size()));
+        return fs.good();
     }
 
-    bool PrefixMap::read(std::istream &is) {
+    bool PrefixMap::read(std::string_view text) {
         static const constexpr int min = TONE_NUMBER_BASE;
         static const constexpr int max =
             min + (TONE_OCTAVE_MAX - TONE_OCTAVE_MIN + 1) * TONE_OCTAVE_STEPS - 1;
 
-        std::string line;
-        while (readLine(is, line)) {
+        std::string_view line;
+        while (takeLine(text, line)) {
             if (line.empty()) {
                 continue;
             }
@@ -49,15 +53,17 @@ namespace utau {
         return true;
     }
 
-    bool PrefixMap::write(std::ostream &os) const {
+    std::string PrefixMap::write() const {
+        std::string out;
         for (auto it = map.begin(); it != map.end(); ++it) {
-            int key = it->first;
-            os << toneNumToToneName(key) << "\t" << it->second.prefix << "\t" << it->second.suffix
-               << std::endl;
-            if (!os.good())
-                return false;
+            out += toneNumToToneName(it->first);
+            out += '\t';
+            out += it->second.prefix;
+            out += '\t';
+            out += it->second.suffix;
+            out += LINE_END;
         }
-        return true;
+        return out;
     }
 
     std::string PrefixMap::prefixedLyric(int noteNum, const std::string &lyric) const {

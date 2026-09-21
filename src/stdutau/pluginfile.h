@@ -21,6 +21,9 @@ namespace utau {
         /// Reads the file at \a path, returns \c false when it will not open.
         bool load(const std::filesystem::path &path);
 
+        /// \overload for a file that is already in hand.
+        bool read(std::string_view text);
+
     public:
         /// Read only, and not wanted in what the plugin writes back.
         UstVersion version;
@@ -57,6 +60,9 @@ namespace utau {
 
         /// Writes to \a path, which is the file the plugin was given.
         bool save(const std::filesystem::path &path) const;
+
+        /// \overload for a caller that wants the bytes rather than a file.
+        std::string write() const;
 
     public:
         /// Replaces the note at \a index with \a note.

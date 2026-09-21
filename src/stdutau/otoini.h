@@ -2,8 +2,9 @@
 #define OTOINI_H
 
 #include <filesystem>
-#include <iosfwd>
 #include <map>
+#include <string>
+#include <string_view>
 #include <vector>
 
 #include <stdutau/otoentry.h>
@@ -25,10 +26,10 @@ namespace utau {
 
         /// Reads one entry per line. A line missing its trailing fields is filled out with zeros,
         /// and one naming no sample file is skipped.
-        bool read(std::istream &is);
+        bool read(std::string_view text);
 
         /// Writes the entries grouped by sample file, the files in ascending order.
-        bool write(std::ostream &os) const;
+        std::string write() const;
 
     public:
         /// Entries keyed by sample file name. One file carries as many entries as it has aliases,

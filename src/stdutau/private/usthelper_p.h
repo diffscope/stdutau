@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
 
 #include <stdutau/note.h>
 #include <stdutau/ustfile.h>
@@ -16,11 +15,11 @@ namespace utau {
     void parseSectionVersion(const std::vector<std::string> &sectionList, UstVersion &out);
     void parseSectionSettings(const std::vector<std::string> &sectionList, UstSettings &out);
 
-    void writeSectionName(const std::string &name, std::ostream &out);
-    void writeSectionName(int name, std::ostream &out);
-    void writeSectionNote(int num, const Note &note, std::ostream &out);
-    void writeSectionVersion(const UstVersion &version, std::ostream &out);
-    void writeSectionSettings(const UstSettings &settings, std::ostream &out);
+    void writeSectionName(const std::string &name, std::string &out);
+    void writeSectionName(int name, std::string &out);
+    void writeSectionNote(int num, const Note &note, std::string &out);
+    void writeSectionVersion(const UstVersion &version, std::string &out);
+    void writeSectionSettings(const UstSettings &settings, std::string &out);
 
 }
 

@@ -2,9 +2,9 @@
 #define PREFIXMAP_H
 
 #include <filesystem>
-#include <iosfwd>
 #include <map>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include <stdutau/utaglobal.h>
@@ -26,10 +26,10 @@ namespace utau {
 
         /// Reads tab separated lines of tone name, prefix and suffix. A line naming a key outside
         /// C1 to B7 is skipped, as is one with fewer than three fields.
-        bool read(std::istream &is);
+        bool read(std::string_view text);
 
         /// Writes one tab separated line per key, in ascending order.
-        bool write(std::ostream &os) const;
+        std::string write() const;
 
     public:
         /// What goes before and after the lyric at one key.

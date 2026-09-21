@@ -199,11 +199,20 @@ namespace utau {
         }
     }
 
-    void writeSectionName(const std::string &name, std::ostream &out) {
-        out << SECTION_BEGIN_MARK + name + SECTION_END_MARK << std::endl;
+    // Appends one "key=value" line, which is nearly every line a UST is made of.
+    static void writeEntry(std::string &out, std::string_view key, std::string_view value) {
+        out += key;
+        out += '=';
+        out += value;
+        out += LINE_END;
     }
 
-    void writeSectionName(int name, std::ostream &out) {
+    void writeSectionName(const std::string &name, std::string &out) {
+        out += SECTION_BEGIN_MARK + name + SECTION_END_MARK;
+        out += LINE_END;
+    }
+
+    void writeSectionName(int name, std::string &out) {
         auto newName = to_string(name);
         auto nums = newName.size();
         if (nums < 4) {
@@ -212,125 +221,125 @@ namespace utau {
         writeSectionName(newName, out);
     }
 
-    void writeSectionNote(int num, const Note &note, std::ostream &out) {
+    void writeSectionNote(int num, const Note &note, std::string &out) {
         if (num >= 0) {
             writeSectionName(num, out);
         }
 
         // Items always exists
-        out << KEY_NAME_LENGTH << "=" << note.length << std::endl;
-        out << KEY_NAME_LYRIC << "=" << note.lyric << std::endl;
-        out << KEY_NAME_NOTE_NUM << "=" << note.noteNum << std::endl;
+        writeEntry(out, KEY_NAME_LENGTH, to_string(note.length));
+        writeEntry(out, KEY_NAME_LYRIC, note.lyric);
+        writeEntry(out, KEY_NAME_NOTE_NUM, to_string(note.noteNum));
 
         // Items can be omitted
         if (note.preUttr) {
-            out << KEY_NAME_PRE_UTTERANCE << "=" << *note.preUttr << std::endl;
+            writeEntry(out, KEY_NAME_PRE_UTTERANCE, to_string(*note.preUttr));
         } else {
             // UST files always keep this property even if empty
-            out << KEY_NAME_PRE_UTTERANCE << "=" << std::endl;
+            writeEntry(out, KEY_NAME_PRE_UTTERANCE, {});
         }
         if (note.overlap) {
-            out << KEY_NAME_VOICE_OVERLAP << "=" << *note.overlap << std::endl;
+            writeEntry(out, KEY_NAME_VOICE_OVERLAP, to_string(*note.overlap));
         }
         if (note.velocity) {
-            out << KEY_NAME_VELOCITY << "=" << to_string(*note.velocity) << std::endl;
+            writeEntry(out, KEY_NAME_VELOCITY, to_string(*note.velocity));
         }
         if (note.intensity) {
-            out << KEY_NAME_INTENSITY << "=" << *note.intensity << std::endl;
+            writeEntry(out, KEY_NAME_INTENSITY, to_string(*note.intensity));
         }
         if (note.modulation) {
-            out << KEY_NAME_MODULATION << "=" << *note.modulation << std::endl;
+            writeEntry(out, KEY_NAME_MODULATION, to_string(*note.modulation));
         }
         if (note.stp) {
-            out << KEY_NAME_START_POINT << "=" << *note.stp << std::endl;
+            writeEntry(out, KEY_NAME_START_POINT, to_string(*note.stp));
         }
         if (!note.flags.empty()) {
-            out << KEY_NAME_FLAGS << "=" << note.flags << std::endl;
+            writeEntry(out, KEY_NAME_FLAGS, note.flags);
         }
 
         // Items may not exist
         if (!note.pitches.empty()) {
-            out << KEY_NAME_PB_TYPE << "=5" << std::endl;
-            out << KEY_NAME_PB_START << "=" << note.pbstart.value_or(0) << std::endl;
-            out << KEY_NAME_PITCH_BEND << "=" << join(doublesToStrings(note.pitches), ",")
-                << std::endl;
+            writeEntry(out, KEY_NAME_PB_TYPE, VALUE_PITCH_TYPE);
+            writeEntry(out, KEY_NAME_PB_START, to_string(note.pbstart.value_or(0)));
+            writeEntry(out, KEY_NAME_PITCH_BEND, join(doublesToStrings(note.pitches), ","));
         }
 
         if (note.envelope) {
-            out << KEY_NAME_ENVELOPE << "=" << note.envelope->toString() << std::endl;
+            writeEntry(out, KEY_NAME_ENVELOPE, note.envelope->toString());
         }
 
         if (!note.portamento.empty()) {
             auto mode2 = PBStrings::fromPoints(note.portamento);
-            out << KEY_NAME_PBS << "=" << mode2.PBS << std::endl;
-            out << KEY_NAME_PBW << "=" << mode2.PBW << std::endl;
+            writeEntry(out, KEY_NAME_PBS, mode2.PBS);
+            writeEntry(out, KEY_NAME_PBW, mode2.PBW);
             if (!mode2.PBY.empty()) {
-                out << KEY_NAME_PBY << "=" << mode2.PBY << std::endl;
+                writeEntry(out, KEY_NAME_PBY, mode2.PBY);
             }
             if (!mode2.PBM.empty()) {
-                out << KEY_NAME_PBM << "=" << mode2.PBM << std::endl;
+                writeEntry(out, KEY_NAME_PBM, mode2.PBM);
             }
         }
         if (note.vibrato) {
-            out << KEY_NAME_VBR << "=" << note.vibrato->toString() << std::endl;
+            writeEntry(out, KEY_NAME_VBR, note.vibrato->toString());
         }
         if (note.tempo) {
-            out << KEY_NAME_TEMPO << "=" << *note.tempo << std::endl;
+            writeEntry(out, KEY_NAME_TEMPO, to_string(*note.tempo));
         }
         if (!note.region.empty()) {
-            out << KEY_NAME_REGION_START << "=" << note.region << std::endl;
+            writeEntry(out, KEY_NAME_REGION_START, note.region);
         }
         if (!note.regionEnd.empty()) {
-            out << KEY_NAME_REGION_END << "=" << note.regionEnd << std::endl;
+            writeEntry(out, KEY_NAME_REGION_END, note.regionEnd);
         }
         if (!note.label.empty()) {
-            out << KEY_NAME_LABEL << "=" << note.label << std::endl;
+            writeEntry(out, KEY_NAME_LABEL, note.label);
         }
         if (!note.direct.empty()) {
-            out << KEY_NAME_DIRECT << "=" << note.direct << std::endl;
+            writeEntry(out, KEY_NAME_DIRECT, note.direct);
         }
         if (!note.patch.empty()) {
-            out << KEY_NAME_PATCH << "=" << note.patch << std::endl;
+            writeEntry(out, KEY_NAME_PATCH, note.patch);
         }
 
         // Last, which is where UTAU puts the entries it did not recognize when it writes a file
         // back. Matching that keeps a file this library wrote and the same file after a pass
         // through UTAU in the same shape.
         for (const auto &pair : note.userData) {
-            out << pair.first << "=" << pair.second << std::endl;
+            writeEntry(out, pair.first, pair.second);
         }
     }
 
-    void writeSectionVersion(const UstVersion &version, std::ostream &out) {
+    void writeSectionVersion(const UstVersion &version, std::string &out) {
         writeSectionName(SECTION_NAME_VERSION, out);
 
-        out << UST_VERSION_PREFIX_NOSPACE << version.version << std::endl;
+        out += UST_VERSION_PREFIX_NOSPACE;
+        out += version.version;
+        out += LINE_END;
 
         // UTF-8 UST File?
-        std::string charset = version.charset;
-        if (!charset.empty()) {
-            out << KEY_NAME_CHARSET << "=" << charset << std::endl;
+        if (!version.charset.empty()) {
+            writeEntry(out, KEY_NAME_CHARSET, version.charset);
         }
     }
 
-    void writeSectionSettings(const UstSettings &settings, std::ostream &out) {
+    void writeSectionSettings(const UstSettings &settings, std::string &out) {
         writeSectionName(SECTION_NAME_SETTING, out);
 
-        out << KEY_NAME_TEMPO << "=" << settings.tempo << std::endl;
-        out << KEY_NAME_TRACKS << "=" << VALUE_PROJECT_TRACKS << std::endl;
-        out << KEY_NAME_PROJECT_NAME << "=" << settings.projectName << std::endl;
-        out << KEY_NAME_VOICE_DIR << "=" << settings.voiceDir << std::endl;
-        out << KEY_NAME_OUTPUT_FILE << "=" << settings.outputFileName << std::endl;
-        out << KEY_NAME_CACHE_DIR << "=" << settings.cacheDir << std::endl;
-        out << KEY_NAME_TOOL1 << "=" << settings.wavtoolPath << std::endl;
-        out << KEY_NAME_TOOL2 << "=" << settings.resamplerPath << std::endl;
+        writeEntry(out, KEY_NAME_TEMPO, to_string(settings.tempo));
+        writeEntry(out, KEY_NAME_TRACKS, VALUE_PROJECT_TRACKS);
+        writeEntry(out, KEY_NAME_PROJECT_NAME, settings.projectName);
+        writeEntry(out, KEY_NAME_VOICE_DIR, settings.voiceDir);
+        writeEntry(out, KEY_NAME_OUTPUT_FILE, settings.outputFileName);
+        writeEntry(out, KEY_NAME_CACHE_DIR, settings.cacheDir);
+        writeEntry(out, KEY_NAME_TOOL1, settings.wavtoolPath);
+        writeEntry(out, KEY_NAME_TOOL2, settings.resamplerPath);
 
         if (settings.isMode2) {
-            out << KEY_NAME_MODE2 << "=" << VALUE_MODE2_ON << std::endl;
+            writeEntry(out, KEY_NAME_MODE2, VALUE_MODE2_ON);
         }
 
         if (!settings.flags.empty()) {
-            out << KEY_NAME_FLAGS << "=" << settings.flags << std::endl;
+            writeEntry(out, KEY_NAME_FLAGS, settings.flags);
         }
     }
 

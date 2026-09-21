@@ -1,4 +1,3 @@
-#include <sstream>
 #include <string>
 
 #include <stdutau/otoini.h>
@@ -13,8 +12,7 @@ namespace {
 
     OtoIni parse(const std::string &text) {
         OtoIni oto;
-        std::istringstream is(text);
-        BOOST_REQUIRE(oto.read(is));
+        BOOST_REQUIRE(oto.read(text));
         return oto;
     }
 

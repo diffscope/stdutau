@@ -2,12 +2,12 @@
 #define USTFILE_H
 
 #include <array>
-#include <map>
-#include <string>
-#include <optional>
-#include <vector>
 #include <filesystem>
-#include <iosfwd>
+#include <map>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
 
 #include <stdutau/note.h>
 
@@ -79,10 +79,10 @@ namespace utau {
         ///          which shifts every note index after that point. A file carrying one has
         ///          already been damaged, so do not read it as though the section were still
         ///          there.
-        bool read(std::istream &is);
+        bool read(std::string_view text);
 
         /// Writes the version, the settings, the notes and the closing \c [#TRACKEND] .
-        bool write(std::ostream &os) const;
+        std::string write() const;
 
     public:
         UstVersion version;

@@ -3,7 +3,6 @@
 #include <cctype>
 #include <cerrno>
 #include <cstdlib>
-#include <istream>
 #include <sstream>
 #include <string>
 #include <charconv>
@@ -40,12 +39,21 @@ namespace utau {
 #endif
     }
 
-    bool readLine(std::istream &is, std::string &line) {
-        if (!std::getline(is, line)) {
+    bool takeLine(std::string_view &text, std::string_view &line) {
+        if (text.empty()) {
             return false;
         }
+
+        const auto end = text.find('\n');
+        if (end == std::string_view::npos) {
+            line = text;
+            text = {};
+        } else {
+            line = text.substr(0, end);
+            text = text.substr(end + 1);
+        }
         if (!line.empty() && line.back() == '\r') {
-            line.pop_back();
+            line.remove_suffix(1);
         }
         return true;
     }

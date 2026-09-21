@@ -53,22 +53,26 @@ namespace utau {
     OtoIni::OtoIni() = default;
 
     bool OtoIni::load(const std::filesystem::path &path) {
-        std::ifstream fs(path);
+        std::ifstream fs(path, std::ios::binary);
         if (!fs.is_open())
             return false;
-        return read(fs);
+        const std::string text((std::istreambuf_iterator<char>(fs)),
+                               std::istreambuf_iterator<char>());
+        return read(text);
     }
 
     bool OtoIni::save(const std::filesystem::path &path) const {
-        std::ofstream fs(path);
+        std::ofstream fs(path, std::ios::binary);
         if (!fs.is_open())
             return false;
-        return write(fs);
+        const auto text = write();
+        fs.write(text.data(), std::streamsize(text.size()));
+        return fs.good();
     }
 
-    bool OtoIni::read(std::istream &is) {
-        std::string line;
-        while (readLine(is, line)) {
+    bool OtoIni::read(std::string_view text) {
+        std::string_view line;
+        while (takeLine(text, line)) {
             if (line.empty()) {
                 continue;
             }
@@ -88,15 +92,15 @@ namespace utau {
         return true;
     }
 
-    bool OtoIni::write(std::ostream &os) const {
+    std::string OtoIni::write() const {
+        std::string out;
         for (const auto &item : contents) {
             for (const auto &entry : item.second) {
-                os << formatEntry(entry) << std::endl;
-                if (!os.good())
-                    return false;
+                out += formatEntry(entry);
+                out += LINE_END;
             }
         }
-        return true;
+        return out;
     }
 
 }

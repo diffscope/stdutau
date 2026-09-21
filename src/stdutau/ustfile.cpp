@@ -22,38 +22,49 @@ namespace utau {
     UstFile::UstFile() = default;
 
     bool UstFile::load(const std::filesystem::path &path) {
-        std::ifstream fs(path);
+        std::ifstream fs(path, std::ios::binary);
         if (!fs.is_open())
             return false;
-        return read(fs);
+        const std::string text((std::istreambuf_iterator<char>(fs)),
+                               std::istreambuf_iterator<char>());
+        return read(text);
     }
 
     bool UstFile::save(const std::filesystem::path &path) const {
-        std::ofstream fs(path);
+        std::ofstream fs(path, std::ios::binary);
         if (!fs.is_open())
             return false;
-        return write(fs);
+        const auto text = write();
+        fs.write(text.data(), std::streamsize(text.size()));
+        return fs.good();
     }
 
-    bool UstFile::read(std::istream &is) {
+    bool UstFile::read(std::string_view text) {
+        // Whether the file ends without a terminator, which decides when the loop below is on
+        // the last line. A file that ends with one has nothing after its final section marker,
+        // so the marker closes the section before it rather than opening one of its own.
+        const bool dangling = !text.empty() && text.back() != '\n';
+
         // Read File
         std::vector<std::string> currentSection;
 
-        std::string line;
-        while (readLine(is, line)) {
-            if (line.empty() && !is.eof()) {
+        std::string_view line;
+        while (takeLine(text, line)) {
+            const bool atEnd = text.empty() && dangling;
+
+            if (line.empty() && !atEnd) {
                 continue;
             }
 
             // Continue to add until meet the start of section or end
-            if (!starts_with(line, SECTION_BEGIN_MARK) && !is.eof()) {
-                currentSection.push_back(line);
+            if (!starts_with(line, SECTION_BEGIN_MARK) && !atEnd) {
+                currentSection.emplace_back(line);
                 continue;
             }
 
             // If meet end, append without continue
-            if (!line.empty() && is.eof()) {
-                currentSection.push_back(line);
+            if (!line.empty() && atEnd) {
+                currentSection.emplace_back(line);
             }
 
             // Previous section is empty
@@ -87,29 +98,23 @@ namespace utau {
             }
 
             currentSection.clear();
-            currentSection.push_back(line);
+            currentSection.emplace_back(line);
         }
         return true;
     }
 
-    bool UstFile::write(std::ostream &os) const {
-        writeSectionVersion(version, os);   // Write Version
-        writeSectionSettings(settings, os); // Write Global Settings
-
-        if (!os.good())
-            return false;
+    std::string UstFile::write() const {
+        std::string out;
+        writeSectionVersion(version, out);   // Write Version
+        writeSectionSettings(settings, out); // Write Global Settings
 
         // Write Notes
         for (int i = 0; i < notes.size(); ++i) {
-            writeSectionNote(i, notes[i], os);
-            if (!os.good())
-                return false;
+            writeSectionNote(i, notes[i], out);
         }
 
-        writeSectionName(SECTION_NAME_TRACKEND, os); // Write End Sign
-        if (!os.good())
-            return false;
-        return true;
+        writeSectionName(SECTION_NAME_TRACKEND, out); // Write End Sign
+        return out;
     }
 
 }

@@ -1,7 +1,6 @@
 #ifndef UTAUTILS_H
 #define UTAUTILS_H
 
-#include <iosfwd>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -11,14 +10,26 @@
 
 namespace utau {
 
-    /// Reads one line from \a is into \a line with the line terminator removed, whichever of the
-    /// two it is, and returns whether a line was read.
+    /// The line terminator this library writes, which is the one UTAU writes.
     ///
-    /// \note UTAU writes CRLF. A stream opened in text mode turns that into a newline on Windows
-    ///       and leaves it alone everywhere else, so \c std::getline hands back a line ending in
-    ///       a carriage return on every other platform. Every reader in this library goes through
-    ///       here so that it does not have to care which platform it is on.
-    STDUTAU_EXPORT bool readLine(std::istream &is, std::string &line);
+    /// Not the platform's. A UTAU file is the same file on every system, and which system wrote
+    /// it is not supposed to show.
+    constexpr const char LINE_END[] = "\r\n";
+
+    /// Takes the next line off the front of \a text into \a line, with the terminator removed,
+    /// and returns whether there was one.
+    ///
+    /// \code
+    ///   std::string_view line;
+    ///   while (takeLine(text, line)) {
+    ///       // text now begins after that line
+    ///   }
+    /// \endcode
+    ///
+    /// \note Either terminator is accepted. This library reads bytes rather than a text mode
+    ///       stream, so a CRLF file arrives as it was written on every platform, and every
+    ///       reader here goes through this rather than working that out again.
+    STDUTAU_EXPORT bool takeLine(std::string_view &text, std::string_view &line);
 
     /// Splits on every occurrence of \a delimiter, keeping empty fields. The views point into
     /// \a s, which has to outlive them.
