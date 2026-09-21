@@ -79,9 +79,9 @@ namespace utau {
             return impact;
         }
 
-        static int find_impact(const std::vector<Point> &portamento, int &startIndex,
-                               double curTick, double PositiveTempo, double NegativeTempo,
-                               const std::vector<double> &vibrato, int length) {
+        static double find_impact(const std::vector<Point> &portamento, int &startIndex,
+                                  double curTick, double PositiveTempo, double NegativeTempo,
+                                  const std::vector<double> &vibrato, int length) {
 
             // portamento: Mode2 Pitch curve points
             // startIndex: search from index
@@ -96,7 +96,7 @@ namespace utau {
                 return 0;
             }
 
-            int basePitch;
+            double basePitch;
             int &i = startIndex; // Self counter
             double x1, y1, x2, y2;
             bool tooLeft;
@@ -137,11 +137,11 @@ namespace utau {
                         i++;
                         continue;
                     }
-                    basePitch = int(f_type(ptype, x1, y1, x2, y2, curTick));
+                    basePitch = f_type(ptype, x1, y1, x2, y2, curTick);
                     break;
                 }
                 if (tooLeft) {
-                    basePitch = int(portamento[0].y * 10); // haven't reached the first point yet
+                    basePitch = portamento[0].y * 10; // haven't reached the first point yet
                 }
             }
 
@@ -188,7 +188,7 @@ namespace utau {
                     // Add envelope
                     y = ratio * y;
                     // Add influence
-                    basePitch += int(y);
+                    basePitch += y;
                 }
             }
 
@@ -214,7 +214,7 @@ namespace utau {
 
             std::vector<int> PitchBend;
             double duration, nextStart, pbstart;
-            int basePitch, prevImpact, nextImpact;
+            double basePitch, prevImpact, nextImpact;
             int i, j, k; // Self, successor, precursor counter
 
             double tick;
@@ -249,7 +249,7 @@ namespace utau {
                         nextImpact = find_impact(nextNote, j, tick - curLength, curTempo, curTempo,
                                                  nextVBR, nextLength);
                     }
-                    nextImpact += -int(nextNote[0].y * 10);
+                    nextImpact += -(nextNote[0].y * 10);
                 }
 
                 // The part influenced by the previous note
@@ -258,8 +258,10 @@ namespace utau {
                                              prevVBR, prevLength);
                 }
 
-                // Add the influence of the pitch line before and after the note
-                PitchBend.push_back(basePitch + prevImpact + nextImpact);
+                // Add the influence of the pitch line before and after the note. Rounded, not
+                // truncated: on the probe's vibrato notes truncating misses UTAU by a cent on
+                // nearly every reading, and rounding lands on its number.
+                PitchBend.push_back(int(std::floor(basePitch + prevImpact + nextImpact + 0.5)));
                 tick = tick + 5;
             }
 
