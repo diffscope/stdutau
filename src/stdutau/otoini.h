@@ -14,6 +14,9 @@ namespace utau {
     /// One \c oto.ini of a voice bank. A bank usually has several, one per directory.
     ///
     /// The strings here are raw bytes. Work out the encoding and convert before you look at them.
+    ///
+    /// \sa https://w.atwiki.jp/utaou/pages/106.html
+    ///     原音設定, which is what the entries below are for
     class STDUTAU_EXPORT OtoIni {
     public:
         OtoIni();

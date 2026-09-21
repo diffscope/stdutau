@@ -14,6 +14,9 @@ namespace utau {
     /// one on either side of the selection for context.
     ///
     /// The strings here are raw bytes. Work out the encoding and convert before you look at them.
+    ///
+    /// \sa https://w.atwiki.jp/utaou/pages/64.html
+    ///     プラグイン仕様, which defines this file and what a plugin may write back
     class STDUTAU_EXPORT PluginFileReader {
     public:
         PluginFileReader();

@@ -14,6 +14,9 @@ namespace utau {
     /// A voice bank's \c prefix.map, which decides what is added to a lyric at a given key.
     ///
     /// The strings here are raw bytes. Work out the encoding and convert before you look at them.
+    ///
+    /// \sa https://w.atwiki.jp/utaou/pages/107.html
+    ///     多音階音源の作り方, on what this file is for
     class STDUTAU_EXPORT PrefixMap {
     public:
         PrefixMap();

@@ -11,6 +11,9 @@ namespace utau {
     ///
     /// Every time here is in milliseconds and reaches the resampler as it stands. This class does
     /// not interpret them.
+    ///
+    /// \sa https://w.atwiki.jp/utaou/pages/106.html
+    ///     原音設定, which is what the entries below are for
     class OtoEntry {
     public:
         inline OtoEntry();

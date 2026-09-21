@@ -151,6 +151,12 @@ namespace utau {
     /// One note of a track, which is one numbered section of a UST.
     ///
     /// The strings here are raw bytes. Work out the encoding and convert before you look at them.
+    ///
+    /// \note UTAU's own site publishes no format document. The page below defines the entries
+    ///       of the temporary file a plugin is handed, which are the entries of a UST.
+    ///
+    /// \sa https://w.atwiki.jp/utaou/pages/64.html
+    ///     プラグイン仕様
     class STDUTAU_EXPORT Note {
     public:
         inline Note();
