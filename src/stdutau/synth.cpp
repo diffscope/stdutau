@@ -264,17 +264,25 @@ namespace utau {
             pbstart = -(curPre + curStp) * prevTempo / 60 * 480 / 1000;
             tick = pbstart;
 
-            // Four ticks past the end.
+            // Four ticks past the end. Ticks, not milliseconds.
             //
             // UTAU leaves the trailing zeros off its curve, so how long the curve it sends is
             // says only that its loop got at least that far. Where it stops is pinned down by
             // the notes whose next reading we say is not a zero: UTAU would have had to send
-            // that one, so its loop ended there. On a real tuned project those notes bracket it
-            // between 3.91 and 4.12 ticks, and the 455-note probe agrees from below.
+            // that one, so its loop ended there. Six such notes on a real tuned project bracket
+            // it between 3.91 and 4.12 ticks.
             //
-            // No reason has been found for the four. It is one reading at the very end of a
-            // bent note, and stopping at the duration itself is four ticks short of UTAU while
-            // stopping five past it is one tick long.
+            // Ticks rather than time, because a probe carrying the same pair of notes at three
+            // tempos puts the bound at 60 bpm above six milliseconds while the bound at 134 bpm
+            // is under four. No length of time satisfies both; four ticks satisfies all of them.
+            //
+            // Four is also the only candidate left standing. Over 289 notes it is the only rule
+            // that never falls short of a curve UTAU actually sent and hits all six of the
+            // exact ones; five overshoots those six, the duration itself falls short on 194,
+            // and counting by dividing both ends by five falls short whichever way it rounds.
+            //
+            // No reason has been found for the four itself. It is one reading at the very end
+            // of a bent note.
             while (tick < duration + 4) {
                 prevImpact = 0;
                 nextImpact = 0;
