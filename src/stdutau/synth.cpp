@@ -79,22 +79,35 @@ namespace utau {
             return impact;
         }
 
-        /// The shortest vibrato UTAU draws, in milliseconds.
+        /// The shortest vibrato UTAU draws on the note that carries it, in milliseconds.
         ///
-        /// Below this it draws nothing at all: not a small vibrato, none. Measured on a probe
-        /// that sweeps the vibrato's length two percent at a time, where fifty milliseconds is
-        /// dropped and sixty is drawn.
+        /// Fifty is dropped and fifty-one is drawn. Two sweeps that vary the note's length
+        /// rather than the share, one at 24% and one at 12%, arranged so that each step is one
+        /// millisecond of vibrato, break in the same place.
         ///
         /// It is the milliseconds that decide, not the ticks and not the cycles. The same
         /// ninety-six ticks of vibrato are drawn at 120 bpm and dropped at 240, and a fifty
         /// millisecond window holding two and a half whole cycles is dropped just the same.
+        ///
+        /// What is dropped is the vibrato alone. A note carrying both a pitch line and a
+        /// vibrato too short to draw sends exactly the curve it would send with no vibrato at
+        /// all, reading for reading.
         static constexpr const double SHORTEST_VIBRATO = 50;
 
-        /// \brief Whether UTAU draws this vibrato at all
+        /// Which note's vibrato is being asked about.
+        ///
+        /// It matters, because UTAU treats the two differently and does so in a way nothing
+        /// here explains. See find_impact().
+        enum class Whose {
+            Own,
+            Neighbour,
+        };
+
+        /// \brief Whether this vibrato is long enough for UTAU to draw on its own note
         /// \param length the note's length in ticks
         /// \param tempo the note's tempo, which is what turns its ticks into milliseconds
-        static bool vibrato_is_drawn(const std::vector<double> &vibrato, int length,
-                                     double tempo) {
+        static bool vibrato_is_long_enough(const std::vector<double> &vibrato, int length,
+                                           double tempo) {
             if (vibrato.size() < 8 || length <= 0 || tempo <= 0) {
                 return false;
             }
@@ -104,7 +117,7 @@ namespace utau {
 
         static double find_impact(const std::vector<Point> &portamento, int &startIndex,
                                   double curTick, double PositiveTempo, double NegativeTempo,
-                                  const std::vector<double> &vibrato, int length) {
+                                  const std::vector<double> &vibrato, int length, Whose whose) {
 
             // portamento: Mode2 Pitch curve points
             // startIndex: search from index
@@ -168,8 +181,19 @@ namespace utau {
                 }
             }
 
-            // Search vibrato
-            if (vibrato_is_drawn(vibrato, length, PositiveTempo)) {
+            // Search vibrato.
+            //
+            // A vibrato too short for SHORTEST_VIBRATO is not drawn on the note that carries it,
+            // and *is* drawn where that note reaches into its neighbour, without the fade. Both
+            // halves are measured, each twice: on the 455-note probe where the notes are
+            // neighbours, and on a probe where a note carrying one stands between rests with a
+            // plain note after it. There, the note's own curve holds two readings of zero while
+            // the plain note's first two readings carry the vibrato at full amplitude.
+            //
+            // Nothing here explains it. It is written down as it was measured, and the enum is
+            // there so that a reader knows the asymmetry is deliberate rather than a slip.
+            const bool longEnough = vibrato_is_long_enough(vibrato, length, PositiveTempo);
+            if (vibrato.size() >= 8 && length > 0 && (longEnough || whose == Whose::Neighbour)) {
                 double proportion = vibrato[0];
                 double period = vibrato[1];
                 double amplitude = vibrato[2];
@@ -207,7 +231,13 @@ namespace utau {
                     // on the very next reading, which is the fade out picking up where it always
                     // would have. Multiplying the two instead flattens the middle to 0.39 and is
                     // out by sixty cents.
-                    if (x < easeIn) {
+                    //
+                    // The too-short vibrato that reached this note from its neighbour arrives
+                    // with no fade at all. A neighbour whose vibrato is long enough is faded
+                    // normally, so this is not "neighbours are never faded".
+                    if (!longEnough) {
+                        ratio = 1;
+                    } else if (x < easeIn) {
                         ratio = x / easeIn;
                     } else if (x > easeOut) {
                         ratio = 1 - (x - easeOut) / (tick_length - easeOut);
@@ -287,21 +317,23 @@ namespace utau {
                 prevImpact = 0;
                 nextImpact = 0;
 
-                basePitch = find_impact(curNote, i, tick, curTempo, prevTempo, curVBR, curLength);
+                basePitch = find_impact(curNote, i, tick, curTempo, prevTempo, curVBR, curLength,
+                                        Whose::Own);
 
                 // The part influenced by the next note
                 if (tick >= nextStart) {
                     if (j < nextNote.size() - 1) {
-                        nextImpact = find_impact(nextNote, j, tick - curLength, curTempo, curTempo,
-                                                 nextVBR, nextLength);
+                        nextImpact =
+                            find_impact(nextNote, j, tick - curLength, curTempo, curTempo, nextVBR,
+                                        nextLength, Whose::Neighbour);
                     }
                     nextImpact += -(nextNote[0].y * 10);
                 }
 
                 // The part influenced by the previous note
                 if (tick <= 0) {
-                    prevImpact = find_impact(prevNote, k, tick + prevLength, prevTempo, prevTempo,
-                                             prevVBR, prevLength);
+                    prevImpact = find_impact(prevNote, k, tick + prevLength, prevTempo,
+                                             prevTempo, prevVBR, prevLength, Whose::Neighbour);
                 }
 
                 // Add the influence of the pitch line before and after the note. Rounded, not
