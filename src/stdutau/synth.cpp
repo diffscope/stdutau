@@ -262,10 +262,10 @@ namespace utau {
                 tick = tick + 5;
             }
 
-            // Delete the redundant 0
-            while (PitchBend.size() >= 7 && PitchBend.back() == 0) {
-                PitchBend.pop_back();
-            }
+            // The trailing zeros stay. A loop here used to drop them, which reads like a
+            // saving and is not one: it only ever removes zeros, so what is left ends on
+            // the last value that was not zero, and an engine that holds the last reading
+            // then holds the note bent instead of letting it come back. UTAU sends them.
 
             return PitchBend;
         }
