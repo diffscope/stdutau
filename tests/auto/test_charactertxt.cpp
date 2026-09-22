@@ -20,7 +20,7 @@ namespace {
         return character.write();
     }
 
-    // What the library writes, whatever the input used. A UTAU file is CRLF on every platform.
+    // The output of the library, regardless of the input. A UTAU file uses CRLF on every platform.
     std::string crlf(const std::string &text) {
         std::string out;
         for (char c : text) {
@@ -49,9 +49,9 @@ BOOST_AUTO_TEST_CASE(test_read) {
     BOOST_CHECK(character.extraLines.empty());
 }
 
-// UTAU shows a line holding a colon as part of the character's profile, so a real bank carries
-// lines that are not entries at all. They are content, and losing them would delete what the
-// author wrote.
+// UTAU displays a line containing a colon as part of the character profile, so a real voice bank
+// contains lines that are not entries. They are content, and losing them would delete author
+// data.
 BOOST_AUTO_TEST_CASE(test_a_line_that_is_not_an_entry_is_kept) {
     auto character = parse("name=uta\n"
                            "\n"
@@ -65,8 +65,8 @@ BOOST_AUTO_TEST_CASE(test_a_line_that_is_not_an_entry_is_kept) {
     BOOST_CHECK_EQUAL(character.extraLines.at(2), "\xe8\xaa\xb0: \xe3\x81\x86\xe3\x81\x9f");
 }
 
-// An entry this class has no member for is the same case, and goes back out unchanged rather
-// than being dropped.
+// An entry without a dedicated member is handled the same way and is written back unchanged
+// rather than dropped.
 BOOST_AUTO_TEST_CASE(test_an_unknown_entry_is_kept) {
     auto character = parse("name=uta\n"
                            "genre=pop\n");
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(test_an_unknown_entry_is_kept) {
     BOOST_CHECK_EQUAL(written(character), crlf("name=uta\ngenre=pop\n"));
 }
 
-// The bytes are whatever encoding the author's machine used, and nothing here decodes them.
+// The bytes are in the encoding of the author's machine, and the library does not decode them.
 BOOST_AUTO_TEST_CASE(test_bytes_are_carried_as_they_are) {
     // Ge Ping in GBK, which is not valid UTF-8.
     const std::string gbk = "\xb8\xf0\xc6\xbd";
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(test_bytes_are_carried_as_they_are) {
     BOOST_CHECK_EQUAL(written(character), crlf("author=" + gbk + "\n"));
 }
 
-// A plugin.txt out of a real UTAU install ends without one, and so do plenty of these.
+// A plugin.txt from a real UTAU installation ends without a terminator, as do many of these files.
 BOOST_AUTO_TEST_CASE(test_a_last_line_without_a_newline_is_read) {
     auto character = parse("name=uta\nauthor=someone");
 
@@ -98,8 +98,8 @@ BOOST_AUTO_TEST_CASE(test_crlf_reads_the_same_as_lf) {
     BOOST_CHECK_EQUAL(parse("Version:1.0\r\n").extraLines.at(0), "Version:1.0");
 }
 
-// An empty value is how the file says nothing, so writing one back would add an entry that was
-// not there.
+// An empty value means that the entry is unspecified, so writing it back would add an entry that
+// did not exist.
 BOOST_AUTO_TEST_CASE(test_an_empty_entry_is_not_written) {
     CharacterTxt character;
     character.name = "uta";

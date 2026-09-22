@@ -11,8 +11,8 @@ namespace utau {
     inline Note createInitialNote() {
         Note note;
 
-        // The constructor gives these the values an editor starts a note with. A note being read
-        // carries only what the file says.
+        // The constructor initializes these with the values of a new note in an editor. A note
+        // read from a file contains only the values the file specifies.
         note.intensity.reset();
         note.modulation.reset();
 
@@ -40,9 +40,9 @@ namespace utau {
     }
 
     bool UstFile::read(std::string_view text) {
-        // Whether the file ends without a terminator, which decides when the loop below is on
-        // the last line. A file that ends with one has nothing after its final section marker,
-        // so the marker closes the section before it rather than opening one of its own.
+        // Whether the file ends without a terminator, which determines when the loop below
+        // reaches the last line. In a file ending with a terminator, nothing follows the final
+        // section marker, so the marker closes the preceding section rather than opening one.
         const bool dangling = !text.empty() && text.back() != '\n';
 
         // Read File

@@ -20,7 +20,7 @@ namespace {
         return plugin.write();
     }
 
-    // What the library writes, whatever the input used. A UTAU file is CRLF on every platform.
+    // The output of the library, regardless of the input. A UTAU file uses CRLF on every platform.
     std::string crlf(const std::string &text) {
         std::string out;
         for (char c : text) {
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(test_read) {
     BOOST_CHECK(plugin.extraLines.empty());
 }
 
-// The two entries every plugin has. The pair out of a real install carries nothing else.
+// The two entries of every plugin. The file from a real installation contains nothing else.
 BOOST_AUTO_TEST_CASE(test_the_two_required_entries_are_enough) {
     auto plugin = parse("name=\xb2\xe5\xbc\xfe\n"
                         "execute=work.exe");
@@ -61,8 +61,8 @@ BOOST_AUTO_TEST_CASE(test_the_two_required_entries_are_enough) {
     BOOST_CHECK(!plugin.notes.has_value());
 }
 
-// Having the entry at all is what hands the plugin the whole track, whatever the value, which is
-// why an empty one is not the same as none.
+// The presence of the entry passes the entire track to the plugin, regardless of its value, which
+// is why an empty entry differs from an absent one.
 BOOST_AUTO_TEST_CASE(test_notes_is_told_apart_from_no_notes) {
     BOOST_CHECK(!parse("name=test\n").notes.has_value());
 

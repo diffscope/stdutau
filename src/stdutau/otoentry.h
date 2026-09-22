@@ -7,49 +7,49 @@
 
 namespace utau {
 
-    /// One entry of a voice bank's \c oto.ini, telling UTAU how to cut a sample.
+    /// One entry of the \c oto.ini of a voice bank, which specifies how UTAU cuts a sample.
     ///
-    /// Every time here is in milliseconds and reaches the resampler as it stands. This class does
+    /// All times are in milliseconds and are passed to the resampler unchanged. This class does
     /// not interpret them.
     ///
     /// \sa https://w.atwiki.jp/utaou/pages/106.html
-    ///     原音設定, which is what the entries below are for
+    ///     原音設定, which defines the entries below
     class OtoEntry {
     public:
         inline OtoEntry();
 
-        /// Sample file the entry describes, relative to the directory holding the \c oto.ini .
+        /// The sample file of the entry, relative to the directory containing the \c oto.ini .
         std::string fileName;
 
-        /// Name a lyric is matched against, which need not be the file name.
+        /// The name against which a lyric is matched, which may differ from the file name.
         std::string alias;
 
-        /// Where the usable part of the sample begins, measured from the start of the file.
+        /// The start of the usable part of the sample, measured from the start of the file.
         double offset;
 
-        /// Length of the part that must not be stretched, measured from \a offset.
+        /// The length of the part that must not be stretched, measured from \a offset .
         double consonant;
 
-        /// Where the usable part ends. Positive measures back from the end of the file, negative
-        /// gives the length from \a offset instead.
+        /// The end of the usable part. A positive value is measured backward from the end of the
+        /// file, a negative value specifies the length from \a offset instead.
         double cutoff;
 
-        /// How far ahead of its position on the track the note starts sounding.
+        /// The time by which the note starts sounding before its position on the track.
         double preUtterance;
 
-        /// How far the note reaches back into the one before it.
+        /// The time by which the note overlaps the preceding note.
         double voiceOverlap;
 
-        /// How the five numbers above were written, in the order they are declared.
+        /// The original text of the five numbers above, in declaration order.
         ///
-        /// A bank spells the same value more than one way, often in one file and sometimes on
-        /// two lines of one sample: \c 41 on one, \c 41.0 on the next. No rule for writing a
-        /// number gives both back, so each one keeps the text it was read from, and a file saved
-        /// with nothing changed comes out as it went in.
+        /// A voice bank may write the same value in different forms, often within one file and
+        /// sometimes on two lines of the same sample: \c 41 on one, \c 41.0 on the next. No
+        /// single formatting rule reproduces both, so each number retains its original text, and
+        /// an unmodified file is saved unchanged.
         ///
-        /// A spelling is written only while it still reads back as exactly its number, so a
-        /// number that is changed is written afresh and nothing has to be told it was. Empty for
-        /// an entry that was not read from a file.
+        /// The original text is written only if it still parses to exactly the current value, so
+        /// a modified number is formatted anew without explicit invalidation. Empty for an entry
+        /// that was not read from a file.
         std::string spellings[5];
     };
 

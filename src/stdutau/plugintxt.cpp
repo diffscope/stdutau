@@ -72,7 +72,7 @@ namespace utau {
         entry(KEY_NAME_PLUGIN_SHELL, shell);
         entry(KEY_NAME_PLUGIN_UST_VERSION, ustVersion);
 
-        // Written even when empty, since having the entry at all is what it says.
+        // Written even if empty, because the presence of the entry is its meaning.
         if (notes) {
             out += KEY_NAME_PLUGIN_NOTES;
             out += '=';

@@ -24,14 +24,14 @@
 #endif
 
 /// \namespace utau
-/// Everything this library provides.
+/// All declarations of this library.
 
 namespace utau {
 
-    /// Marks a sample of a pitch curve that carries no value.
+    /// Marks a point of a pitch curve that has no value.
     ///
-    /// \note A curve is a dense array, so it says this with a value of its own rather than with
-    ///       \c std::optional . Everything that stands for one absent reading uses the latter.
+    /// \note A curve is a dense array, so absence is represented by this sentinel value rather
+    ///       than by \c std::optional . Every other absent value uses \c std::optional .
     constexpr const int NODEF_INT = std::numeric_limits<int>::min();
 
     constexpr const char COMMA = ',';

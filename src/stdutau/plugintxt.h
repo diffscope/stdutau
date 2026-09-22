@@ -11,66 +11,65 @@
 
 namespace utau {
 
-    /// A plugin folder's \c plugin.txt , which is what UTAU knows about a plugin before running
-    /// it.
+    /// The \c plugin.txt of a plugin folder, which describes the plugin before it runs.
     ///
-    /// Not to be confused with PluginFileReader, which reads the temporary file UTAU hands the
-    /// plugin once it runs. This is the manifest, that is the payload.
+    /// Distinct from PluginFileReader, which reads the temporary file UTAU passes to a running
+    /// plugin. This class represents the manifest, PluginFileReader the payload.
     ///
-    /// The strings here are raw bytes. Work out the encoding and convert before you look at them.
+    /// The strings are raw bytes. They must be converted from the file encoding before use.
     ///
     /// \sa https://w.atwiki.jp/utaou/pages/64.html
-    ///     プラグイン仕様, which is where the entries below are defined
+    ///     プラグイン仕様, which defines the entries below
     class STDUTAU_EXPORT PluginTxt {
     public:
         PluginTxt();
 
-        /// Opens \a path and reads it, returns \c false when the file will not open.
+        /// Opens and reads \a path . Returns \c false if the file cannot be opened.
         bool load(const std::filesystem::path &path);
 
-        /// Creates \a path and writes to it, returns \c false when the file will not open.
+        /// Creates and writes \a path . Returns \c false if the file cannot be opened.
         bool save(const std::filesystem::path &path) const;
 
-        /// Reads one \c key=value per line. A line that is not one goes to \a extraLines.
+        /// Reads one \c key=value pair per line. Any other line is stored in \a extraLines .
         bool read(std::string_view text);
 
         std::string write() const;
 
     public:
-        /// What the menu entry is called.
+        /// The name of the menu entry.
         std::string name;
 
-        /// The program to run, relative to the plugin's folder.
+        /// The program to execute, relative to the plugin folder.
         ///
-        /// \warning This is a path out of a file on disk, so treat it as untrusted.
+        /// \warning A path from a file on disk, and therefore untrusted.
         std::string execute;
 
-        /// The \c shell entry. The value \c use means UTAU starts the plugin with
-        /// \c ShellExecuteEx rather than \c CreateProcess , which is how a plugin that is not an
-        /// executable runs at all: a jar, an html, an hta.
+        /// The \c shell entry. The value \c use means that UTAU starts the plugin with
+        /// \c ShellExecuteEx rather than \c CreateProcess , which allows plugins that are not
+        /// executables, such as jar, html and hta files.
         ///
-        /// \warning \c ShellExecuteEx hands the file to whatever the system registered for its
-        ///          type, so what actually runs is not named here. Do not treat it as merely
-        ///          another way to start a process.
+        /// \warning \c ShellExecuteEx passes the file to the handler registered for its type, so
+        ///          the program that actually runs is not specified here. It is not merely another
+        ///          way of starting a process.
         std::string shell;
 
-        /// Which entries the temporary file is written with, empty where the file leaves it out
-        /// and UTAU's own setting decides.
+        /// The entry format of the temporary file. Empty if the file omits it, in which case the
+        /// UTAU setting applies.
         ///
-        /// UTAU 0.4.15 and later accept \c 1.00 , \c 1.10 , which passes the mode 1 pitch array
-        /// as \c Pitches , and \c 1.20 , which passes it as \c PitchBend and spells modulation
+        /// UTAU 0.4.15 and later accept \c 1.00 ; \c 1.10 , which passes the mode 1 pitch array
+        /// as \c Pitches ; and \c 1.20 , which passes it as \c PitchBend and names modulation
         /// \c Modulation .
         std::string ustVersion;
 
-        /// The \c notes entry, absent where the file leaves it out.
+        /// The \c notes entry, absent if the file omits it.
         ///
-        /// \note Present at all means the whole track is handed over rather than the selection,
-        ///       whatever the value. That is why this is an optional and not a comparison
-        ///       against \c all , which is only what UTAU's own example writes.
+        /// \note If present, the entire track is passed instead of the selection, regardless of
+        ///       the value. This is why the member is an optional rather than a comparison with
+        ///       \c all , which is merely the value used in the UTAU example.
         std::optional<std::string> notes;
 
-        /// Lines this class has no entry for, kept as they were read and written back after the
-        /// ones above.
+        /// Lines without a dedicated member, preserved as read and written after the entries
+        /// above.
         std::vector<std::string> extraLines;
     };
 

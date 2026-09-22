@@ -11,38 +11,37 @@
 
 namespace utau {
 
-    /// One \c oto.ini of a voice bank. A bank usually has several, one per directory.
+    /// One \c oto.ini of a voice bank. A voice bank usually has several, one per directory.
     ///
-    /// The strings here are raw bytes. Work out the encoding and convert before you look at them.
+    /// The strings are raw bytes. They must be converted from the file encoding before use.
     ///
     /// \sa https://w.atwiki.jp/utaou/pages/106.html
-    ///     原音設定, which is what the entries below are for
+    ///     原音設定, which defines the entries below
     class STDUTAU_EXPORT OtoIni {
     public:
         OtoIni();
 
-        /// Opens \a path and reads it, returns \c false when the file will not open.
+        /// Opens and reads \a path . Returns \c false if the file cannot be opened.
         bool load(const std::filesystem::path &path);
 
-        /// Creates \a path and writes to it, returns \c false when the file will not open.
+        /// Creates and writes \a path . Returns \c false if the file cannot be opened.
         bool save(const std::filesystem::path &path) const;
 
-        /// Reads one entry per line. A line missing its trailing fields is filled out with zeros,
-        /// and one naming no sample file is skipped.
+        /// Reads one entry per line. Missing trailing fields are filled with zeros, and a line
+        /// without a sample file name is skipped.
         bool read(std::string_view text);
 
         /// Writes the entries grouped by sample file, the files in ascending order.
         ///
-        /// The order a file was read in is not kept, on purpose: UTAU sorts the entries when it
-        /// saves an \c oto.ini as well, so no bank relies on an order of its own surviving a
-        /// save.
+        /// The original order is deliberately not preserved: UTAU also sorts the entries when it
+        /// saves an \c oto.ini , so no voice bank can rely on its order surviving a save.
         ///
-        /// A number keeps the spelling it was read with, see OtoEntry::spellings.
+        /// A number retains its original text. See OtoEntry::spellings .
         std::string write() const;
 
     public:
-        /// Entries keyed by sample file name. One file carries as many entries as it has aliases,
-        /// which is the ordinary shape of a bank rather than an oddity.
+        /// Entries keyed by sample file name. A file has one entry per alias, which is the common
+        /// case rather than an exception.
         std::map<std::string, std::vector<OtoEntry>> contents;
     };
 

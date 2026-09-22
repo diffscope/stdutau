@@ -79,33 +79,33 @@ namespace utau {
             return impact;
         }
 
-        /// The shortest vibrato UTAU draws on the note that carries it, in milliseconds.
+        /// The shortest vibrato, in milliseconds, that UTAU draws on its own note.
         ///
-        /// Fifty is dropped and fifty-one is drawn. Two sweeps that vary the note's length
-        /// rather than the share, one at 24% and one at 12%, arranged so that each step is one
-        /// millisecond of vibrato, break in the same place.
+        /// A vibrato of fifty milliseconds is omitted and one of fifty-one is drawn. Two sweeps
+        /// varying the note length rather than the share, one at 24% and one at 12%, each step
+        /// corresponding to one millisecond of vibrato, change at the same point.
         ///
-        /// It is the milliseconds that decide, not the ticks and not the cycles. The same
-        /// ninety-six ticks of vibrato are drawn at 120 bpm and dropped at 240, and a fifty
-        /// millisecond window holding two and a half whole cycles is dropped just the same.
+        /// The threshold is defined in milliseconds, not in ticks or cycles. The same ninety-six
+        /// ticks of vibrato are drawn at 120 bpm and omitted at 240 bpm, and a fifty-millisecond
+        /// vibrato containing two and a half cycles is omitted as well.
         ///
-        /// What is dropped is the vibrato alone. A note carrying both a pitch line and a
-        /// vibrato too short to draw sends exactly the curve it would send with no vibrato at
-        /// all, reading for reading.
+        /// Only the vibrato is omitted. A note with both a pitch line and a vibrato below the
+        /// threshold produces exactly the curve it would produce without a vibrato, value for
+        /// value.
         static constexpr const double SHORTEST_VIBRATO = 50;
 
-        /// Which note's vibrato is being asked about.
+        /// The note whose vibrato is evaluated.
         ///
-        /// It matters, because UTAU treats the two differently and does so in a way nothing
-        /// here explains. See find_impact().
+        /// The distinction is necessary because UTAU treats the two cases differently, for
+        /// reasons not yet determined. See find_impact().
         enum class Whose {
             Own,
             Neighbour,
         };
 
         /// \brief Whether this vibrato is long enough for UTAU to draw on its own note
-        /// \param length the note's length in ticks
-        /// \param tempo the note's tempo, which is what turns its ticks into milliseconds
+        /// \param length the length of the note in ticks
+        /// \param tempo the tempo of the note, used to convert ticks to milliseconds
         static bool vibrato_is_long_enough(const std::vector<double> &vibrato, int length,
                                            double tempo) {
             if (vibrato.size() < 8 || length <= 0 || tempo <= 0) {
@@ -121,9 +121,9 @@ namespace utau {
 
             // portamento: Mode2 Pitch curve points
             // startIndex: search from index
-            // curTick: current tick, and a fraction of one is not thrown away. Reading the
-            //          curve on whole ticks costs up to fifty cents on a fast vibrato, and the
-            //          455-note probe says UTAU keeps the fraction.
+            // curTick: current tick, including its fractional part. Evaluating the curve on
+            //          whole ticks causes errors of up to fifty cents on a fast vibrato, and the
+            //          455-note probe shows that UTAU keeps the fraction.
             // PositiveTempo: tempo used when ticks is positive
             // NegativeTempo: tempo used when ticks is negative (necessary when tempo changed)
             // vibrato: The vibrato sequence, which can be absent
@@ -183,15 +183,15 @@ namespace utau {
 
             // Search vibrato.
             //
-            // A vibrato too short for SHORTEST_VIBRATO is not drawn on the note that carries it,
-            // and *is* drawn where that note reaches into its neighbour, without the fade. Both
-            // halves are measured, each twice: on the 455-note probe where the notes are
-            // neighbours, and on a probe where a note carrying one stands between rests with a
-            // plain note after it. There, the note's own curve holds two readings of zero while
-            // the plain note's first two readings carry the vibrato at full amplitude.
+            // A vibrato below SHORTEST_VIBRATO is not drawn on its own note, but *is* drawn,
+            // without fade, where that note extends into its neighbor. Both behaviors were
+            // measured twice: in the 455-note probe, where the notes are adjacent, and in a probe
+            // where the note with the vibrato stands between rests and is followed by a plain
+            // note. There, the curve of the note itself contains two zero values, while the first
+            // two values of the plain note contain the vibrato at full amplitude.
             //
-            // Nothing here explains it. It is written down as it was measured, and the enum is
-            // there so that a reader knows the asymmetry is deliberate rather than a slip.
+            // The cause is unknown. The behavior is implemented as measured, and the enum
+            // indicates that the asymmetry is intentional rather than an error.
             const bool longEnough = vibrato_is_long_enough(vibrato, length, PositiveTempo);
             if (vibrato.size() >= 8 && length > 0 && (longEnough || whose == Whose::Neighbour)) {
                 double proportion = vibrato[0];
@@ -225,16 +225,16 @@ namespace utau {
                     ratio = 1;
                     // Add offset
                     y += offset * amplitude;
-                    // Calculate envelope. One or the other, never both: a fade in of 80% and a
-                    // fade out of 80% overlap, and UTAU lets the fade in win the whole way. Its
-                    // envelope climbs to 1.006 four fifths of the way through and drops to 0.245
-                    // on the very next reading, which is the fade out picking up where it always
-                    // would have. Multiplying the two instead flattens the middle to 0.39 and is
-                    // out by sixty cents.
+                    // Calculate envelope. Fade-in and fade-out are exclusive, never multiplied: a
+                    // fade-in of 80% and a fade-out of 80% overlap, and UTAU applies the fade-in
+                    // throughout. Its envelope rises to 1.006 at four fifths of the length and
+                    // drops to 0.245 at the next value, where the fade-out takes over at its
+                    // regular position. Multiplying both would flatten the middle to 0.39, a
+                    // deviation of sixty cents.
                     //
-                    // The too-short vibrato that reached this note from its neighbour arrives
-                    // with no fade at all. A neighbour whose vibrato is long enough is faded
-                    // normally, so this is not "neighbours are never faded".
+                    // A vibrato below the threshold that extends from the neighbor into this note
+                    // has no fade. A long enough vibrato of a neighbor is faded normally, so the
+                    // rule is not that neighbors are never faded.
                     if (!longEnough) {
                         ratio = 1;
                     } else if (x < easeIn) {
@@ -260,7 +260,7 @@ namespace utau {
             int prevLength) {
 
             // Mode 2 to Mode 1 principle
-            // 1. Pre-Utterance part, use the previous note tempo (actually not)
+            // 1. Pre-Utterance part, use the previous note tempo (not applied in practice)
             // 2. For the rest part, use its own tempo
             // 3. Pre-Utterance may be affected by the pitch line of the preceding note
             // 4. The rest part may be affected by the pitch line of the next note
@@ -294,25 +294,25 @@ namespace utau {
             pbstart = -(curPre + curStp) * prevTempo / 60 * 480 / 1000;
             tick = pbstart;
 
-            // Four ticks past the end. Ticks, not milliseconds.
+            // Four ticks past the end, measured in ticks rather than milliseconds.
             //
-            // UTAU leaves the trailing zeros off its curve, so how long the curve it sends is
-            // says only that its loop got at least that far. Where it stops is pinned down by
-            // the notes whose next reading we say is not a zero: UTAU would have had to send
-            // that one, so its loop ended there. Six such notes on a real tuned project bracket
-            // it between 3.91 and 4.12 ticks.
+            // UTAU omits trailing zeros, so the length of its curve only shows that its loop ran
+            // at least that far. The end point is determined by the notes whose next value is
+            // nonzero in this implementation: UTAU would have had to send that value, so its
+            // loop ended there. Six such notes in a real tuned project bound the end between
+            // 3.91 and 4.12 ticks.
             //
-            // Ticks rather than time, because a probe carrying the same pair of notes at three
-            // tempos puts the bound at 60 bpm above six milliseconds while the bound at 134 bpm
-            // is under four. No length of time satisfies both; four ticks satisfies all of them.
+            // Ticks rather than time, because a probe with the same pair of notes at three tempos
+            // places the bound above six milliseconds at 60 bpm but below four at 134 bpm. No
+            // duration satisfies both, whereas four ticks satisfies all three.
             //
-            // Four is also the only candidate left standing. Over 289 notes it is the only rule
-            // that never falls short of a curve UTAU actually sent and hits all six of the
-            // exact ones; five overshoots those six, the duration itself falls short on 194,
-            // and counting by dividing both ends by five falls short whichever way it rounds.
+            // Four is also the only remaining candidate. Over 289 notes it is the only rule that
+            // never ends before a curve UTAU actually sent and matches all six exact cases. Five
+            // overshoots those six, the duration alone ends early on 194 notes, and dividing both
+            // ends by five ends early with either rounding direction.
             //
-            // No reason has been found for the four itself. It is one reading at the very end
-            // of a bent note.
+            // The origin of the value four is unknown. It corresponds to one value at the end of a
+            // bent note.
             while (tick < duration + 4) {
                 prevImpact = 0;
                 nextImpact = 0;
@@ -323,37 +323,36 @@ namespace utau {
                 // The part influenced by the next note
                 if (tick >= nextStart) {
                     if (j < nextNote.size() - 1) {
-                        nextImpact =
-                            find_impact(nextNote, j, tick - curLength, curTempo, curTempo, nextVBR,
-                                        nextLength, Whose::Neighbour);
+                        nextImpact = find_impact(nextNote, j, tick - curLength, curTempo, curTempo,
+                                                 nextVBR, nextLength, Whose::Neighbour);
                     }
                     nextImpact += -(nextNote[0].y * 10);
                 }
 
                 // The part influenced by the previous note
                 if (tick <= 0) {
-                    prevImpact = find_impact(prevNote, k, tick + prevLength, prevTempo,
-                                             prevTempo, prevVBR, prevLength, Whose::Neighbour);
+                    prevImpact = find_impact(prevNote, k, tick + prevLength, prevTempo, prevTempo,
+                                             prevVBR, prevLength, Whose::Neighbour);
                 }
 
-                // Add the influence of the pitch line before and after the note. Rounded, not
-                // truncated: on the probe's vibrato notes truncating misses UTAU by a cent on
-                // nearly every reading, and rounding lands on its number.
+                // Add the influence of the pitch line before and after the note. Rounded rather
+                // than truncated: on the vibrato notes of the probe, truncation deviates from UTAU
+                // by one cent on nearly every value, whereas rounding matches exactly.
                 PitchBend.push_back(int(std::floor(basePitch + prevImpact + nextImpact + 0.5)));
                 tick = tick + 5;
             }
 
-            // The trailing zeros stay, and UTAU drops them.
+            // Trailing zeros are kept, whereas UTAU omits them.
             //
-            // Dropping them loses nothing: past the end of the curve there is no bend, which is
-            // the same thing a zero says. UTAU relies on that. On a real tuned project half its
-            // notes send a curve that stops early, and one of them stops on -500 with the note
-            // still running, so an engine that held the last reading would sing it five
-            // semitones flat to the end and nobody would have shipped the song.
+            // Omitting them loses no information: beyond the end of the curve there is no bend,
+            // which is equivalent to zero. UTAU relies on this. In a real tuned project half of
+            // the notes send a curve that ends early, one of them at -500 while the note is still
+            // sounding, so an engine that held the last value would sing it five semitones flat
+            // until the end, which would make the song unusable.
             //
-            // They stay here because the saving is a few dozen bytes on a command line that is
-            // built and thrown away, and because a curve that says what it means is easier to
-            // read in a log than one that stops and leaves the rest to a convention.
+            // They are kept here because omitting them saves only a few dozen bytes on a
+            // temporary command line, and a complete curve is easier to read in a log than one
+            // that relies on the convention.
 
             return PitchBend;
         }
@@ -815,14 +814,13 @@ namespace utau {
                 aNextPreUttr, aNextOverlap, aNextLength, aPrevPitch, aPrevVibrato, aPrevLength);
 
             // Real Length
-            double aDuration = (double(aLength) / 480 * 60 / aTempo * 1000); // 由 ticks 换算长度
+            double aDuration = (double(aLength) / 480 * 60 / aTempo * 1000); // milliseconds
             double aDurationFix = aPreUttr - aNextPreUttr + aNextOverlap;
 
-            // Not lifted to the consonant first. A line doing that was here, and it is wrong:
-            // rendering a project under UTAU and reading the calls back out of the temp.bat it
-            // wrote gives 96 of 96 notes matching without it and 87 of 96 with it. The nine that
-            // tell the two apart are short notes whose sample has a long consonant, and UTAU
-            // renders those shorter than the consonant rather than stretching to reach it.
+            // Not raised to the consonant length. Comparing with the calls in the temp.bat that
+            // UTAU wrote for a real project, 96 of 96 notes match without raising and 87 of 96
+            // with it. The nine differing notes are short notes whose sample has a long
+            // consonant, which UTAU renders shorter than the consonant rather than stretching.
             double aRealLength = aDuration + aDurationFix + aStartPoint + 50;
             aRealLength = int((aRealLength + 25) / 50) * 50;
 
@@ -831,7 +829,7 @@ namespace utau {
             auto cacheName = to_string(i) + "_" + UtaTranslator::fixFilename(aLyric) + "_" +
                              aToneName + "_" + to_string(aLength) + ".wav";
 
-            // COnstruct arguments
+            // Construct arguments
             ResamplerArguments res;
             res.sequence = i;
             res.offset = aOto.offset;
@@ -843,10 +841,10 @@ namespace utau {
             res.intensity = aIntensity;
             res.modulation = aModulation;
             res.velocity = aVelocity;
-            // The note's own first, the project's after. Rendering a project under UTAU
-            // and reading the calls out of its temp.bat gives g5B0 for a note carrying g5
-            // under a project carrying B0, on 141 of the 164 notes that were asked; the
-            // rest carry an e or an E and start with the slash that puts in front of one.
+            // The flags of the note first, then those of the project. In the temp.bat UTAU
+            // wrote for a probe project, a note with g5 in a project with B0 receives g5B0 on
+            // 141 of the 164 tested notes. The remaining notes contain e or E and therefore
+            // start with the slash that precedes it.
             res.flags = UtaTranslator::fixFlags(aFlags + globalFlags);
             res.tempo = aTempo;
             res.pitchCurves = aPitchValues;

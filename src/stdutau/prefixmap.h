@@ -11,31 +11,31 @@
 
 namespace utau {
 
-    /// A voice bank's \c prefix.map, which decides what is added to a lyric at a given key.
+    /// The \c prefix.map of a voice bank, which specifies the text added to a lyric at each key.
     ///
-    /// The strings here are raw bytes. Work out the encoding and convert before you look at them.
+    /// The strings are raw bytes. They must be converted from the file encoding before use.
     ///
     /// \sa https://w.atwiki.jp/utaou/pages/107.html
-    ///     多音階音源の作り方, on what this file is for
+    ///     多音階音源の作り方, which describes the purpose of this file
     class STDUTAU_EXPORT PrefixMap {
     public:
         PrefixMap();
 
-        /// Opens \a path and reads it, returns \c false when the file will not open.
+        /// Opens and reads \a path . Returns \c false if the file cannot be opened.
         bool load(const std::filesystem::path &path);
 
-        /// Creates \a path and writes to it, returns \c false when the file will not open.
+        /// Creates and writes \a path . Returns \c false if the file cannot be opened.
         bool save(const std::filesystem::path &path) const;
 
-        /// Reads tab separated lines of tone name, prefix and suffix. A line naming a key outside
-        /// C1 to B7 is skipped, as is one with fewer than three fields.
+        /// Reads tab-separated lines of tone name, prefix and suffix. A line with a key outside
+        /// C1 to B7 is skipped, as is a line with fewer than three fields.
         bool read(std::string_view text);
 
-        /// Writes one tab separated line per key, in ascending order.
+        /// Writes one tab-separated line per key, in ascending order.
         std::string write() const;
 
     public:
-        /// What goes before and after the lyric at one key.
+        /// The text added before and after the lyric at one key.
         struct Item {
             std::string prefix;
             std::string suffix;
@@ -44,8 +44,8 @@ namespace utau {
         /// Keyed by note number, where 24 is C1.
         std::map<int, Item> map;
 
-        /// Returns \a lyric wrapped in the prefix and suffix registered for \a noteNum, or \a
-        /// lyric unchanged when that key has no entry.
+        /// Returns \a lyric with the prefix and suffix registered for \a noteNum , or \a lyric
+        /// unchanged if the key has no entry.
         std::string prefixedLyric(int noteNum, const std::string &lyric) const;
     };
 

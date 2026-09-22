@@ -15,56 +15,56 @@ namespace utau {
 
     /// The \c [#VERSION] section.
     struct UstVersion {
-        /// Format version, which is 1.2 in everything UTAU writes.
+        /// The format version, which is 1.2 in every file UTAU writes.
         std::string version;
 
-        /// Name of the encoding the rest of the file is in, empty where the file does not say.
-        /// Nothing in this library acts on it.
+        /// The name of the encoding of the remaining file, empty if the file does not declare
+        /// one. This library does not use it.
         std::string charset;
     };
 
-    /// The \c [#SETTING] section. A project and a plugin temporary file share it, and a member
-    /// says so where only one of the two fills it.
+    /// The \c [#SETTING] section, shared by projects and plugin temporary files. Members used by
+    /// only one of the two are marked accordingly.
     class UstSettings {
     public:
         inline UstSettings();
 
     public:
-        /// Tempo the track starts at, which a note may then change.
+        /// The initial tempo of the track, which a note may change.
         double tempo;
 
         std::string flags;          ///< project only
         std::string projectName;    ///< project only
         std::string outputFileName; ///< project only
 
-        /// Path of the project the plugin was called from.
+        /// The path of the project from which the plugin was invoked.
         std::string project; ///< plugin only
 
-        /// Voice bank directory, which UTAU writes with its \c %VOICE% prefix when the bank sits
-        /// in the shared location.
+        /// The voice bank directory, which UTAU writes with the \c %VOICE% prefix if the voice
+        /// bank is in the shared directory.
         std::string voiceDir;
 
-        /// Where rendered samples are kept. UTAU rewrites this to sit beside the saved file.
+        /// The cache directory for rendered samples. UTAU updates it to match the saved file.
         std::string cacheDir;
 
-        /// Paths of the two engines. **They come from the file, so treat them as untrusted.**
-        /// UTAU running them as they stand is CVE-2024-28886.
+        /// The paths of the two engines. **They come from the file and are therefore untrusted.**
+        /// Executing them unchecked, as UTAU does, reproduces CVE-2024-28886.
         std::string wavtoolPath;
         std::string resamplerPath;
 
-        /// Whether pitch is the mode 2 curve rather than the mode 1 sample array.
+        /// Whether pitch uses the mode 2 curve rather than the mode 1 value array.
         bool isMode2;
     };
 
     inline UstSettings::UstSettings() : tempo(DEFAULT_VALUE_TEMPO), isMode2(false) {
     }
 
-    /// A UTAU sequence text file, which is what a project is saved as.
+    /// A UTAU sequence text file, the format in which a project is saved.
     ///
-    /// The strings here are raw bytes. Work out the encoding and convert before you look at them.
+    /// The strings are raw bytes. They must be converted from the file encoding before use.
     ///
-    /// \note UTAU's own site publishes no format document. The page below defines the entries
-    ///       of the temporary file a plugin is handed, which are the entries of a UST.
+    /// \note The official UTAU site publishes no format specification. The page below defines
+    ///       the entries of the plugin temporary file, which are the entries of a UST.
     ///
     /// \sa https://w.atwiki.jp/utaou/pages/64.html
     ///     プラグイン仕様
@@ -72,19 +72,18 @@ namespace utau {
     public:
         UstFile();
 
-        /// Opens \a path and reads it, returns \c false when the file will not open.
+        /// Opens and reads \a path . Returns \c false if the file cannot be opened.
         bool load(const std::filesystem::path &path);
 
-        /// Creates \a path and writes to it, returns \c false when the file will not open.
+        /// Creates and writes \a path . Returns \c false if the file cannot be opened.
         bool save(const std::filesystem::path &path) const;
 
-        /// Reads the version, the settings and the notes. A section this library does not know is
-        /// skipped, as is a note whose length is not positive.
+        /// Reads the version, the settings and the notes. An unrecognized section is skipped, as
+        /// is a note whose length is not positive.
         ///
-        /// \warning UTAU turns a section it does not know into a note instead of skipping it,
-        ///          which shifts every note index after that point. A file carrying one has
-        ///          already been damaged, so do not read it as though the section were still
-        ///          there.
+        /// \warning UTAU converts an unrecognized section into a note instead of skipping it,
+        ///          which shifts every subsequent note index. A file saved by UTAU with such a
+        ///          section therefore no longer contains it.
         bool read(std::string_view text);
 
         /// Writes the version, the settings, the notes and the closing \c [#TRACKEND] .

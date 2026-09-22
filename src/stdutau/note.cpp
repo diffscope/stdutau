@@ -130,8 +130,8 @@ namespace utau {
 
     Note::Note(int noteNum, int length, const std::string &lyric)
         : noteNum(noteNum), length(length), lyric(lyric) {
-        // What an editor starts a note with. A note being read from a file keeps absent whatever
-        // the file leaves out, see createInitialNote() in ustfile.cpp.
+        // The initial values of a new note in an editor. A note read from a file leaves absent
+        // every value the file omits, see createInitialNote() in ustfile.cpp.
         intensity = 100.0;
         modulation = 0.0;
 

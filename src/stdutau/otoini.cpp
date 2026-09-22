@@ -24,7 +24,7 @@ namespace utau {
             return {}; // No file name is not acceptable
 
         while (tokenList.size() < 6) {
-            tokenList.emplace_back("0"); // If the following entry is missing, we simply fill with 0
+            tokenList.emplace_back("0"); // Missing trailing fields are filled with 0
         }
 
         OtoEntry res;
@@ -41,10 +41,10 @@ namespace utau {
         return res;
     }
 
-    /// The text  spelling gave, where it still reads back as exactly  value.
+    /// The original text \a spelling if it still parses to exactly \a value .
     ///
-    /// Otherwise the fewest digits that do, in fixed notation. The shortest form alone would
-    /// write a large enough value in exponent form, and nothing says UTAU reads that.
+    /// Otherwise the shortest fixed-notation text that parses to \a value . The shortest form in
+    /// general would use exponent notation for large values, and UTAU is not known to accept it.
     static std::string formatNumber(double value, const std::string &spelling) {
         const auto read = toDouble(spelling);
         if (read && *read == value) {

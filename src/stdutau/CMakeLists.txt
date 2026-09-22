@@ -23,7 +23,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE .)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
-# Add platform specific
+# Platform-specific resources
 if(WIN32)
     set(RC_DESCRIPTION "C++ Standard UTAU Library")
     set(RC_COPYRIGHT "Copyright (C) 2020-2024 SineStriker")

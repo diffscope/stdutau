@@ -32,8 +32,8 @@ BOOST_AUTO_TEST_CASE(test_read) {
     BOOST_CHECK_EQUAL(samples.at(0).voiceOverlap, 50);
 }
 
-// One sample file may carry several aliases, which is the ordinary shape of a voice bank rather
-// than an oddity.
+// One sample file may have several aliases, which is the common case in a voice bank rather than
+// an exception.
 BOOST_AUTO_TEST_CASE(test_one_file_may_have_several_entries) {
     auto oto = parse("a.wav=a,0,0,0,0,0\n"
                      "a.wav=- a,0,0,0,0,0\n");
@@ -43,12 +43,12 @@ BOOST_AUTO_TEST_CASE(test_one_file_may_have_several_entries) {
     BOOST_CHECK_EQUAL(oto.contents.at("a.wav").at(1).alias, "- a");
 }
 
-// The CRLF a voice bank written on Windows carries. Text mode strips it there and nowhere else,
-// so the last field of every line arrived with a carriage return on it.
+// The CRLF line endings of a voice bank written on Windows. Text mode removes them only on
+// Windows, so on other systems the last field of every line would end with a carriage return.
 //
-// The entry here has no commas, which is the shape that shows the difference: the alias is the
-// only field holding text, and any line that gives the numbers as well ends on one of those,
-// where a trailing carriage return is swallowed by the conversion and proves nothing.
+// The entry has no commas, which is the form that exposes the difference: the alias is the only
+// text field, and a line that also contains the numbers ends with a number, where a trailing
+// carriage return is discarded by the conversion and the test would prove nothing.
 BOOST_AUTO_TEST_CASE(test_crlf_reads_the_same_as_lf) {
     BOOST_CHECK_EQUAL(parse("a.wav=myalias\r\n").contents.at("a.wav").at(0).alias, "myalias");
 
@@ -58,8 +58,8 @@ BOOST_AUTO_TEST_CASE(test_crlf_reads_the_same_as_lf) {
     BOOST_CHECK_EQUAL(crlf.contents.at("a.wav").at(0).voiceOverlap, 50);
 }
 
-// Both spellings on two lines of one sample, which is how a real bank has them. A save that
-// respelled either would turn a one line edit into a diff of the whole file.
+// Both forms on two lines of one sample, as in a real voice bank. A save that reformatted either
+// would turn a one-line edit into a change of the entire file.
 BOOST_AUTO_TEST_CASE(test_numbers_keep_their_spelling) {
     const std::string text = "a.wav=a,41,87.688,97.316,8.938,4.457\r\n"
                              "a.wav=a -,41.0,87.6880,-143.414,8.938,04.457\r\n";
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(test_a_changed_number_is_written_afresh) {
     BOOST_CHECK_EQUAL(oto.write(), "a.wav=a,12345.678,87.688,-250,8.938,4.457\r\n");
 }
 
-// Six significant digits was what a stream gave, and an offset past ten seconds has more.
+// An offset beyond ten seconds has more than six significant digits, the default stream precision.
 BOOST_AUTO_TEST_CASE(test_an_entry_never_read_loses_no_digits) {
     OtoIni oto;
     OtoEntry entry;

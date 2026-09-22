@@ -8,8 +8,8 @@ namespace utau {
         out = stod2(s, out);
     }
 
-    // Leaves \a out as it was when the text holds no number, so an entry that is present but
-    // empty stays absent rather than turning into zero.
+    // Leaves \a out unchanged if the text is not a number, so that a present but empty entry
+    // remains absent rather than becoming zero.
     static inline void getDouble(const std::string_view &s, std::optional<double> &out) {
         if (auto value = toDouble(s)) {
             out = value;
@@ -28,9 +28,9 @@ namespace utau {
         return stoi2(s);
     }
 
-    // Entries a note carries that parseSectionNote() reads under another name, or that
-    // writeSectionNote() derives on its own. They are not unknown, so they must stay out of
-    // Note::userData, which would otherwise write them a second time.
+    // Note entries that parseSectionNote() reads under another name or that writeSectionNote()
+    // derives itself. They are not unknown, so they must not enter Note::userData, which would
+    // otherwise write them a second time.
     static inline bool isReservedKey(const std::string_view &key) {
         return key == KEY_NAME_PB_TYPE || key == KEY_NAME_PRE_UTTERANCE_READONLY ||
                key == KEY_NAME_VOICE_OVERLAP_READONLY || key == KEY_NAME_START_POINT_READONLY ||
@@ -199,7 +199,7 @@ namespace utau {
         }
     }
 
-    // Appends one "key=value" line, which is nearly every line a UST is made of.
+    // Appends one "key=value" line, the form of nearly every line of a UST.
     static void writeEntry(std::string &out, std::string_view key, std::string_view value) {
         out += key;
         out += '=';
@@ -301,9 +301,9 @@ namespace utau {
             writeEntry(out, KEY_NAME_PATCH, note.patch);
         }
 
-        // Last, which is where UTAU puts the entries it did not recognize when it writes a file
-        // back. Matching that keeps a file this library wrote and the same file after a pass
-        // through UTAU in the same shape.
+        // Written last, which is where UTAU places unrecognized entries when it saves a file. The
+        // same position keeps a file written by this library identical in structure to the same
+        // file after a save in UTAU.
         for (const auto &pair : note.userData) {
             writeEntry(out, pair.first, pair.second);
         }

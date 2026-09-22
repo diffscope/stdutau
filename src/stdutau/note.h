@@ -12,15 +12,15 @@
 
 namespace utau {
 
-    /// One anchor of a pitch curve or an envelope, with the shape of the curve reaching it.
+    /// One anchor of a pitch curve or an envelope, with the shape of the curve leading to it.
     class STDUTAU_EXPORT Point {
     public:
-        /// How the curve runs from the previous anchor to this one. The names are UTAU's.
+        /// The curve shape from the previous anchor to this one. The names follow UTAU.
         ///
-        /// \warning The letter \c PBM writes is not the initial of the name. \c SJoin is the one
-        ///          written as nothing at all, and \c s stands for \c LinearJoin .
+        /// \warning The letter in \c PBM is not the initial of the name. \c SJoin is written as
+        ///          an empty string, and \c s denotes \c LinearJoin .
         enum Type {
-            SJoin,      ///< an S curve, written as nothing at all
+            SJoin,      ///< an S curve, written as an empty string
             LinearJoin, ///< a straight line, written as \c s
             RJoin,      ///< steep at the start, written as \c r
             JJoin,      ///< steep at the end, written as \c j
@@ -33,24 +33,24 @@ namespace utau {
         inline constexpr bool operator==(const Point &other) const;
         inline constexpr bool operator!=(const Point &other) const;
 
-        /// Orders by \a x alone, which is what sorting a curve into time order wants.
+        /// Orders by \a x only, as required for sorting a curve into time order.
         inline constexpr bool operator<(const Point &other) const;
 
-        /// Anything that is not one of the three letters reads as \c SJoin .
+        /// Any value other than the three letters is read as \c SJoin .
         static Type stringToType(const std::string_view &s);
 
         /// Returns an empty string for \c SJoin , which is how UTAU writes it.
         static std::string typeToString(Type type);
 
     public:
-        /// Milliseconds from the start of the note, which may be negative where the curve reaches
-        /// back into the note before.
+        /// Milliseconds from the start of the note. Negative if the curve extends into the
+        /// preceding note.
         double x;
 
-        /// Height. A pitch curve reads it in tenths of a semitone, an envelope as a percentage.
+        /// Height, in tenths of a semitone for a pitch curve and in percent for an envelope.
         double y;
 
-        /// Unused in an envelope, whose shape is fixed.
+        /// Unused in an envelope, whose curve shape is fixed.
         Type type;
     };
 
@@ -75,39 +75,39 @@ namespace utau {
         return x < other.x;
     }
 
-    /// A note's vibrato, which is the \c VBR entry.
+    /// The vibrato of a note, stored in the \c VBR entry.
     class STDUTAU_EXPORT Vibrato {
     public:
         inline constexpr Vibrato();
 
-        /// The eight values comma separated, as \c VBR holds them.
+        /// The eight comma-separated values of \c VBR .
         std::string toString() const;
 
-        /// Returns a default vibrato when \a s has fewer than seven values. The eighth is
-        /// optional and reads as zero when missing.
+        /// Returns a default vibrato if \a s has fewer than seven values. The eighth value is
+        /// optional and is read as zero if absent.
         static Vibrato fromString(const std::string_view &s);
 
     public:
-        /// How much of the note vibrates, as a percentage counted back from its end.
+        /// The vibrato length, in percent of the note, measured backward from its end.
         double length;
 
-        /// One cycle in milliseconds.
+        /// The period in milliseconds.
         double period;
 
-        /// Depth in cents.
+        /// The depth in cents.
         double amplitude;
 
-        /// Fade in and fade out, each a percentage of \a length.
+        /// Fade-in and fade-out, each in percent of \a length.
         double attack;
         double release;
 
-        /// Where in the cycle the vibrato starts, as a percentage.
+        /// The starting phase within the cycle, in percent.
         double phase;
 
-        /// Shifts the whole vibrato off the note's pitch, as a percentage of \a amplitude.
+        /// The offset of the vibrato from the note pitch, in percent of \a amplitude.
         double offset;
 
-        /// Read and written so that a round trip keeps it, but nothing acts on it.
+        /// Read and written so that a round trip preserves it, but otherwise unused.
         double intensity;
     };
 
@@ -116,27 +116,27 @@ namespace utau {
           intensity(0) {
     }
 
-    /// A note's volume envelope, which is the \c Envelope entry.
+    /// The volume envelope of a note, stored in the \c Envelope entry.
     class STDUTAU_EXPORT Envelope {
     public:
         inline constexpr Envelope();
 
-        /// Four anchors, or five where the optional middle one is in use.
+        /// Four anchors, or five if the optional middle anchor is used.
         inline constexpr int count() const;
 
-        /// The anchors in the order \c Envelope holds them, which is not the order they sit in
-        /// here, with the \c % separator where a fifth anchor calls for one.
+        /// The anchors in the order of the \c Envelope entry, which differs from the order in
+        /// this structure, with the \c % separator if a fifth anchor requires it.
         std::string toString() const;
 
-        /// Returns a default envelope when \a s has fewer than seven values.
+        /// Returns a default envelope if \a s has fewer than seven values.
         static Envelope fromString(const std::string_view &s);
 
     public:
-        /// In time order, filled from index zero, so a note using four of them leaves index four
-        /// at its default of (-1, -1). That is what count() reads. The fifth anchor, where a note
-        /// has one, is the extra middle one and lands at index two.
+        /// In time order, filled from index zero, so a note with four anchors leaves index four
+        /// at its default of (-1, -1), which count() evaluates. The fifth anchor, if present, is
+        /// the additional middle anchor and is stored at index two.
         ///
-        /// Point::type goes unused here.
+        /// Point::type is unused here.
         std::array<Point, 5> anchors;
     };
 
@@ -148,12 +148,12 @@ namespace utau {
         return anchors[4].y >= 0 ? 5 : 4;
     }
 
-    /// One note of a track, which is one numbered section of a UST.
+    /// One note of a track, corresponding to one numbered section of a UST.
     ///
-    /// The strings here are raw bytes. Work out the encoding and convert before you look at them.
+    /// The strings are raw bytes. They must be converted from the file encoding before use.
     ///
-    /// \note UTAU's own site publishes no format document. The page below defines the entries
-    ///       of the temporary file a plugin is handed, which are the entries of a UST.
+    /// \note The official UTAU site publishes no format specification. The page below defines
+    ///       the entries of the plugin temporary file, which are the entries of a UST.
     ///
     /// \sa https://w.atwiki.jp/utaou/pages/64.html
     ///     プラグイン仕様
@@ -161,81 +161,79 @@ namespace utau {
     public:
         inline Note();
 
-        /// Builds a note as an editor would, so the values an editor sets explicitly are present
-        /// rather than absent.
+        /// Constructs a note as an editor does, so that the values an editor sets explicitly are
+        /// present rather than absent.
         Note(int noteNum, int length, const std::string &lyric = DEFAULT_LYRIC);
 
         virtual ~Note() = default;
 
-        /// The value to render with, which is the default where the note carries none.
+        /// The value used for rendering, which is the default if the note specifies none.
         inline constexpr double realIntensity() const;
         inline constexpr double realModulation() const;
         inline constexpr double realVelocity() const;
         inline constexpr double realStartPoint() const;
 
-        /// Milliseconds a note of \a length ticks lasts at \a tempo.
+        /// The duration in milliseconds of \a length ticks at \a tempo.
         static inline constexpr double duration(int length, double tempo);
 
     public:
-        /// \c R and the empty string are rests, which isRestLyric() settles.
+        /// \c R and the empty string denote rests, as determined by isRestLyric().
         std::string lyric;
 
         /// Appended to the project flags rather than replacing them.
         std::string flags;
 
-        /// Key, where 24 is C1.
+        /// The key, where 24 is C1.
         int noteNum;
 
-        /// Ticks, where 480 is a quarter note.
+        /// The length in ticks, where 480 is a quarter note.
         int length;
 
-        /// Absent where the file leaves the entry out, which is how UTAU says to use the value
-        /// from the project or the voice bank instead.
+        /// Absent if the file omits the entry, which in UTAU means that the value of the project
+        /// or the voice bank applies.
         std::optional<double> intensity, modulation, velocity;
         std::optional<double> preUttr, overlap, stp;
         std::optional<double> tempo;
 
         std::optional<Envelope> envelope;
 
-        /// Pitch as mode 2 keeps it, a curve of anchors. Empty where the note has none.
+        /// The mode 2 pitch, a curve of anchors. Empty if the note has none.
         std::vector<Point> portamento;
         std::optional<Vibrato> vibrato;
 
-        /// Pitch as mode 1 keeps it, one reading every five ticks, beginning where \a pbstart
-        /// says. A project is in one mode or the other, so either these or \a portamento is
-        /// filled, not both.
+        /// The mode 1 pitch, one value every five ticks, starting at \a pbstart . A project uses
+        /// exactly one mode, so at most one of this and \a portamento is filled.
         std::optional<double> pbstart;
         std::vector<double> pitches;
         std::string pbtype;
 
-        /// Text a user attached to the note, which UTAU shows in the piano roll.
+        /// User text attached to the note, displayed by UTAU in the piano roll.
         std::string label;
 
-        /// Render the sample as it stands, without the resampler.
+        /// Whether the sample is rendered unmodified, without the resampler.
         std::string direct;
 
-        /// A sample to use in place of the one the lyric resolves to.
+        /// A sample used in place of the sample resolved from the lyric.
         ///
-        /// \warning This is a path out of the project file, so treat it as untrusted. Handing it
-        ///          to a process as it stands is CVE-2024-28886.
+        /// \warning A path from the project file, and therefore untrusted. Passing it to a process
+        ///          unchecked reproduces CVE-2024-28886.
         std::string patch;
 
-        /// Names the region this note opens or closes, which UTAU shows as a labelled stretch of
-        /// the piano roll.
+        /// The name of the region this note opens or closes, displayed by UTAU as a labeled
+        /// range of the piano roll.
         std::string region, regionEnd;
 
-        /// Entries found on the note that this class does not otherwise represent. They are kept
-        /// as they were read and written back at the end of the section, so a host can store its
-        /// own data on a note and find it again.
+        /// Entries of the note without a dedicated member. They are preserved as read and written
+        /// back at the end of the section, so that a host can store its own data on a note.
         ///
-        /// The map is keyed by the entry name, which makes a repeated name resolve to the last
-        /// one read. UTAU resolves it the same way.
+        /// The map is keyed by entry name, so a repeated name resolves to the last value read.
+        /// UTAU resolves it the same way.
         ///
-        /// \note UTAU keeps an entry it does not know only when the name begins with \c $ , and
-        ///       only on a note section. Anything else stored here survives a round trip through
-        ///       this library and is gone the moment the file passes through UTAU. The value is
-        ///       subject to further limits there: \c = and a tab truncate it, a space becomes a
-        ///       comma, and an empty value drops the entry.
+        /// \note UTAU preserves an unrecognized entry only if its name begins with \c $ , and only
+        ///       in a note section. Any other entry stored here survives a round trip through this
+        ///       library but is lost once the file is saved by UTAU. UTAU also restricts the value:
+        ///       \c = and a tab truncate it, a space is replaced with a comma, and an empty value
+        ///       removes the entry.
         std::map<std::string, std::string> userData;
     };
 
@@ -262,24 +260,23 @@ namespace utau {
         return length * 125.0 / tempo;
     }
 
-    /// A note as a plugin temporary file carries it, which is a note plus what UTAU worked out
-    /// about it.
+    /// A note as stored in a plugin temporary file: a note plus the values UTAU computed for it.
     ///
-    /// The extra members are read only. A plugin changing one of them changes nothing, since UTAU
-    /// works them out again from the note and the voice bank.
+    /// The additional members are read-only. Modifying them in a plugin has no effect, because
+    /// UTAU recomputes them from the note and the voice bank.
     class NoteExt : public Note {
     public:
         inline NoteExt();
         inline NoteExt(int noteNum, int length, const std::string &lyric = DEFAULT_LYRIC);
 
     public:
-        /// What UTAU worked out for the note, absent where the file did not say.
+        /// The values UTAU computed for the note, absent if the file does not specify them.
         std::optional<double> preUttrRO;
         std::optional<double> overlapRO;
         std::optional<double> stpRO;
 
-        /// Empty where the file did not say. An empty alias is what a sample without one has, so
-        /// there is nothing here for an optional to tell apart.
+        /// Empty if the file does not specify it. A sample without an alias has an empty alias,
+        /// so an optional would add no distinction.
         std::string filenameRO;
         std::string aliasRO;
         std::string cacheRO;
@@ -292,28 +289,29 @@ namespace utau {
         : Note(noteNum, length, lyric) {
     }
 
-    /// The four entries a mode 2 pitch curve is spread across, as they appear in the file.
+    /// The four entries that together store a mode 2 pitch curve, as they appear in the file.
     ///
-    /// Note::portamento is the same curve as points, which is what to work with. This is the
-    /// shape it takes on the way in and out.
+    /// Note::portamento holds the same curve as points and is the form intended for use. This
+    /// structure is the serialized form used when reading and writing.
     struct STDUTAU_EXPORT PBStrings {
-        /// Where the curve starts, as \c x;y .
+        /// The starting point of the curve, as \c x;y .
         std::string PBS;
 
-        /// The gap from each anchor to the one before it, comma separated.
+        /// The distance from each anchor to its predecessor, comma-separated.
         std::string PBW;
 
-        /// The height of each anchor after the first, comma separated. An empty field is zero.
+        /// The height of each anchor after the first, comma-separated. An empty field is zero.
         std::string PBY;
 
-        /// The Point::Type of each anchor after the first, comma separated.
+        /// The Point::Type of each anchor after the first, comma-separated.
         std::string PBM;
 
-        /// Returns the curve as points with absolute positions, empty when \a PBS or \a PBW is.
-        /// An anchor landing before the one ahead of it is pulled forward to meet it.
+        /// Returns the curve as points with absolute positions, or an empty list if \a PBS or
+        /// \a PBW is empty. An anchor positioned before its predecessor is moved to the position of
+        /// its predecessor.
         std::vector<Point> toPoints() const;
 
-        /// Returns the four entries for \a points, empty strings when \a points is empty.
+        /// Returns the four entries for \a points , or empty strings if \a points is empty.
         static PBStrings fromPoints(const std::vector<Point> &points);
     };
 

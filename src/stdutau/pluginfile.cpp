@@ -11,8 +11,8 @@ namespace utau {
     inline NoteExt createInitialNoteExt() {
         NoteExt note;
 
-        // The constructor gives these the values an editor starts a note with. A note being read
-        // carries only what the file says.
+        // The constructor initializes these with the values of a new note in an editor. A note
+        // read from a file contains only the values the file specifies.
         note.intensity.reset();
         note.modulation.reset();
 
@@ -32,8 +32,8 @@ namespace utau {
     }
 
     bool PluginFileReader::read(std::string_view text) {
-        // Whether the file ends without a terminator, which decides when the loop below is on
-        // the last line. See UstFile::read, which reads the same shape.
+        // Whether the file ends without a terminator, which determines when the loop below
+        // reaches the last line. See UstFile::read, which parses the same structure.
         const bool dangling = !text.empty() && text.back() != '\n';
 
         // Read File

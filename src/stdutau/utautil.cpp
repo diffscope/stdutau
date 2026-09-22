@@ -11,14 +11,15 @@
 
 namespace utau {
 
-    // Reads a double without exceptions, which this library is built without.
+    // Parses a double without exceptions, because this library is built without them.
     //
-    // libc++ still has no floating point std::from_chars, so that path falls back on strtod. It
-    // needs a terminated string, which a string_view does not give, hence the copy.
+    // libc++ does not yet provide a floating-point std::from_chars, so that path falls back to
+    // strtod. strtod requires a terminated string, which a string_view does not guarantee, hence
+    // the copy.
     static bool parseDouble(const std::string_view &s, double &out) {
 #ifdef _LIBCPP_VERSION
-        // std::from_chars accepts neither leading space nor a leading plus, while strtod accepts
-        // both. Turn them away here so the two paths answer alike.
+        // std::from_chars accepts neither leading whitespace nor a leading plus sign, whereas
+        // strtod accepts both. They are rejected here so that both paths behave identically.
         if (s.empty() || s.front() == '+' || std::isspace(static_cast<unsigned char>(s.front()))) {
             return false;
         }
@@ -99,8 +100,9 @@ namespace utau {
     }
 
     std::string trim(const std::string &s) {
-        // The cast matters. What this library holds is raw bytes, and std::isspace on a negative
-        // value other than EOF is undefined, which any byte above 0x7F of a Shift_JIS string is.
+        // The cast is required. This library handles raw bytes, and std::isspace on a negative
+        // value other than EOF is undefined, which applies to every byte above 0x7F of a
+        // Shift_JIS string.
         auto isSpace = [](char c) { return std::isspace(static_cast<unsigned char>(c)) != 0; };
 
         auto start = s.begin();
