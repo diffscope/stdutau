@@ -1,6 +1,9 @@
 if(STDUTAU_BUILD_STATIC)
     add_library(${PROJECT_NAME} STATIC)
     target_compile_definitions(${PROJECT_NAME} PUBLIC STDUTAU_STATIC)
+
+    # Position-independent code, so that the static library can be linked into a shared one.
+    set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 else()
     add_library(${PROJECT_NAME} SHARED)
 endif()
