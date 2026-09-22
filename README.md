@@ -39,7 +39,7 @@ ctest --test-dir build --no-tests=error
 
 + Each declaration carries its own documentation, so the headers are the API reference.
 
-+ Strings are raw bytes. None of these formats records its own encoding, so converting is the caller's job.
++ Strings are raw bytes. None of these formats specifies its encoding, so encoding conversion is the responsibility of the caller.
 
 ## License
 
