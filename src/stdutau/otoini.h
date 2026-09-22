@@ -32,6 +32,8 @@ namespace utau {
         bool read(std::string_view text);
 
         /// Writes the entries grouped by sample file, the files in ascending order.
+        ///
+        /// A number keeps the spelling it was read with, see OtoEntry::spellings.
         std::string write() const;
 
     public:

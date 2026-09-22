@@ -39,6 +39,18 @@ namespace utau {
 
         /// How far the note reaches back into the one before it.
         double voiceOverlap;
+
+        /// How the five numbers above were written, in the order they are declared.
+        ///
+        /// A bank spells the same value more than one way, often in one file and sometimes on
+        /// two lines of one sample: \c 41 on one, \c 41.0 on the next. No rule for writing a
+        /// number gives both back, so each one keeps the text it was read from, and a file saved
+        /// with nothing changed comes out as it went in.
+        ///
+        /// A spelling is written only while it still reads back as exactly its number, so a
+        /// number that is changed is written afresh and nothing has to be told it was. Empty for
+        /// an entry that was not read from a file.
+        std::string spellings[5];
     };
 
     inline OtoEntry::OtoEntry() {

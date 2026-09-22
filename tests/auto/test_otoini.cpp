@@ -58,4 +58,33 @@ BOOST_AUTO_TEST_CASE(test_crlf_reads_the_same_as_lf) {
     BOOST_CHECK_EQUAL(crlf.contents.at("a.wav").at(0).voiceOverlap, 50);
 }
 
+// Both spellings on two lines of one sample, which is how a real bank has them. A save that
+// respelled either would turn a one line edit into a diff of the whole file.
+BOOST_AUTO_TEST_CASE(test_numbers_keep_their_spelling) {
+    const std::string text = "a.wav=a,41,87.688,97.316,8.938,4.457\r\n"
+                             "a.wav=a -,41.0,87.6880,-143.414,8.938,04.457\r\n";
+    BOOST_CHECK_EQUAL(parse(text).write(), text);
+}
+
+BOOST_AUTO_TEST_CASE(test_a_changed_number_is_written_afresh) {
+    auto oto = parse("a.wav=a,41.0,87.688,97.316,8.938,4.457\r\n");
+    auto &entry = oto.contents.at("a.wav").at(0);
+    entry.offset = 12345.678;
+    entry.cutoff = -250;
+    BOOST_CHECK_EQUAL(oto.write(), "a.wav=a,12345.678,87.688,-250,8.938,4.457\r\n");
+}
+
+// Six significant digits was what a stream gave, and an offset past ten seconds has more.
+BOOST_AUTO_TEST_CASE(test_an_entry_never_read_loses_no_digits) {
+    OtoIni oto;
+    OtoEntry entry;
+    entry.fileName = "a.wav";
+    entry.alias = "a";
+    entry.offset = 123456.789;
+    entry.voiceOverlap = 0.1;
+    entry.preUtterance = 1e21;
+    oto.contents["a.wav"].push_back(entry);
+    BOOST_CHECK_EQUAL(oto.write(), "a.wav=a,123456.789,0,0,1000000000000000000000,0.1\r\n");
+}
+
 BOOST_AUTO_TEST_SUITE_END()

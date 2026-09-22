@@ -1,6 +1,6 @@
 #include "otoini.h"
 
-#include <sstream>
+#include <charconv>
 #include <fstream>
 
 #include "utautils.h"
@@ -35,19 +35,39 @@ namespace utau {
         res.cutoff = stod2(tokenList[3]);
         res.preUtterance = stod2(tokenList[4]);
         res.voiceOverlap = stod2(tokenList[5]);
+        for (int i = 0; i < 5; ++i) {
+            res.spellings[i] = tokenList[i + 1];
+        }
         return res;
     }
 
+    /// The text  spelling gave, where it still reads back as exactly  value.
+    ///
+    /// Otherwise the fewest digits that do, in fixed notation. The shortest form alone would
+    /// write a large enough value in exponent form, and nothing says UTAU reads that.
+    static std::string formatNumber(double value, const std::string &spelling) {
+        const auto read = toDouble(spelling);
+        if (read && *read == value) {
+            return spelling;
+        }
+        char buffer[400];
+        const auto result =
+            std::to_chars(buffer, buffer + sizeof(buffer), value, std::chars_format::fixed);
+        return std::string(buffer, result.ptr);
+    }
+
     static std::string formatEntry(const OtoEntry &entry) {
-        std::stringstream out;
-        out << entry.fileName << EQUAL;
-        out << entry.alias << COMMA;
-        out << entry.offset << COMMA;
-        out << entry.consonant << COMMA;
-        out << entry.cutoff << COMMA;
-        out << entry.preUtterance << COMMA;
-        out << entry.voiceOverlap;
-        return out.str();
+        const double numbers[] = {
+            entry.offset, entry.consonant, entry.cutoff, entry.preUtterance, entry.voiceOverlap,
+        };
+        std::string out = entry.fileName;
+        out += EQUAL;
+        out += entry.alias;
+        for (int i = 0; i < 5; ++i) {
+            out += COMMA;
+            out += formatNumber(numbers[i], entry.spellings[i]);
+        }
+        return out;
     }
 
     OtoIni::OtoIni() = default;
