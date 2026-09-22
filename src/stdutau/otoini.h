@@ -33,6 +33,10 @@ namespace utau {
 
         /// Writes the entries grouped by sample file, the files in ascending order.
         ///
+        /// The order a file was read in is not kept, on purpose: UTAU sorts the entries when it
+        /// saves an \c oto.ini as well, so no bank relies on an order of its own surviving a
+        /// save.
+        ///
         /// A number keeps the spelling it was read with, see OtoEntry::spellings.
         std::string write() const;
 
