@@ -43,6 +43,4 @@ ctest --test-dir build --no-tests=error
 
 ## License
 
-This library is released under the Apache 2.0 License.
-
-Copyright (C) 2020-present SineStriker.
+Apache License 2.0. See [LICENSE](LICENSE).
