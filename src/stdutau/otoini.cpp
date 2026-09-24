@@ -1,11 +1,28 @@
 #include "otoini.h"
 
+#include <cctype>
 #include <charconv>
 #include <fstream>
 
 #include "utautils.h"
 
 namespace utau {
+
+    static constexpr const char CHARSET_DECLARATION[] = "#Charset:";
+
+    static bool isCharsetDeclaration(const std::string_view &line) {
+        const std::string_view prefix = CHARSET_DECLARATION;
+        if (line.size() < prefix.size()) {
+            return false;
+        }
+        for (size_t i = 0; i < prefix.size(); ++i) {
+            if (std::tolower(static_cast<unsigned char>(line[i])) !=
+                std::tolower(static_cast<unsigned char>(prefix[i]))) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     static OtoEntry parseEntry(const std::string_view &s) {
         if (s.empty()) {
@@ -97,6 +114,13 @@ namespace utau {
                 continue;
             }
 
+            if (isCharsetDeclaration(line)) {
+                if (charset.empty()) {
+                    charset = line.substr(sizeof(CHARSET_DECLARATION) - 1);
+                }
+                continue;
+            }
+
             auto entry = parseEntry(line);
             const auto &fileName = entry.fileName;
             if (fileName.empty())
@@ -114,6 +138,11 @@ namespace utau {
 
     std::string OtoIni::write() const {
         std::string out;
+        if (!charset.empty()) {
+            out += CHARSET_DECLARATION;
+            out += charset;
+            out += LINE_END;
+        }
         for (const auto &item : contents) {
             for (const auto &entry : item.second) {
                 out += formatEntry(entry);

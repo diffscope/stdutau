@@ -74,6 +74,28 @@ BOOST_AUTO_TEST_CASE(test_a_changed_number_is_written_afresh) {
     BOOST_CHECK_EQUAL(oto.write(), "a.wav=a,12345.678,87.688,-250,8.938,4.457\r\n");
 }
 
+// The declaration is not an entry, and a save that dropped it would make a program that honors it
+// read the UTF-8 file in the code page of the machine.
+BOOST_AUTO_TEST_CASE(test_the_charset_declaration_is_kept) {
+    const std::string text = "#Charset:UTF-8\r\n"
+                             "a.wav=a,41,87.688,97.316,8.938,4.457\r\n";
+    auto oto = parse(text);
+    BOOST_CHECK_EQUAL(oto.charset, "UTF-8");
+    BOOST_CHECK_EQUAL(oto.contents.size(), 1);
+    BOOST_CHECK_EQUAL(oto.write(), text);
+}
+
+// The declaration is recognized regardless of case and written in one form, before the entries
+// even if it followed them. Only the first declaration is kept.
+BOOST_AUTO_TEST_CASE(test_the_charset_declaration_is_written_first) {
+    auto oto = parse("a.wav=a,0,0,0,0,0\r\n"
+                     "#CHARSET:utf-8\r\n"
+                     "#Charset:Shift_JIS\r\n");
+    BOOST_CHECK_EQUAL(oto.charset, "utf-8");
+    BOOST_CHECK_EQUAL(oto.write(), "#Charset:utf-8\r\n"
+                                   "a.wav=a,0,0,0,0,0\r\n");
+}
+
 // An offset beyond ten seconds has more than six significant digits, the default stream precision.
 BOOST_AUTO_TEST_CASE(test_an_entry_never_read_loses_no_digits) {
     OtoIni oto;
