@@ -1,6 +1,5 @@
 #include "otoini.h"
 
-#include <cctype>
 #include <charconv>
 #include <fstream>
 
@@ -10,14 +9,18 @@ namespace utau {
 
     static constexpr const char CHARSET_DECLARATION[] = "#Charset:";
 
+    // ASCII only. std::tolower depends on the C locale, which may map bytes of other encodings.
+    static char toLowerAscii(char c) {
+        return c >= 'A' && c <= 'Z' ? char(c - 'A' + 'a') : c;
+    }
+
     static bool isCharsetDeclaration(const std::string_view &line) {
         const std::string_view prefix = CHARSET_DECLARATION;
         if (line.size() < prefix.size()) {
             return false;
         }
         for (size_t i = 0; i < prefix.size(); ++i) {
-            if (std::tolower(static_cast<unsigned char>(line[i])) !=
-                std::tolower(static_cast<unsigned char>(prefix[i]))) {
+            if (toLowerAscii(line[i]) != toLowerAscii(prefix[i])) {
                 return false;
             }
         }
