@@ -74,6 +74,18 @@ BOOST_AUTO_TEST_CASE(test_a_changed_number_is_written_afresh) {
     BOOST_CHECK_EQUAL(oto.write(), "a.wav=a,12345.678,87.688,-250,8.938,4.457\r\n");
 }
 
+// Empty numbers read as zero, as in a voice bank whose breath samples have no timing. A save
+// that wrote them as zeros would change every entry of the file when one of them changed.
+BOOST_AUTO_TEST_CASE(test_empty_numbers_stay_empty) {
+    auto oto = parse("01.wav=,,,,,\r\n"
+                     "02.wav=,,,,,\r\n");
+    BOOST_CHECK_EQUAL(oto.contents.at("01.wav").at(0).offset, 0);
+    oto.contents.at("01.wav").at(0).alias = "breath";
+    oto.contents.at("01.wav").at(0).cutoff = -300;
+    BOOST_CHECK_EQUAL(oto.write(), "01.wav=breath,,,-300,,\r\n"
+                                   "02.wav=,,,,,\r\n");
+}
+
 // The declaration is not an entry, and a save that dropped it would make a program that honors it
 // read the UTF-8 file in the code page of the machine.
 BOOST_AUTO_TEST_CASE(test_the_charset_declaration_is_kept) {

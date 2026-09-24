@@ -1,6 +1,7 @@
 #ifndef OTOENTRY_H
 #define OTOENTRY_H
 
+#include <optional>
 #include <string>
 
 #include <stdutau/utaglobal.h>
@@ -48,9 +49,12 @@ namespace utau {
         /// an unmodified file is saved unchanged.
         ///
         /// The original text is written only if it still parses to exactly the current value, so
-        /// a modified number is formatted anew without explicit invalidation. Empty for an entry
-        /// that was not read from a file.
-        std::string spellings[5];
+        /// a modified number is formatted anew without explicit invalidation.
+        ///
+        /// An empty field is kept as an empty text, which reads as zero, because voice banks
+        /// write entries whose numbers are all empty. \c std::nullopt for an entry that was not
+        /// read from a file, whose numbers are all written, including zeros.
+        std::optional<std::string> spellings[5];
     };
 
     inline OtoEntry::OtoEntry() {

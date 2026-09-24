@@ -56,19 +56,22 @@ namespace utau {
         res.preUtterance = stod2(tokenList[4]);
         res.voiceOverlap = stod2(tokenList[5]);
         for (int i = 0; i < 5; ++i) {
-            res.spellings[i] = tokenList[i + 1];
+            res.spellings[i] = std::string(tokenList[i + 1]);
         }
         return res;
     }
 
-    /// The original text \a spelling if it still parses to exactly \a value .
+    /// The original text \a spelling if it still parses to exactly \a value , where an empty text
+    /// parses to zero as when read.
     ///
     /// Otherwise the shortest fixed-notation text that parses to \a value . The shortest form in
     /// general would use exponent notation for large values, and UTAU is not known to accept it.
-    static std::string formatNumber(double value, const std::string &spelling) {
-        const auto read = toDouble(spelling);
-        if (read && *read == value) {
-            return spelling;
+    static std::string formatNumber(double value, const std::optional<std::string> &spelling) {
+        if (spelling) {
+            const auto read = spelling->empty() ? std::optional<double>(0) : toDouble(*spelling);
+            if (read && *read == value) {
+                return *spelling;
+            }
         }
         char buffer[400];
         const auto result =
