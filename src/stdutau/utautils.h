@@ -10,6 +10,33 @@
 
 namespace utau {
 
+    /// \name Classification of bytes in ASCII only
+    ///
+    /// The functions of \c <cctype> depend on the C locale, which may classify bytes of other
+    /// encodings as digits, spaces or letters, and are undefined for a negative \c char other
+    /// than EOF, which every byte above 0x7F of a Shift_JIS or GBK string is. The files of UTAU
+    /// are raw bytes in an encoding that is not known when they are parsed, so only ASCII is
+    /// classified.
+    /// @{
+
+    /// Returns whether \a c is one of the digits 0 to 9.
+    inline constexpr bool isAsciiDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    /// Returns whether \a c is a space, a horizontal or vertical tab, a line feed, a form feed or
+    /// a carriage return, the white space of the C locale.
+    inline constexpr bool isAsciiSpace(char c) {
+        return c == ' ' || (c >= '\t' && c <= '\r');
+    }
+
+    /// Returns \a c in lowercase if it is one of the letters A to Z, and \a c otherwise.
+    inline constexpr char toLowerAscii(char c) {
+        return c >= 'A' && c <= 'Z' ? char(c - 'A' + 'a') : c;
+    }
+
+    /// @}
+
     /// The line terminator written by this library, which is the one UTAU writes.
     ///
     /// Independent of the platform, because a UTAU file must be identical regardless of the

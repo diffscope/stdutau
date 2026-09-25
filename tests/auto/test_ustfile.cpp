@@ -73,6 +73,18 @@ namespace {
 
 }
 
+// Only a section named by ASCII digits is a note. A section of another name is skipped, even one
+// whose name holds bytes that some locales take as digits.
+BOOST_AUTO_TEST_CASE(test_only_a_section_of_digits_is_a_note) {
+    const auto text = ust(minimalNote);
+    const auto end = text.find("[#TRACKEND]");
+    UstFile file;
+    BOOST_REQUIRE(file.read(text.substr(0, end) + "[#INSERT]\nLength=480\nLyric=b\n" +
+                            "[#\xB2\xB3]\nLength=480\nLyric=c\n" + text.substr(end)));
+    BOOST_REQUIRE_EQUAL(file.notes.size(), 1);
+    BOOST_CHECK_EQUAL(file.notes.at(0).lyric, "a");
+}
+
 BOOST_AUTO_TEST_CASE(test_unknown_entries_become_user_data) {
     auto file = parse(ust(noteWith({
         "$hup_charset=Shift_JIS",

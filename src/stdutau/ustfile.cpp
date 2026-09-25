@@ -86,7 +86,7 @@ namespace utau {
                 } else if (sectionName == SECTION_NAME_SETTING) {
                     // Parse global settings
                     parseSectionSettings(currentSection, settings);
-                } else if (std::all_of(sectionName.begin(), sectionName.end(), ::isdigit)) {
+                } else if (std::all_of(sectionName.begin(), sectionName.end(), isAsciiDigit)) {
                     // Parse Note (Name should be numeric)
                     auto note = createInitialNote();
                     parseSectionNote(currentSection, note);

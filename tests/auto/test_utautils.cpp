@@ -64,6 +64,23 @@ BOOST_AUTO_TEST_CASE(test_trim) {
     // A byte above 0x7F is not a space, and testing it must not be undefined behavior. Raw
     // Shift_JIS is passed to this function, so the case occurs in practice.
     BOOST_CHECK_EQUAL(trim("\x82\xA0"), "\x82\xA0");
+
+    // Every white space of the C locale is removed, and a byte that some locales take as a space
+    // is not.
+    BOOST_CHECK_EQUAL(trim("\t\n\v\f\r a \t\n\v\f\r"), "a");
+    BOOST_CHECK_EQUAL(trim("\xA0z\x85"), "\xA0z\x85");
+}
+
+// Every byte is classified as in ASCII, whatever the locale, so that raw bytes of any encoding
+// are never taken as digits, spaces or letters.
+BOOST_AUTO_TEST_CASE(test_ascii_classification) {
+    const std::string spaces = " \t\n\v\f\r";
+    for (int i = 0; i < 256; ++i) {
+        const char c = char(i);
+        BOOST_CHECK_EQUAL(isAsciiDigit(c), i >= '0' && i <= '9');
+        BOOST_CHECK_EQUAL(isAsciiSpace(c), spaces.find(c) != std::string::npos);
+        BOOST_CHECK_EQUAL(toLowerAscii(c), i >= 'A' && i <= 'Z' ? char(i + 'a' - 'A') : c);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(test_isRestLyric) {

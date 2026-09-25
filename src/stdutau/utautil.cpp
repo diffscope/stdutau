@@ -1,6 +1,5 @@
 #include "utautils.h"
 
-#include <cctype>
 #include <cerrno>
 #include <cstdlib>
 #include <sstream>
@@ -20,7 +19,7 @@ namespace utau {
 #ifdef _LIBCPP_VERSION
         // std::from_chars accepts neither leading whitespace nor a leading plus sign, whereas
         // strtod accepts both. They are rejected here so that both paths behave identically.
-        if (s.empty() || s.front() == '+' || std::isspace(static_cast<unsigned char>(s.front()))) {
+        if (s.empty() || s.front() == '+' || isAsciiSpace(s.front())) {
             return false;
         }
 
@@ -100,18 +99,13 @@ namespace utau {
     }
 
     std::string trim(const std::string &s) {
-        // The cast is required. This library handles raw bytes, and std::isspace on a negative
-        // value other than EOF is undefined, which applies to every byte above 0x7F of a
-        // Shift_JIS string.
-        auto isSpace = [](char c) { return std::isspace(static_cast<unsigned char>(c)) != 0; };
-
         auto start = s.begin();
-        while (start != s.end() && isSpace(*start)) {
+        while (start != s.end() && isAsciiSpace(*start)) {
             start++;
         }
 
         auto end = s.end();
-        while (end != start && isSpace(*(end - 1))) {
+        while (end != start && isAsciiSpace(*(end - 1))) {
             end--;
         }
 

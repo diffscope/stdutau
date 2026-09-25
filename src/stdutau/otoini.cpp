@@ -14,11 +14,6 @@ namespace utau {
     // is not examined, and the name begins after that character.
     static constexpr std::string_view CHARSET_KEYWORD = "#Charset";
 
-    // ASCII only. std::tolower depends on the C locale, which may map bytes of other encodings.
-    static char toLowerAscii(char c) {
-        return c >= 'A' && c <= 'Z' ? char(c - 'A' + 'a') : c;
-    }
-
     static bool isCharsetDeclaration(const std::string_view &line) {
         if (line.size() < CHARSET_KEYWORD.size()) {
             return false;
