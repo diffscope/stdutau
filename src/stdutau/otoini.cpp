@@ -7,7 +7,12 @@
 
 namespace utau {
 
+    // The form in which the declaration is written.
     static constexpr const char CHARSET_DECLARATION[] = "#Charset:";
+
+    // The keyword that begins a declaration. The character after it, a colon in the written form,
+    // is not examined, and the name begins after that character.
+    static constexpr std::string_view CHARSET_KEYWORD = "#Charset";
 
     // ASCII only. std::tolower depends on the C locale, which may map bytes of other encodings.
     static char toLowerAscii(char c) {
@@ -15,16 +20,21 @@ namespace utau {
     }
 
     static bool isCharsetDeclaration(const std::string_view &line) {
-        const std::string_view prefix = CHARSET_DECLARATION;
-        if (line.size() < prefix.size()) {
+        if (line.size() < CHARSET_KEYWORD.size()) {
             return false;
         }
-        for (size_t i = 0; i < prefix.size(); ++i) {
-            if (toLowerAscii(line[i]) != toLowerAscii(prefix[i])) {
+        for (size_t i = 0; i < CHARSET_KEYWORD.size(); ++i) {
+            if (toLowerAscii(line[i]) != toLowerAscii(CHARSET_KEYWORD[i])) {
                 return false;
             }
         }
         return true;
+    }
+
+    // The name that the declaration line states, which may be empty.
+    static std::string_view declaredCharset(const std::string_view &line) {
+        const auto start = CHARSET_KEYWORD.size() + 1;
+        return line.size() > start ? line.substr(start) : std::string_view();
     }
 
     static OtoEntry parseEntry(const std::string_view &s) {
@@ -122,7 +132,7 @@ namespace utau {
 
             if (isCharsetDeclaration(line)) {
                 if (charset.empty()) {
-                    charset = line.substr(sizeof(CHARSET_DECLARATION) - 1);
+                    charset = declaredCharset(line);
                 }
                 continue;
             }

@@ -50,8 +50,11 @@ namespace utau {
         /// The encoding that the file declares for itself on a line of the form
         /// \c #Charset:UTF-8 , or empty if it declares none.
         ///
-        /// The name is kept as written and is not interpreted. The line is recognized regardless
-        /// of case, and written as the first line in the form \c #Charset: followed by the name.
+        /// The name is kept as written and is not interpreted. A line that begins with
+        /// \c #Charset , regardless of case, is the declaration and not an entry, whatever the
+        /// name. The character after \c #Charset is not examined, so \c #Charset=UTF-8 declares
+        /// UTF-8 as well, and the name begins after it. The first declaration that states a name
+        /// is kept, and written as the first line in the form \c #Charset: followed by the name.
         /// Dropping it would make a program that honors it read a UTF-8 file in the code page of
         /// the machine. The sources are listed with the class.
         std::string charset;
