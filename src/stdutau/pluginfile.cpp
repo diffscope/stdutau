@@ -32,80 +32,54 @@ namespace utau {
     }
 
     bool PluginFileReader::read(std::string_view text) {
-        // Whether the file ends without a terminator, which determines when the loop below
-        // reaches the last line. See UstFile::read, which parses the same structure.
-        const bool dangling = !text.empty() && text.back() != '\n';
-
-        // Read File
+        // The lines of the current section, its header first. Lines before the first header
+        // belong to no section. See UstFile::read, which parses the same structure.
         std::vector<std::string> currentSection;
+
+        // Parses the current section, if any. A section whose header names no section is
+        // skipped.
+        const auto parseSection = [&]() {
+            if (currentSection.empty()) {
+                return;
+            }
+            std::string_view sectionName;
+            if (!parseSectionName(currentSection[0], sectionName)) {
+                return;
+            }
+            if (sectionName == SECTION_NAME_VERSION) {
+                parseSectionVersion(currentSection, version);
+            } else if (sectionName == SECTION_NAME_SETTING) {
+                parseSectionSettings(currentSection, settings);
+            } else if (std::all_of(sectionName.begin(), sectionName.end(), isAsciiDigit) ||
+                       sectionName == SECTION_NAME_PREV || sectionName == SECTION_NAME_NEXT) {
+                // A selected note, whose section is named by its number, or a note around the
+                // selection.
+                auto note = createInitialNoteExt();
+                parseSectionNoteExt(currentSection, note);
+                // A note without a valid length is ignored.
+                if (note.length <= 0) {
+                    return;
+                }
+                if (sectionName == SECTION_NAME_PREV) {
+                    prevNote = note;
+                } else if (sectionName == SECTION_NAME_NEXT) {
+                    nextNote = note;
+                } else {
+                    notes.push_back(note);
+                }
+            }
+        };
 
         std::string_view line;
         while (takeLine(text, line)) {
-            const bool atEnd = text.empty() && dangling;
-
-            if (line.empty() && !atEnd) {
-                continue;
+            if (starts_with(line, SECTION_BEGIN_MARK)) {
+                parseSection();
+                currentSection.clear();
             }
-
-            // Continue to add until meet the start of section or end
-            if (!starts_with(line, SECTION_BEGIN_MARK) && !atEnd) {
-                currentSection.emplace_back(line);
-                continue;
-            }
-
-            // If meet end, append without continue
-            if (!line.empty() && atEnd) {
-                currentSection.emplace_back(line);
-            }
-
-            // Previous section is empty
-            if (currentSection.size() <= 1) {
-                // ...
-            } else {
-                const auto &sectionHead = currentSection[0];
-
-                // If Section Name is invalid
-                std::string_view sectionName;
-                if (!parseSectionName(sectionHead, sectionName)) {
-                    currentSection.clear();
-                    continue;
-                }
-
-                if (sectionName == SECTION_NAME_VERSION) {
-                    // Parse Version Sequence
-                    parseSectionVersion(currentSection, version);
-                } else if (sectionName == SECTION_NAME_SETTING) {
-                    // Parse global settings
-                    parseSectionSettings(currentSection, settings);
-                } else if (std::all_of(sectionName.begin(), sectionName.end(), isAsciiDigit)) {
-                    // Parse Note (Name should be numeric)
-                    auto note = createInitialNoteExt();
-                    parseSectionNoteExt(currentSection, note);
-                    // Ignore note whose length is invalid
-                    if (note.length > 0) {
-                        notes.push_back(note);
-                    }
-                } else if (sectionName == SECTION_NAME_PREV) {
-                    auto note = createInitialNoteExt();
-                    parseSectionNoteExt(currentSection, note);
-                    // Ignore note whose length is invalid
-                    if (note.length > 0) {
-                        prevNote = note;
-                    }
-                } else if (sectionName == SECTION_NAME_NEXT) {
-                    auto note = createInitialNoteExt();
-                    parseSectionNoteExt(currentSection, note);
-                    // Ignore note whose length is invalid
-                    if (note.length > 0) {
-                        nextNote = note;
-                    }
-                }
-            }
-
-            currentSection.clear();
             currentSection.emplace_back(line);
         }
-
+        // The last section ends with the file, whether or not a terminator follows it.
+        parseSection();
         return true;
     }
 

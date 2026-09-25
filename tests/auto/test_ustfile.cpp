@@ -13,8 +13,7 @@ BOOST_AUTO_TEST_SUITE(test_ustfile)
 
 namespace {
 
-    // The reader completes a section when it encounters the next header, so the trailing
-    // [#TRACKEND] is required for the last note to be read.
+    // A UST as UTAU writes it, with a single note.
     std::string ust(const std::vector<std::string> &noteLines) {
         std::string s = "[#VERSION]\nUST Version1.2\n[#SETTING]\nTempo=120.00\nTracks=1\n[#0000]\n";
         for (const auto &line : noteLines) {
@@ -83,6 +82,33 @@ BOOST_AUTO_TEST_CASE(test_only_a_section_of_digits_is_a_note) {
                             "[#\xB2\xB3]\nLength=480\nLyric=c\n" + text.substr(end)));
     BOOST_REQUIRE_EQUAL(file.notes.size(), 1);
     BOOST_CHECK_EQUAL(file.notes.at(0).lyric, "a");
+}
+
+// The last section ends with the file, with or without a terminator, and without [#TRACKEND].
+// A header that names no section does not take the following section with it.
+BOOST_AUTO_TEST_CASE(test_the_last_section_ends_with_the_file) {
+    const auto text = ust(minimalNote);
+    const auto withoutEnd = text.substr(0, text.find("[#TRACKEND]"));
+    for (const auto &read : {withoutEnd, withoutEnd.substr(0, withoutEnd.size() - 1)}) {
+        UstFile file;
+        BOOST_REQUIRE(file.read(read));
+        BOOST_REQUIRE_EQUAL(file.notes.size(), 1);
+        BOOST_CHECK_EQUAL(file.notes.at(0).lyric, "a");
+    }
+
+    UstFile file;
+    BOOST_REQUIRE(
+        file.read(withoutEnd + "[#0001\nLength=480\nLyric=b\n" + "[#0002]\nLength=480\nLyric=c\n"));
+    BOOST_REQUIRE_EQUAL(file.notes.size(), 2);
+    BOOST_CHECK_EQUAL(file.notes.at(1).lyric, "c");
+}
+
+// An empty line is not an entry.
+BOOST_AUTO_TEST_CASE(test_empty_lines_are_skipped) {
+    const auto file = parse(ust(noteWith({"", "Tempo=130", ""})));
+    BOOST_CHECK(file.notes.at(0).userData.empty());
+    BOOST_REQUIRE(file.notes.at(0).tempo);
+    BOOST_CHECK_EQUAL(*file.notes.at(0).tempo, 130);
 }
 
 BOOST_AUTO_TEST_CASE(test_unknown_entries_become_user_data) {
