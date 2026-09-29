@@ -262,7 +262,13 @@ namespace utau {
         if (!note.pitches.empty()) {
             writeEntry(out, KEY_NAME_PB_TYPE, VALUE_PITCH_TYPE);
             writeEntry(out, KEY_NAME_PB_START, to_string(note.pbstart.value_or(0)));
-            writeEntry(out, KEY_NAME_PITCH_BEND, join(doublesToStrings(note.pitches), ","));
+            // Every value, zeros included, as UTAU writes the values it draws
+            std::vector<std::string> values;
+            values.reserve(note.pitches.size());
+            for (const double value : note.pitches) {
+                values.push_back(to_string(value));
+            }
+            writeEntry(out, KEY_NAME_PITCH_BEND, join(values, ","));
         }
 
         if (note.envelope) {

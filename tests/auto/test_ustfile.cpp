@@ -240,6 +240,19 @@ BOOST_AUTO_TEST_CASE(test_pbtype_is_written_once) {
     BOOST_CHECK_EQUAL(occurrences(serialize(file), "PBType="), 1);
 }
 
+// Each Mode1 value is written as a number, the zeros at the end included, as UTAU writes the
+// values it draws, so that a round trip keeps every value.
+BOOST_AUTO_TEST_CASE(test_pitch_bend_is_written_value_by_value) {
+    auto file = parse(ust(noteWith({"PBStart=-8.938", "PitchBend=0,17,,-5.5,100,0,0"})));
+    const std::vector<double> values = {0, 17, 0, -5.5, 100, 0, 0};
+    BOOST_CHECK(file.notes.at(0).pitches == values);
+
+    auto text = serialize(file);
+    BOOST_CHECK_EQUAL(occurrences(text, std::string("PitchBend=0,17,0,-5.5,100,0,0") + LINE_END),
+                      1);
+    BOOST_CHECK(parse(text).notes.at(0).pitches == values);
+}
+
 BOOST_AUTO_TEST_CASE(test_label_direct_and_patch_have_their_own_fields) {
     auto file = parse(ust(noteWith({
         "Label=chorus",
