@@ -103,6 +103,19 @@ BOOST_AUTO_TEST_CASE(test_the_last_section_ends_with_the_file) {
     BOOST_CHECK_EQUAL(file.notes.at(1).lyric, "c");
 }
 
+// Mode2 is on where the entry is present, as UTAU writes it, unless its value is False, which UTAU
+// reads as off.
+BOOST_AUTO_TEST_CASE(test_mode2_is_on_unless_absent_or_false) {
+    const auto settingsWith = [](const std::string &line) {
+        auto text = ust(minimalNote);
+        text.insert(text.find("Tracks=1\n") + std::strlen("Tracks=1\n"), line);
+        return parse(text).settings.isMode2;
+    };
+    BOOST_CHECK(settingsWith("Mode2=True\n"));
+    BOOST_CHECK(!settingsWith("Mode2=False\n"));
+    BOOST_CHECK(!settingsWith(""));
+}
+
 // An empty line is not an entry.
 BOOST_AUTO_TEST_CASE(test_empty_lines_are_skipped) {
     const auto file = parse(ust(noteWith({"", "Tempo=130", ""})));

@@ -187,7 +187,8 @@ namespace utau {
             } else if (key == KEY_NAME_TOOL2) {
                 out.resamplerPath = value; // Resampler
             } else if (key == KEY_NAME_MODE2) {
-                out.isMode2 = true; // Mode2
+                // UTAU writes the entry only when Mode2 is on, and reads Mode2=False as off.
+                out.isMode2 = value != "False"; // Mode2
             } else if (key == KEY_NAME_TEMPO) {
                 out.tempo = getDouble(value); // Global Tempo
                 if (out.tempo < VALUE_TEMPO_MIN || out.tempo > VALUE_TEMPO_MAX) {
