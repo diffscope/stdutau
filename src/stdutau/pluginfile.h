@@ -32,18 +32,16 @@ namespace utau {
         UstVersion version;
         UstSettings settings;
 
-        /// The note before the selection, absent if the selection starts the track. It is
-        /// context, and modifying it here does not edit the track.
+        /// The note before the selection, absent if the selection starts the track. A plugin
+        /// edits it through PluginFileWriter::setPrevNote().
         std::optional<NoteExt> prevNote;
 
         /// The note after the selection, absent if the selection ends the track.
         std::optional<NoteExt> nextNote;
 
-        /// The index of the first selected note within the entire track.
-        ///
-        /// \note The temporary file numbers its notes from zero regardless of the selection, so
-        ///       the file does not record the position of the selection and load() leaves this
-        ///       member at zero. The host must set it before passing it to PluginFileWriter.
+        /// The index of the first selected note within the entire track, taken from the number
+        /// of the first numbered section. UTAU numbers the selected notes by their positions in
+        /// the track, so a selection that starts at the third note starts at \c [#0002] .
         int startIndex;
 
         /// The selected notes, in track order.
@@ -76,12 +74,12 @@ namespace utau {
         void setPrevNote(const Note &note);
         void setNextNote(const Note &note);
 
-        /// Inserts \a notes before the note at \a index .
+        /// Inserts \a notes before the note at \a index . An index one past the last selected
+        /// note inserts after it.
+        ///
+        /// \note UTAU keeps insertions within the selection: a plugin cannot insert before the
+        ///       previous note or after the next note.
         void insertNotes(int index, const std::vector<Note> &notes);
-
-        /// Inserts \a notes outside the selection, before the previous note or after the next note.
-        void prependNotesBeforePrev(const std::vector<Note> &notes);
-        void appendNotesAfterNext(const std::vector<Note> &notes);
 
         /// Deletes the note at \a index . Indices are not renumbered, so consecutive calls require
         /// no index adjustment.
@@ -98,9 +96,6 @@ namespace utau {
         std::map<int, Note> m_changedNotes;
         std::map<int, std::vector<Note>> m_insertedNotes;
         std::set<int> m_removedNotes;
-
-        std::vector<Note> m_notesBeforePrev;
-        std::vector<Note> m_notesAfterNext;
     };
 
 }

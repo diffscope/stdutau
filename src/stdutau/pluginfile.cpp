@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <algorithm>
+#include <charconv>
 
 #include "private/usthelper_p.h"
 #include "utautils.h"
@@ -36,6 +37,9 @@ namespace utau {
         // belong to no section. See UstFile::read, which parses the same structure.
         std::vector<std::string> currentSection;
 
+        // Whether a numbered section has been read, which sets startIndex.
+        bool numbered = false;
+
         // Parses the current section, if any. A section whose header names no section is
         // skipped.
         const auto parseSection = [&]() {
@@ -54,6 +58,13 @@ namespace utau {
                        sectionName == SECTION_NAME_PREV || sectionName == SECTION_NAME_NEXT) {
                 // A selected note, whose section is named by its number, or a note around the
                 // selection.
+                if (!numbered && sectionName != SECTION_NAME_PREV &&
+                    sectionName != SECTION_NAME_NEXT) {
+                    // The first number is the position of the selection in the track.
+                    numbered = true;
+                    std::from_chars(sectionName.data(), sectionName.data() + sectionName.size(),
+                                    startIndex);
+                }
                 auto note = createInitialNoteExt();
                 parseSectionNoteExt(currentSection, note);
                 // A note without a valid length is ignored.
@@ -118,17 +129,6 @@ namespace utau {
         }
 
         // Previous
-        if (!m_notesBeforePrev.empty()) {
-            for (const auto &note : m_notesBeforePrev) {
-                writeSectionName(SECTION_NAME_INSERT, out);
-                writeSectionNote(-1, note, out);
-            }
-
-            // Complement
-            if (!m_prevNote) {
-                writeSectionName(SECTION_NAME_PREV, out);
-            }
-        }
         if (m_prevNote) {
             writeSectionName(SECTION_NAME_PREV, out);
             writeSectionNote(-1, m_prevNote.value(), out);
@@ -168,17 +168,6 @@ namespace utau {
             writeSectionName(SECTION_NAME_NEXT, out);
             writeSectionNote(-1, m_nextNote.value(), out);
         }
-        if (!m_notesAfterNext.empty()) {
-            // Complement
-            if (!m_nextNote) {
-                writeSectionName(SECTION_NAME_NEXT, out);
-            }
-
-            for (const auto &note : m_notesAfterNext) {
-                writeSectionName(SECTION_NAME_INSERT, out);
-                writeSectionNote(-1, note, out);
-            }
-        }
         return out;
     }
 
@@ -196,16 +185,6 @@ namespace utau {
 
     void PluginFileWriter::insertNotes(int index, const std::vector<Note> &notes) {
         auto &vec = m_insertedNotes[index];
-        vec.insert(vec.end(), notes.begin(), notes.end());
-    }
-
-    void PluginFileWriter::prependNotesBeforePrev(const std::vector<Note> &notes) {
-        auto &vec = m_notesBeforePrev;
-        vec.insert(vec.begin(), notes.begin(), notes.end());
-    }
-
-    void PluginFileWriter::appendNotesAfterNext(const std::vector<Note> &notes) {
-        auto &vec = m_notesAfterNext;
         vec.insert(vec.end(), notes.begin(), notes.end());
     }
 

@@ -55,4 +55,38 @@ BOOST_AUTO_TEST_CASE(test_empty_lines_and_notes_without_length_are_skipped) {
     BOOST_CHECK(!reader.nextNote);
 }
 
+// UTAU numbers the selected notes by their positions in the track, so the first number is the
+// position of the selection. A file without a selected note leaves it at zero.
+BOOST_AUTO_TEST_CASE(test_the_first_number_is_the_start_of_the_selection) {
+    PluginFileReader reader;
+    BOOST_REQUIRE(reader.read("[#PREV]\nLength=240\nLyric=p\n"
+                              "[#0002]\nLength=480\nLyric=a\n"
+                              "[#0003]\nLength=480\nLyric=b\n"));
+    BOOST_CHECK_EQUAL(reader.startIndex, 2);
+
+    PluginFileReader empty;
+    BOOST_REQUIRE(empty.read("[#PREV]\nLength=240\nLyric=p\n"));
+    BOOST_CHECK_EQUAL(empty.startIndex, 0);
+}
+
+// Insertions stay within the selection: one past the last selected note inserts after it, before
+// the next note, and the notes around the selection are written only when they are edited.
+BOOST_AUTO_TEST_CASE(test_insertions_at_both_ends_of_the_selection) {
+    Note note;
+    note.length = 120;
+    note.lyric = "x";
+
+    PluginFileWriter writer(2, 2);
+    writer.insertNotes(2, {note});
+    writer.insertNotes(4, {note});
+    const auto text = writer.write();
+    BOOST_CHECK_EQUAL(text.find("[#PREV]"), std::string::npos);
+    BOOST_CHECK_EQUAL(text.find("[#NEXT]"), std::string::npos);
+    const auto first = text.find("[#INSERT]");
+    const auto last = text.rfind("[#INSERT]");
+    BOOST_REQUIRE_NE(first, last);
+    BOOST_CHECK_LT(first, text.find("[#0002]"));
+    BOOST_CHECK_GT(last, text.find("[#0003]"));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
