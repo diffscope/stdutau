@@ -31,7 +31,7 @@ namespace utau {
     // Note entries that parseSectionNote() reads under another name or that writeSectionNote()
     // derives itself. They are not unknown, so they must not enter Note::userData, which would
     // otherwise write them a second time.
-    static inline bool isReservedKey(const std::string_view &key) {
+    bool isReservedKey(const std::string_view &key) {
         return key == KEY_NAME_PB_TYPE || key == KEY_NAME_PRE_UTTERANCE_READONLY ||
                key == KEY_NAME_VOICE_OVERLAP_READONLY || key == KEY_NAME_START_POINT_READONLY ||
                key == KEY_NAME_FILENAME_READONLY || key == KEY_NAME_ALIAS_READONLY ||
@@ -176,6 +176,8 @@ namespace utau {
             auto value = line.substr(eq + 1);
             if (key == KEY_NAME_PROJECT_NAME) {
                 out.projectName = value; // Project Name
+            } else if (key == KEY_NAME_PROJECT) {
+                out.project = value; // Project Path, in a plugin temporary file
             } else if (key == KEY_NAME_OUTPUT_FILE) {
                 out.outputFileName = value; // Output File Name
             } else if (key == KEY_NAME_VOICE_DIR) {
@@ -201,7 +203,7 @@ namespace utau {
     }
 
     // Appends one "key=value" line, the form of nearly every line of a UST.
-    static void writeEntry(std::string &out, std::string_view key, std::string_view value) {
+    void writeEntry(std::string &out, std::string_view key, std::string_view value) {
         out += key;
         out += '=';
         out += value;
@@ -313,6 +315,30 @@ namespace utau {
         // file after a save in UTAU.
         for (const auto &pair : note.userData) {
             writeEntry(out, pair.first, pair.second);
+        }
+    }
+
+    void writeSectionNoteExt(int num, const NoteExt &note, std::string &out) {
+        writeSectionNote(num, note, out);
+
+        // After every other entry, where UTAU writes them in a plugin temporary file
+        if (note.preUttrRO) {
+            writeEntry(out, KEY_NAME_PRE_UTTERANCE_READONLY, to_string(*note.preUttrRO));
+        }
+        if (note.overlapRO) {
+            writeEntry(out, KEY_NAME_VOICE_OVERLAP_READONLY, to_string(*note.overlapRO));
+        }
+        if (note.stpRO) {
+            writeEntry(out, KEY_NAME_START_POINT_READONLY, to_string(*note.stpRO));
+        }
+        if (!note.filenameRO.empty()) {
+            writeEntry(out, KEY_NAME_FILENAME_READONLY, note.filenameRO);
+        }
+        if (!note.aliasRO.empty()) {
+            writeEntry(out, KEY_NAME_ALIAS_READONLY, note.aliasRO);
+        }
+        if (!note.cacheRO.empty()) {
+            writeEntry(out, KEY_NAME_CACHE_READONLY, note.cacheRO);
         }
     }
 

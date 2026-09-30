@@ -13,8 +13,8 @@ namespace utau {
 
     /// The \c plugin.txt of a plugin folder, which describes the plugin before it runs.
     ///
-    /// Distinct from PluginFileReader, which reads the temporary file UTAU passes to a running
-    /// plugin. This class represents the manifest, PluginFileReader the payload.
+    /// Distinct from PluginInput, the temporary file UTAU passes to a running
+    /// plugin. This class represents the manifest, PluginInput the payload.
     ///
     /// The strings are raw bytes. They must be converted from the file encoding before use.
     ///

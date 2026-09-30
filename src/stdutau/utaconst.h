@@ -16,6 +16,7 @@ namespace utau {
 
     // Version
     constexpr const char UST_VERSION_1_2[] = "1.2";
+    constexpr const char UST_VERSION_1_20[] = "1.20"; // In a plugin temporary file
     constexpr const char UST_VERSION_PREFIX[] = "UST Version ";
     constexpr const char UST_VERSION_PREFIX_NOSPACE[] = "UST Version";
 
