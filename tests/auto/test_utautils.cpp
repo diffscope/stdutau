@@ -88,6 +88,7 @@ BOOST_AUTO_TEST_CASE(test_isRestLyric) {
     BOOST_CHECK(isRestLyric("r"));
     BOOST_CHECK(isRestLyric(""));
     BOOST_CHECK(isRestLyric("   "));
+    BOOST_CHECK(isRestLyric(" \t\n"));
     BOOST_CHECK(isRestLyric("  R  "));
     BOOST_CHECK(!isRestLyric("a"));
     BOOST_CHECK(!isRestLyric("Ra"));
