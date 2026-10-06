@@ -58,6 +58,11 @@ namespace utau {
     ///       this library uses this function instead of handling terminators itself.
     STDUTAU_EXPORT bool takeLine(std::string_view &text, std::string_view &line);
 
+    /// Removes the first line as takeLine() does, with a terminator of exactly one of CR CR LF,
+    /// CRLF, LF and CR, the longest that matches. An empty line is therefore returned, which the
+    /// readers of the files whose empty lines are content require.
+    STDUTAU_EXPORT bool takeLineKeepingEmpty(std::string_view &text, std::string_view &line);
+
     /// Splits at every occurrence of \a delimiter , keeping empty fields. The views refer into
     /// \a s , which must outlive them.
     STDUTAU_EXPORT std::vector<std::string_view> split(const std::string_view &s,

@@ -31,7 +31,11 @@ namespace utau {
         /// Creates and writes \a path . Returns \c false if the file cannot be opened.
         bool save(const std::filesystem::path &path) const;
 
-        /// Reads one \c key=value pair per line. Any other line is stored in \a extraLines .
+        /// Reads one \c key=value pair per line. Any other line is stored in \c extraLines ,
+        /// except an empty line before the last entry with a dedicated member, because write()
+        /// writes the entries first and the empty line would not remain in its position. A
+        /// terminator is one of CR CR LF, CRLF, LF and CR, so that the empty lines after the
+        /// entries are kept.
         bool read(std::string_view text);
 
         /// Writes the present entries, then \a extraLines . An empty entry is omitted, so that an

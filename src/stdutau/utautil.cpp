@@ -58,6 +58,30 @@ namespace utau {
         return true;
     }
 
+    bool takeLineKeepingEmpty(std::string_view &text, std::string_view &line) {
+        if (text.empty()) {
+            return false;
+        }
+
+        const auto end = text.find_first_of("\r\n");
+        if (end == std::string_view::npos) {
+            line = text;
+            text = {};
+            return true;
+        }
+        line = text.substr(0, end);
+        auto rest = text.substr(end);
+        if (rest.substr(0, 3) == "\r\r\n") {
+            rest.remove_prefix(3);
+        } else if (rest.substr(0, 2) == "\r\n") {
+            rest.remove_prefix(2);
+        } else {
+            rest.remove_prefix(1);
+        }
+        text = rest;
+        return true;
+    }
+
     std::vector<std::string_view> split(const std::string_view &s,
                                         const std::string_view &delimiter) {
         std::vector<std::string_view> tokens;
