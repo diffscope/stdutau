@@ -43,19 +43,9 @@ namespace utau {
     /// system that wrote it.
     constexpr const char LINE_END[] = "\r\n";
 
-    /// Removes the first line from \a text into \a line , without the terminator, and returns
-    /// whether a line was available.
-    ///
-    /// \code
-    ///   std::string_view line;
-    ///   while (takeLine(text, line)) {
-    ///       // text now begins after that line
-    ///   }
-    /// \endcode
-    ///
-    /// \note Both terminators are accepted. This library reads bytes rather than a text-mode
-    ///       stream, so a CRLF file is read unchanged on every platform, and every reader in
-    ///       this library uses this function instead of handling terminators itself.
+    /// Removes the first line from \a text into \a line and returns whether a line was available.
+    /// A terminator is any run of CR and LF characters, as UTAU reads the result of a plugin. No
+    /// empty line is therefore returned except at the start of \a text .
     STDUTAU_EXPORT bool takeLine(std::string_view &text, std::string_view &line);
 
     /// Removes the first line as takeLine() does, with a terminator of exactly one of CR CR LF,

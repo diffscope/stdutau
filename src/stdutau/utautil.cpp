@@ -44,17 +44,15 @@ namespace utau {
             return false;
         }
 
-        const auto end = text.find('\n');
+        const auto end = text.find_first_of("\r\n");
         if (end == std::string_view::npos) {
             line = text;
             text = {};
-        } else {
-            line = text.substr(0, end);
-            text = text.substr(end + 1);
+            return true;
         }
-        if (!line.empty() && line.back() == '\r') {
-            line.remove_suffix(1);
-        }
+        line = text.substr(0, end);
+        const auto next = text.find_first_not_of("\r\n", end);
+        text = next == std::string_view::npos ? std::string_view() : text.substr(next);
         return true;
     }
 
