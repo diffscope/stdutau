@@ -122,7 +122,10 @@ namespace utau {
     STDUTAU_EXPORT double tickToTime(int tick, double tempo);
     STDUTAU_EXPORT int timeToTick(double time, double tempo);
 
-    /// Returns whether \a oLyric denotes a rest: \c R , \c r or the empty string.
+    /// Returns whether \a oLyric denotes a rest: \c R , \c r or the empty string, after removing
+    /// the ASCII whitespace and the full-width spaces (U+3000) at both ends, as UTAU does.
+    /// \a oLyric must be UTF-8, the text that a host has decoded, for a full-width space to be
+    /// recognized.
     STDUTAU_EXPORT bool isRestLyric(const std::string &oLyric);
 
 }

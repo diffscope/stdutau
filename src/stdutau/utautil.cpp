@@ -255,7 +255,28 @@ namespace utau {
     }
 
     bool isRestLyric(const std::string &lyric) {
-        std::string lrc = trim(lyric);
+        // U+3000 IDEOGRAPHIC SPACE in UTF-8
+        constexpr std::string_view fullWidthSpace = "\xE3\x80\x80";
+        std::string_view lrc = lyric;
+        for (bool trimmed = true; trimmed;) {
+            trimmed = false;
+            while (!lrc.empty() && isAsciiSpace(lrc.front())) {
+                lrc.remove_prefix(1);
+                trimmed = true;
+            }
+            while (!lrc.empty() && isAsciiSpace(lrc.back())) {
+                lrc.remove_suffix(1);
+                trimmed = true;
+            }
+            if (starts_with(lrc, fullWidthSpace)) {
+                lrc.remove_prefix(fullWidthSpace.size());
+                trimmed = true;
+            }
+            if (ends_with(lrc, fullWidthSpace)) {
+                lrc.remove_suffix(fullWidthSpace.size());
+                trimmed = true;
+            }
+        }
         return lrc.empty() || lrc == "R" || lrc == "r";
     }
 

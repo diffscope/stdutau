@@ -125,6 +125,12 @@ namespace utau {
     }
 
     /// Converts a range of notes into the engine calls that render it.
+    ///
+    /// \note The lyric of each note that the \c NoteGetter returns must be UTF-8, the text that a
+    ///       host has decoded from the file, not the raw bytes of a file in an ANSI code page.
+    ///       isRestLyric() recognizes a full-width space only in UTF-8. With raw bytes, a lyric of
+    ///       full-width spaces is rendered as a sounding note instead of a rest, without an
+    ///       error.
     struct STDUTAU_EXPORT Synth {
         /// Returns the note at a track index. calc() also requests indices just outside \a range ,
         /// because the timing of a note depends on its neighbors.
