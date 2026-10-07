@@ -472,6 +472,9 @@ namespace utau {
             return pitch;
         }
 
+        // A double quotation mark is removed, as UTAU 0.4.19 removes it from the flags of
+        // temp.bat, where it would end the quoted value. Measured on 2026-10-06 against 0.4.18,
+        // which keeps it.
         static std::string fixFlags(const std::string &s) {
             std::string s2;
 
