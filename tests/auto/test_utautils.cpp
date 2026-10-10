@@ -185,4 +185,15 @@ BOOST_AUTO_TEST_CASE(test_takeLineKeepingEmpty) {
     BOOST_CHECK(linesOf("a\r\n", takeLineKeepingEmpty) == (Lines{"a"}));
 }
 
+// UTAU removes full-width spaces (U+3000) as well as ASCII whitespace around a lyric.
+BOOST_AUTO_TEST_CASE(test_isRestLyric_with_full_width_spaces) {
+    const std::string space = "\xE3\x80\x80";
+    BOOST_CHECK(isRestLyric(space));
+    BOOST_CHECK(isRestLyric(space + space));
+    BOOST_CHECK(isRestLyric(space + "R"));
+    BOOST_CHECK(isRestLyric("R" + space));
+    BOOST_CHECK(isRestLyric(space + " R " + space + " "));
+    BOOST_CHECK(!isRestLyric(space + "a"));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
