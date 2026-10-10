@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 
 #include <stdutau/charactertxt.h>
 
@@ -116,6 +117,38 @@ BOOST_AUTO_TEST_CASE(test_write_reads_back_the_same) {
                              "Version:1.0\n";
 
     BOOST_CHECK_EQUAL(written(parse(text)), crlf(text));
+}
+
+// Empty lines before the last recognized entry are dropped, and those after it are kept, because
+// the entries are written first.
+BOOST_AUTO_TEST_CASE(test_empty_lines_before_the_last_entry_are_dropped) {
+    auto character = parse("name=uta\n"
+                           "\n"
+                           "author=someone\n"
+                           "Version:1.0\n"
+                           "\n"
+                           "end\n");
+
+    BOOST_CHECK_EQUAL(character.author, "someone");
+    BOOST_CHECK(character.extraLines == (std::vector<std::string>{"Version:1.0", "", "end"}));
+}
+
+// A file that ends its lines with CR CR LF, or with CR alone, is written back with the same
+// lines after the entries, its empty line included.
+BOOST_AUTO_TEST_CASE(test_other_terminators_keep_the_lines_after_the_entries) {
+    for (const std::string terminator : {"\r\r\n", "\r"}) {
+        const auto text =
+            "name=uta" + terminator + "Version:1.0" + terminator + terminator + "end" + terminator;
+        BOOST_CHECK_EQUAL(written(parse(text)), crlf("name=uta\nVersion:1.0\n\nend\n"));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(test_without_an_entry_every_line_is_kept) {
+    auto character = parse("Version:1.0\n"
+                           "\n"
+                           "end\n");
+
+    BOOST_CHECK(character.extraLines == (std::vector<std::string>{"Version:1.0", "", "end"}));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
