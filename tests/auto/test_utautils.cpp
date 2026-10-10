@@ -1,4 +1,6 @@
 #include <string>
+#include <string_view>
+#include <vector>
 
 #include <stdutau/utautils.h>
 
@@ -138,6 +140,49 @@ BOOST_AUTO_TEST_CASE(test_doublesToStrings_drops_trailing_zeros) {
     BOOST_CHECK_EQUAL(strs.at(2), "2");
 
     BOOST_CHECK(doublesToStrings({0, 0}).empty());
+}
+
+namespace {
+
+    // Returns every line that take removes from text, in order.
+    std::vector<std::string> linesOf(std::string_view text,
+                                     bool (*take)(std::string_view &, std::string_view &)) {
+        std::vector<std::string> lines;
+        std::string_view line;
+        while (take(text, line)) {
+            lines.emplace_back(line);
+        }
+        return lines;
+    }
+
+    using Lines = std::vector<std::string>;
+
+}
+
+// Any run of CR and LF ends a line, as UTAU reads the result of a plugin, so every kind of
+// terminator gives the same lines and no empty line, except at the start.
+BOOST_AUTO_TEST_CASE(test_takeLine) {
+    const Lines ab{"a", "b"};
+    for (const char *text :
+         {"a\r\nb", "a\nb", "a\rb", "a\r\r\nb", "a\n\r\nb\r", "a\r\n\r\nb\n\n"}) {
+        BOOST_CHECK(linesOf(text, takeLine) == ab);
+    }
+    // Only the start gives an empty line.
+    BOOST_CHECK(linesOf("\r\na", takeLine) == (Lines{"", "a"}));
+    // The last line without a terminator is read.
+    BOOST_CHECK(linesOf("a\r\nlast", takeLine) == (Lines{"a", "last"}));
+    BOOST_CHECK(linesOf("", takeLine).empty());
+}
+
+// Each of CR CR LF, CRLF, LF and CR is one terminator, the longest that matches, so that the
+// empty lines of a file whose empty lines are content are kept.
+BOOST_AUTO_TEST_CASE(test_takeLineKeepingEmpty) {
+    BOOST_CHECK(linesOf("a\r\nb", takeLineKeepingEmpty) == (Lines{"a", "b"}));
+    BOOST_CHECK(linesOf("a\r\r\nb", takeLineKeepingEmpty) == (Lines{"a", "b"}));
+    BOOST_CHECK(linesOf("a\r\n\r\nb", takeLineKeepingEmpty) == (Lines{"a", "", "b"}));
+    BOOST_CHECK(linesOf("a\r\rb", takeLineKeepingEmpty) == (Lines{"a", "", "b"}));
+    BOOST_CHECK(linesOf("a\n\nb", takeLineKeepingEmpty) == (Lines{"a", "", "b"}));
+    BOOST_CHECK(linesOf("a\r\n", takeLineKeepingEmpty) == (Lines{"a"}));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
