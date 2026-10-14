@@ -343,7 +343,7 @@ namespace utau {
         return out;
     }
 
-    bool PluginResult::isCancelled() const {
+    bool PluginResult::isCanceled() const {
         return sections.empty();
     }
 

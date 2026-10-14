@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(test_the_result_of_an_input_changes_nothing) {
     input.prevNote = NoteExt(60, 480, "p");
     input.notes = {NoteExt(60, 480, "a"), NoteExt(60, 480, "b")};
     const PluginResult result(input);
-    BOOST_CHECK(!result.isCancelled());
+    BOOST_CHECK(!result.isCanceled());
     BOOST_CHECK_EQUAL(result.write(), "[#0002]\r\n[#0003]\r\n");
 }
 
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(test_the_result_in_its_order) {
                               "[#DELETE]\r\n"
                               "[#0004]\r\nVelocity=\r\nLength=240\r\n"
                               "[#NEXT]\r\nLyric=Q\r\n"));
-    BOOST_CHECK(!reader.isCancelled());
+    BOOST_CHECK(!reader.isCanceled());
     using Section = PluginResult::Section;
     const auto &sections = reader.sections;
     BOOST_REQUIRE_EQUAL(sections.size(), 6);
@@ -255,12 +255,12 @@ BOOST_AUTO_TEST_CASE(test_the_entries_of_a_result) {
 BOOST_AUTO_TEST_CASE(test_a_result_without_notes_cancels) {
     PluginResult empty;
     BOOST_REQUIRE(empty.read(""));
-    BOOST_CHECK(empty.isCancelled());
+    BOOST_CHECK(empty.isCanceled());
 
     PluginResult settings;
     BOOST_REQUIRE(settings.read("[#VERSION]\r\nUST Version 1.20\r\n[#SETTING]\r\nTempo=120\r\n"
                                 "[#TRACKEND]\r\n"));
-    BOOST_CHECK(settings.isCancelled());
+    BOOST_CHECK(settings.isCanceled());
 }
 
 // Assigning a note records the entries it has, leaving out PreUtterance without a value, which

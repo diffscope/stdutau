@@ -157,7 +157,7 @@ namespace utau {
         std::string write() const;
 
         /// Whether there is no section of a note, which cancels the plugin.
-        bool isCancelled() const;
+        bool isCanceled() const;
 
     public:
         /// The sections of notes in their order. The version and the settings of the file are
