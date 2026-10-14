@@ -40,10 +40,12 @@ namespace utau {
         /// it writes.
         UstVersion version;
 
-        /// Of the settings, the file carries UstSettings::project, the tempo at the start of
-        /// the selection, the voice and cache directories and Mode2. UTAU writes the paths
-        /// absolute. The settings are read-only, and not to be included in the output of the
-        /// plugin.
+        /// Of the settings, the file carries UstSettings::project, the tempo in effect at the
+        /// first section of the file (prevNote if present, otherwise the first selected note),
+        /// the voice and cache directories and Mode2. A section without its own tempo takes the
+        /// tempo of the sections before it, and the first section takes this tempo. UTAU writes
+        /// the paths absolute. The settings are read-only, and not to be included in the output
+        /// of the plugin.
         UstSettings settings;
 
         /// The note before the selection, absent if the selection starts the track or the
