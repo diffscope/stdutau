@@ -54,6 +54,16 @@ namespace utau {
                 parseSectionVersion(currentSection, version);
             } else if (sectionName == SECTION_NAME_SETTING) {
                 parseSectionSettings(currentSection, settings);
+                // A file of the formats 1.00 and 1.10 records the version among the settings
+                // instead of in a [#VERSION] section.
+                const std::string_view prefix = KEY_NAME_UST_VERSION;
+                for (size_t i = 1; i < currentSection.size(); ++i) {
+                    const std::string_view entry = currentSection[i];
+                    if (starts_with(entry, prefix) && entry.size() > prefix.size() &&
+                        entry[prefix.size()] == '=') {
+                        version.version = entry.substr(prefix.size() + 1);
+                    }
+                }
             } else if (std::all_of(sectionName.begin(), sectionName.end(), isAsciiDigit) ||
                        sectionName == SECTION_NAME_PREV || sectionName == SECTION_NAME_NEXT) {
                 // A selected note, whose section is named by its number, or a note around the
@@ -106,12 +116,22 @@ namespace utau {
     std::string PluginInput::write() const {
         std::string out;
 
-        writeSectionName(SECTION_NAME_VERSION, out);
-        out += UST_VERSION_PREFIX;
-        out += UST_VERSION_1_20;
-        out += LINE_END;
-
-        writeSectionName(SECTION_NAME_SETTING, out);
+        // The formats 1.00 and 1.10 record the version as the first setting and name two note
+        // entries differently. Any other version is written in the format 1.20.
+        NoteEntryNames names;
+        if (version.version == UST_VERSION_1_00 || version.version == UST_VERSION_1_10) {
+            writeSectionName(SECTION_NAME_SETTING, out);
+            writeEntry(out, KEY_NAME_UST_VERSION, version.version);
+            names.modulation = KEY_NAME_MODURATION;
+            names.pitchBend =
+                version.version == UST_VERSION_1_00 ? KEY_NAME_PICHES : KEY_NAME_PITCHES;
+        } else {
+            writeSectionName(SECTION_NAME_VERSION, out);
+            out += UST_VERSION_PREFIX;
+            out += UST_VERSION_1_20;
+            out += LINE_END;
+            writeSectionName(SECTION_NAME_SETTING, out);
+        }
         writeEntry(out, KEY_NAME_PROJECT, settings.project);
         writeEntry(out, KEY_NAME_TEMPO, to_string(settings.tempo));
         writeEntry(out, KEY_NAME_VOICE_DIR, settings.voiceDir);
@@ -122,14 +142,14 @@ namespace utau {
 
         if (prevNote) {
             writeSectionName(SECTION_NAME_PREV, out);
-            writeSectionNoteExt(-1, *prevNote, out);
+            writeSectionNoteExt(-1, *prevNote, out, names);
         }
         for (size_t i = 0; i < notes.size(); ++i) {
-            writeSectionNoteExt(startIndex + int(i), notes[i], out);
+            writeSectionNoteExt(startIndex + int(i), notes[i], out, names);
         }
         if (nextNote) {
             writeSectionName(SECTION_NAME_NEXT, out);
-            writeSectionNoteExt(-1, *nextNote, out);
+            writeSectionNoteExt(-1, *nextNote, out, names);
         }
         return out;
     }
@@ -305,8 +325,8 @@ namespace utau {
             std::string_view line;
             while (takeLine(rest, line)) {
                 const auto key = line.substr(0, line.find('='));
-                const bool pitchType = key == KEY_NAME_PB_TYPE &&
-                                       section.keys.count(KEY_NAME_PITCH_BEND) != 0;
+                const bool pitchType =
+                    key == KEY_NAME_PB_TYPE && section.keys.count(KEY_NAME_PITCH_BEND) != 0;
                 if (!pitchType && section.keys.count(std::string(key)) == 0) {
                     continue;
                 }

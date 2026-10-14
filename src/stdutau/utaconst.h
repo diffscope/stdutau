@@ -16,11 +16,14 @@ namespace utau {
 
     // Version
     constexpr const char UST_VERSION_1_2[] = "1.2";
+    constexpr const char UST_VERSION_1_00[] = "1.00"; // In a plugin temporary file
+    constexpr const char UST_VERSION_1_10[] = "1.10"; // In a plugin temporary file
     constexpr const char UST_VERSION_1_20[] = "1.20"; // In a plugin temporary file
     constexpr const char UST_VERSION_PREFIX[] = "UST Version ";
     constexpr const char UST_VERSION_PREFIX_NOSPACE[] = "UST Version";
 
     // Settings
+    constexpr const char KEY_NAME_UST_VERSION[] = "UstVersion"; // In a plugin temporary file
     constexpr const char KEY_NAME_PROJECT_NAME[] = "ProjectName";
     constexpr const char KEY_NAME_TRACKS[] = "Tracks";
     constexpr const char KEY_NAME_OUTPUT_FILE[] = "OutFile";

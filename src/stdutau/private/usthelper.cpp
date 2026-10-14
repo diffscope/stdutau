@@ -224,7 +224,8 @@ namespace utau {
         writeSectionName(newName, out);
     }
 
-    void writeSectionNote(int num, const Note &note, std::string &out) {
+    void writeSectionNote(int num, const Note &note, std::string &out,
+                          const NoteEntryNames &names) {
         if (num >= 0) {
             writeSectionName(num, out);
         }
@@ -251,7 +252,7 @@ namespace utau {
             writeEntry(out, KEY_NAME_INTENSITY, to_string(*note.intensity));
         }
         if (note.modulation) {
-            writeEntry(out, KEY_NAME_MODULATION, to_string(*note.modulation));
+            writeEntry(out, names.modulation, to_string(*note.modulation));
         }
         if (note.stp) {
             writeEntry(out, KEY_NAME_START_POINT, to_string(*note.stp));
@@ -270,7 +271,7 @@ namespace utau {
             for (const double value : note.pitches) {
                 values.push_back(to_string(value));
             }
-            writeEntry(out, KEY_NAME_PITCH_BEND, join(values, ","));
+            writeEntry(out, names.pitchBend, join(values, ","));
         }
 
         if (note.envelope) {
@@ -318,8 +319,9 @@ namespace utau {
         }
     }
 
-    void writeSectionNoteExt(int num, const NoteExt &note, std::string &out) {
-        writeSectionNote(num, note, out);
+    void writeSectionNoteExt(int num, const NoteExt &note, std::string &out,
+                             const NoteEntryNames &names) {
+        writeSectionNote(num, note, out, names);
 
         // After every other entry, where UTAU writes them in a plugin temporary file
         if (note.preUttrRO) {

@@ -149,6 +149,50 @@ BOOST_AUTO_TEST_CASE(test_the_input_without_notes_around_the_selection) {
     BOOST_CHECK(text.find("[#0000]") != std::string::npos);
 }
 
+// The formats 1.00 and 1.10 record the version among the settings and name modulation and the
+// mode 1 pitch array differently, as UTAU writes them for the ustversion of a plugin (the
+// probe of docs/claude/playinplugin.md of HelloUtau). Any other version writes 1.20.
+BOOST_AUTO_TEST_CASE(test_the_input_in_each_format) {
+    NoteExt note(67, 960, "o");
+    note.modulation = 10;
+    note.pitches = {0, 10, 20};
+    PluginInput writer;
+    writer.settings.project = "C:\\song.ust";
+    writer.notes = {note};
+
+    writer.version.version = "1.00";
+    const auto v100 = writer.write();
+    BOOST_CHECK_EQUAL(v100.rfind("[#SETTING]\r\nUstVersion=1.00\r\nProject=C:\\song.ust\r\n", 0),
+                      0);
+    BOOST_CHECK(v100.find("Moduration=10\r\n") != std::string::npos);
+    BOOST_CHECK(v100.find("Piches=0,10,20\r\n") != std::string::npos);
+    BOOST_CHECK_EQUAL(v100.find("[#VERSION]"), std::string::npos);
+    BOOST_CHECK_EQUAL(v100.find("Modulation"), std::string::npos);
+
+    writer.version.version = "1.10";
+    const auto v110 = writer.write();
+    BOOST_CHECK_EQUAL(v110.rfind("[#SETTING]\r\nUstVersion=1.10\r\n", 0), 0);
+    BOOST_CHECK(v110.find("Moduration=10\r\n") != std::string::npos);
+    BOOST_CHECK(v110.find("Pitches=0,10,20\r\n") != std::string::npos);
+
+    writer.version.version = "1.5";
+    const auto other = writer.write();
+    BOOST_CHECK_EQUAL(other.rfind("[#VERSION]\r\nUST Version 1.20\r\n[#SETTING]\r\nProject=", 0),
+                      0);
+    BOOST_CHECK(other.find("Modulation=10\r\n") != std::string::npos);
+    BOOST_CHECK(other.find("PitchBend=0,10,20\r\n") != std::string::npos);
+    BOOST_CHECK_EQUAL(other.find("UstVersion"), std::string::npos);
+
+    PluginInput reader;
+    BOOST_REQUIRE(reader.read(v100));
+    BOOST_CHECK_EQUAL(reader.version.version, "1.00");
+    BOOST_CHECK_EQUAL(reader.settings.project, "C:\\song.ust");
+    BOOST_REQUIRE_EQUAL(reader.notes.size(), 1);
+    BOOST_CHECK_EQUAL(reader.notes[0].modulation.value_or(0), 10);
+    BOOST_CHECK_EQUAL(reader.notes[0].pitches.size(), 3);
+    BOOST_CHECK_EQUAL(reader.write(), v100);
+}
+
 // The sections apply in their order, whatever their numbers, and each records the entries it
 // has. This is the result of the probe that UTAU applied in docs/claude/utau-plugin-protocol.md
 // of HelloUtau.

@@ -22,12 +22,22 @@ namespace utau {
     /// Appends one \c key=value line.
     void writeEntry(std::string &out, std::string_view key, std::string_view value);
 
+    /// The names of the note entries whose names depend on the format of a plugin temporary
+    /// file, see PluginInput::version. The defaults are the names in a project and in the
+    /// format 1.20.
+    struct NoteEntryNames {
+        std::string_view modulation = KEY_NAME_MODULATION;
+        std::string_view pitchBend = KEY_NAME_PITCH_BEND; ///< the mode 1 pitch array
+    };
+
     void writeSectionName(const std::string &name, std::string &out);
     void writeSectionName(int name, std::string &out);
-    void writeSectionNote(int num, const Note &note, std::string &out);
+    void writeSectionNote(int num, const Note &note, std::string &out,
+                          const NoteEntryNames &names = {});
 
     /// Writes the note, then its read-only \c @ entries.
-    void writeSectionNoteExt(int num, const NoteExt &note, std::string &out);
+    void writeSectionNoteExt(int num, const NoteExt &note, std::string &out,
+                             const NoteEntryNames &names = {});
     void writeSectionVersion(const UstVersion &version, std::string &out);
     void writeSectionSettings(const UstSettings &settings, std::string &out);
 

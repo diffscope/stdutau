@@ -12,8 +12,8 @@ namespace utau {
     /// host writes it as UTAU does.
     ///
     /// UTAU passes the path as the first argument. The file contains the selected notes, plus
-    /// the adjacent note on each side of the selection as context. It declares
-    /// \c UST \c Version \c 1.20 , and its lines end with CRLF.
+    /// the adjacent note on each side of the selection as context. Its format follows the
+    /// \c ustversion of the plugin, see version, and its lines end with CRLF.
     ///
     /// The strings are raw bytes, in the encoding of the file.
     ///
@@ -36,8 +36,18 @@ namespace utau {
         std::string write() const;
 
     public:
-        /// As read from the file. write() always declares 1.20, the format of the entries that
-        /// it writes.
+        /// The format, as PluginTxt::ustVersion requests it:
+        ///
+        /// - \c 1.00 : no \c [#VERSION] section, \c UstVersion=1.00 as the first setting,
+        ///   modulation as \c Moduration , the mode 1 pitch array as \c Piches .
+        /// - \c 1.10 : as 1.00, with \c UstVersion=1.10 and the mode 1 pitch array as
+        ///   \c Pitches .
+        /// - \c 1.20 : \c UST \c Version \c 1.20 in \c [#VERSION] , modulation as
+        ///   \c Modulation , the mode 1 pitch array as \c PitchBend .
+        ///
+        /// read() takes the version from either place. write() writes the format 1.00 or 1.10
+        /// if the version is one of these, and 1.20 otherwise, which is also the format of
+        /// UTAU for a plugin that omits \c ustversion .
         UstVersion version;
 
         /// Of the settings, the file carries UstSettings::project, the tempo in effect at the
