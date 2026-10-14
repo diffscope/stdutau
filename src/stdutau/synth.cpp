@@ -26,7 +26,7 @@ namespace utau {
 
     namespace UtaPitchCurves {
 
-        static constexpr const double PI = 3.1415926;
+        static constexpr const double PI = 3.14159265358979323846;
 
         static constexpr const char Base64EncodeMap[] =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
