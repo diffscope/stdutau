@@ -8,35 +8,22 @@ on:
   workflow_dispatch:
 
 jobs:
+  # One configuration for each platform, and the shared library once for each way of exporting:
+  # visibility on ELF, __declspec of MSVC here, and __declspec of the GNU front end in the job
+  # mingw. HelloUtau links the static library.
   build:
     name: ${{ matrix.platform }} ${{ matrix.config }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        platform: [ linux-gcc, linux-clang, macos, windows-msvc, windows-clang-cl ]
-        config: [ static, shared, release ]
         include:
-          - platform: linux-gcc
-            os: ubuntu-latest
-            cc: gcc
-            cxx: g++
-          - platform: linux-clang
-            os: ubuntu-latest
-            cc: clang
-            cxx: clang++
-          - platform: macos
-            os: macos-latest
-            cc: clang
-            cxx: clang++
-          - platform: windows-msvc
-            os: windows-latest
-            cc: cl
-            cxx: cl
-          - platform: windows-clang-cl
-            os: windows-latest
-            cc: clang-cl
-            cxx: clang-cl
+          - { platform: linux-gcc, os: ubuntu-latest, cc: gcc, cxx: g++, config: static }
+          - { platform: linux-clang, os: ubuntu-latest, cc: clang, cxx: clang++, config: shared-release }
+          - { platform: macos, os: macos-latest, cc: clang, cxx: clang++, config: static }
+          - { platform: windows-msvc, os: windows-latest, cc: cl, cxx: cl, config: static }
+          - { platform: windows-msvc, os: windows-latest, cc: cl, cxx: cl, config: shared }
+          - { platform: windows-clang-cl, os: windows-latest, cc: clang-cl, cxx: clang-cl, config: release }
 
     steps:
       - uses: actions/checkout@v4
@@ -47,9 +34,10 @@ jobs:
         shell: bash
         run: |
           case "${{ matrix.config }}" in
-            static)  flags="-DSTDUTAU_BUILD_STATIC=ON";  type=Debug   ;;
-            shared)  flags="-DSTDUTAU_BUILD_STATIC=OFF"; type=Debug   ;;
-            release) flags="-DSTDUTAU_BUILD_STATIC=ON";  type=Release ;;
+            static)         flags="-DSTDUTAU_BUILD_STATIC=ON";  type=Debug   ;;
+            shared)         flags="-DSTDUTAU_BUILD_STATIC=OFF"; type=Debug   ;;
+            release)        flags="-DSTDUTAU_BUILD_STATIC=ON";  type=Release ;;
+            shared-release) flags="-DSTDUTAU_BUILD_STATIC=OFF"; type=Release ;;
           esac
           echo "flags=$flags" >> "$GITHUB_OUTPUT"
           echo "type=$type" >> "$GITHUB_OUTPUT"
