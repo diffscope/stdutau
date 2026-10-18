@@ -1,3 +1,5 @@
+#include <clocale>
+#include <cstring>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -29,6 +31,34 @@ BOOST_AUTO_TEST_CASE(test_toDouble) {
     // of this library behave identically.
     BOOST_CHECK(!toDouble(" 1.5"));
     BOOST_CHECK(!toDouble("+1.5"));
+}
+
+// A number is read with a period as the decimal separator, whatever locale the host program
+// selects. The test is skipped if the system provides no locale with a decimal comma.
+BOOST_AUTO_TEST_CASE(test_toDouble_ignores_the_locale) {
+    const std::string previous = std::setlocale(LC_NUMERIC, nullptr);
+    const char *const names[] = {"de_DE.UTF-8", "de_DE", "de-DE"};
+    const char *selected = nullptr;
+    for (const char *name : names) {
+        if (std::setlocale(LC_NUMERIC, name) &&
+            std::strcmp(std::localeconv()->decimal_point, ",") == 0) {
+            selected = name;
+            break;
+        }
+    }
+    if (!selected) {
+        std::setlocale(LC_NUMERIC, previous.c_str());
+        BOOST_TEST_MESSAGE("No locale with a decimal comma, test skipped");
+        return;
+    }
+
+    const auto value = toDouble("12.5");
+    const auto fallback = stod2("12.5", 99);
+    std::setlocale(LC_NUMERIC, previous.c_str());
+
+    BOOST_TEST_MESSAGE("Locale " << selected);
+    BOOST_CHECK_EQUAL(value.value_or(0), 12.5);
+    BOOST_CHECK_EQUAL(fallback, 12.5);
 }
 
 BOOST_AUTO_TEST_CASE(test_toInt) {

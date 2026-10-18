@@ -6,15 +6,40 @@
 #include <string>
 #include <charconv>
 
+#ifdef _LIBCPP_VERSION
+#  include <clocale>
+#  ifdef __APPLE__
+#    include <xlocale.h>
+#  endif
+#endif
+
 #include "utaconst.h"
 
 namespace utau {
 
+#ifdef _LIBCPP_VERSION
+    // The C locale, in which strtod reads a period as the decimal separator. strtod itself reads
+    // the separator of the current locale, which a host program selects with setlocale. A Qt
+    // program, for example, calls setlocale(LC_ALL, "") on Unix, and a German locale then makes
+    // strtod read "12.5" as 12. The locale lasts for the lifetime of the program.
+#  ifdef _WIN32
+    static _locale_t cLocale() {
+        static const _locale_t locale = _create_locale(LC_NUMERIC, "C");
+        return locale;
+    }
+#  else
+    static locale_t cLocale() {
+        static const locale_t locale = newlocale(LC_NUMERIC_MASK, "C", locale_t(0));
+        return locale;
+    }
+#  endif
+#endif
+
     // Parses a double without exceptions, because this library is built without them.
     //
     // libc++ does not yet provide a floating-point std::from_chars, so that path falls back to
-    // strtod. strtod requires a terminated string, which a string_view does not guarantee, hence
-    // the copy.
+    // strtod in the C locale. strtod requires a terminated string, which a string_view does not
+    // guarantee, hence the copy.
     static bool parseDouble(const std::string_view &s, double &out) {
 #ifdef _LIBCPP_VERSION
         // std::from_chars accepts neither leading whitespace nor a leading plus sign, whereas
@@ -27,7 +52,11 @@ namespace utau {
         const char *begin = str.c_str();
         char *end = nullptr;
         errno = 0;
-        double value = std::strtod(begin, &end);
+#  ifdef _WIN32
+        double value = _strtod_l(begin, &end, cLocale());
+#  else
+        double value = strtod_l(begin, &end, cLocale());
+#  endif
         if (end == begin || errno == ERANGE) {
             return false;
         }
