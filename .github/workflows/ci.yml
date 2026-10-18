@@ -1,0 +1,111 @@
+name: CI
+
+# Builds and runs the tests on a push to main and on manual dispatch, after the workflow of
+# stdcorelib. workflow_dispatch repeats a run without a push.
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.platform }} ${{ matrix.config }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ linux-gcc, linux-clang, macos, windows-msvc, windows-clang-cl ]
+        config: [ static, shared, release ]
+        include:
+          - platform: linux-gcc
+            os: ubuntu-latest
+            cc: gcc
+            cxx: g++
+          - platform: linux-clang
+            os: ubuntu-latest
+            cc: clang
+            cxx: clang++
+          - platform: macos
+            os: macos-latest
+            cc: clang
+            cxx: clang++
+          - platform: windows-msvc
+            os: windows-latest
+            cc: cl
+            cxx: cl
+          - platform: windows-clang-cl
+            os: windows-latest
+            cc: clang-cl
+            cxx: clang-cl
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Settings for this configuration
+        id: cfg
+        shell: bash
+        run: |
+          case "${{ matrix.config }}" in
+            static)  flags="-DSTDUTAU_BUILD_STATIC=ON";  type=Debug   ;;
+            shared)  flags="-DSTDUTAU_BUILD_STATIC=OFF"; type=Debug   ;;
+            release) flags="-DSTDUTAU_BUILD_STATIC=ON";  type=Release ;;
+          esac
+          echo "flags=$flags" >> "$GITHUB_OUTPUT"
+          echo "type=$type" >> "$GITHUB_OUTPUT"
+
+      - name: Configure
+        shell: bash
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake -G Ninja -S . -B build \
+            -DCMAKE_BUILD_TYPE=${{ steps.cfg.outputs.type }} \
+            -DSTDUTAU_BUILD_TESTS=ON \
+            ${{ steps.cfg.outputs.flags }}
+
+      - name: Build
+        run: cmake --build build
+
+      # --no-tests=error, because ctest succeeds if it finds no test.
+      - name: Test
+        run: ctest --test-dir build --output-on-failure --no-tests=error
+
+  # MinGW with the LLVM toolchain of the CLANG64 environment of MSYS2: clang, lld, libc++ and the
+  # UCRT, as llvm-mingw, with which HelloUtau builds its MinGW variant. The MinGW headers differ
+  # from those of the Windows SDK, and a library of the GNU front end with dllexport differs from
+  # one of MSVC.
+  mingw:
+    name: windows-mingw-clang ${{ matrix.config }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [ static, shared ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: CLANG64
+          update: false
+          install: >-
+            mingw-w64-clang-x86_64-clang
+            mingw-w64-clang-x86_64-cmake
+            mingw-w64-clang-x86_64-ninja
+            mingw-w64-clang-x86_64-boost
+
+      - name: Build
+        shell: msys2 {0}
+        run: |
+          case "${{ matrix.config }}" in
+            static) flags="-DSTDUTAU_BUILD_STATIC=ON" ;;
+            shared) flags="-DSTDUTAU_BUILD_STATIC=OFF" ;;
+          esac
+          cmake -G Ninja -S . -B build -DCMAKE_BUILD_TYPE=Debug -DSTDUTAU_BUILD_TESTS=ON $flags
+          cmake --build build
+
+      - name: Test
+        shell: msys2 {0}
+        run: ctest --test-dir build --output-on-failure --no-tests=error
