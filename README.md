@@ -14,7 +14,7 @@ C++ utility library for Ameya/UTAU, providing foundational support for C++ appli
 
 + CMake 3.16
 + C++ 17
-+ macOS 13.3 or later on macOS, which provides the floating-point `std::to_chars` of libc++
++ macOS 13.0 or later on macOS
 + Boost.Test, for the test cases only
 
 ## Building the tests

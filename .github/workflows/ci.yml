@@ -39,11 +39,11 @@ jobs:
             release)        flags="-DSTDUTAU_BUILD_STATIC=ON";  type=Release ;;
             shared-release) flags="-DSTDUTAU_BUILD_STATIC=OFF"; type=Release ;;
           esac
-          # The deployment target of DiffScope, which is also the oldest macOS on which libc++
-          # provides the floating-point std::to_chars. Without a deployment target, the target is
-          # the SDK version, and a function unavailable on the macOS of DiffScope compiles.
+          # The oldest macOS that the library supports, which lacks the floating-point
+          # std::to_chars of libc++. Without a deployment target, the target is the SDK version,
+          # and a function unavailable on the oldest supported macOS compiles.
           if [ "${{ runner.os }}" = macOS ]; then
-            flags="$flags -DCMAKE_OSX_DEPLOYMENT_TARGET=13.3"
+            flags="$flags -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0"
           fi
           echo "flags=$flags" >> "$GITHUB_OUTPUT"
           echo "type=$type" >> "$GITHUB_OUTPUT"
