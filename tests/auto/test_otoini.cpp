@@ -1,3 +1,5 @@
+#include <clocale>
+#include <cstring>
 #include <string>
 
 #include <stdutau/otoini.h>
@@ -138,6 +140,38 @@ BOOST_AUTO_TEST_CASE(test_an_entry_never_read_loses_no_digits) {
     entry.preUtterance = 1e21;
     oto.contents["a.wav"].push_back(entry);
     BOOST_CHECK_EQUAL(oto.write(), "a.wav=a,123456.789,0,0,1000000000000000000000,0.1\r\n");
+}
+
+// A changed number is written with a period as the decimal separator, regardless of the locale
+// that the host program selects. The test is skipped if the system provides no locale with a
+// decimal comma.
+BOOST_AUTO_TEST_CASE(test_numbers_are_written_in_the_c_locale) {
+    auto oto = parse("a.wav=a,41.0,87.688,97.316,8.938,4.457\r\n");
+    auto &entry = oto.contents.at("a.wav").at(0);
+    entry.offset = 12345.678;
+    entry.voiceOverlap = 0.25;
+
+    const std::string previous = std::setlocale(LC_NUMERIC, nullptr);
+    const char *const names[] = {"de_DE.UTF-8", "de_DE", "de-DE"};
+    const char *selected = nullptr;
+    for (const char *name : names) {
+        if (std::setlocale(LC_NUMERIC, name) &&
+            std::strcmp(std::localeconv()->decimal_point, ",") == 0) {
+            selected = name;
+            break;
+        }
+    }
+    if (!selected) {
+        std::setlocale(LC_NUMERIC, previous.c_str());
+        BOOST_TEST_MESSAGE("No locale with a decimal comma, test skipped");
+        return;
+    }
+
+    const auto text = oto.write();
+    std::setlocale(LC_NUMERIC, previous.c_str());
+
+    BOOST_TEST_MESSAGE("Locale " << selected);
+    BOOST_CHECK_EQUAL(text, "a.wav=a,12345.678,87.688,97.316,8.938,0.25\r\n");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -1,8 +1,8 @@
 #include "otoini.h"
 
-#include <charconv>
 #include <fstream>
 
+#include "private/utautil_p.h"
 #include "utautils.h"
 
 namespace utau {
@@ -78,10 +78,7 @@ namespace utau {
                 return *spelling;
             }
         }
-        char buffer[400];
-        const auto result =
-            std::to_chars(buffer, buffer + sizeof(buffer), value, std::chars_format::fixed);
-        return std::string(buffer, result.ptr);
+        return formatFixed(value);
     }
 
     static std::string formatEntry(const OtoEntry &entry) {

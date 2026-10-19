@@ -1,6 +1,7 @@
 #include "utautils.h"
 
 #include <cerrno>
+#include <cstdio>
 #include <cstdlib>
 #include <sstream>
 #include <string>
@@ -13,6 +14,7 @@
 #  endif
 #endif
 
+#include "private/utautil_p.h"
 #include "utaconst.h"
 
 namespace utau {
@@ -65,6 +67,39 @@ namespace utau {
 #else
         auto result = std::from_chars(s.data(), s.data() + s.size(), out);
         return result.ec == std::errc();
+#endif
+    }
+
+    // libc++ provides the floating-point std::to_chars only from macOS 13.3. Its path writes the
+    // number with snprintf in the C locale at increasing precisions and keeps the first text that
+    // parseDouble() reads back as the value, the text with the fewest digits after the point.
+    // Above 2^53, where a double has no digits after the point, the text holds the exact integral
+    // value rather than the shortest digits of std::to_chars.
+    std::string formatFixed(double value) {
+        char buffer[400];
+#ifdef _LIBCPP_VERSION
+        // The smallest subnormal double requires 324 digits after the point.
+        constexpr int maxPrecision = 340;
+        int length = 0;
+        for (int precision = 0; precision <= maxPrecision; ++precision) {
+#  ifdef _WIN32
+            length = _snprintf_l(buffer, sizeof(buffer), "%.*f", cLocale(), precision, value);
+#  else
+            const locale_t previous = uselocale(cLocale());
+            length = std::snprintf(buffer, sizeof(buffer), "%.*f", precision, value);
+            uselocale(previous);
+#  endif
+            double read;
+            if (length > 0 && parseDouble(std::string_view(buffer, length), read) &&
+                read == value) {
+                break;
+            }
+        }
+        return std::string(buffer, length > 0 ? size_t(length) : 0);
+#else
+        const auto result =
+            std::to_chars(buffer, buffer + sizeof(buffer), value, std::chars_format::fixed);
+        return std::string(buffer, result.ptr);
 #endif
     }
 
